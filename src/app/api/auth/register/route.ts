@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { clientIp, tooManyRequests } from "@/lib/http";
 import { hashPassword } from "@/lib/password";
+import { RateLimiter } from "@/lib/rate-limit";
 import { createSession, setSessionCookie } from "@/lib/session";
 import { uniqueSlug } from "@/lib/slug";
 import { issuesOf, registerSchema } from "@/lib/validation";
 
+// Caps account/tenant creation spam per IP.
+const ipLimiter = new RateLimiter(5, 600_000);
+
 export async function POST(req: Request) {
   try {
+    const ipWindow = ipLimiter.check(`register:ip:${clientIp(req)}`);
+    if (!ipWindow.allowed) return tooManyRequests(ipWindow.retryAfterMs);
+
     const body = await req.json().catch(() => null);
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {

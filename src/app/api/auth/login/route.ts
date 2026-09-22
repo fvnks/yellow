@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { clientIp, tooManyRequests } from "@/lib/http";
 import { verifyPassword } from "@/lib/password";
+import { RateLimiter } from "@/lib/rate-limit";
 import { createSession, setSessionCookie } from "@/lib/session";
 import { issuesOf, loginSchema } from "@/lib/validation";
 
+// Brute-force protection: per-IP attempt cap, plus a failure counter
+// per email account (successful logins never touch it).
+const ipLimiter = new RateLimiter(20, 60_000);
+const emailFailures = new RateLimiter(5, 600_000);
+
 export async function POST(req: Request) {
   try {
+    const ipWindow = ipLimiter.check(`login:ip:${clientIp(req)}`);
+    if (!ipWindow.allowed) return tooManyRequests(ipWindow.retryAfterMs);
+
     const body = await req.json().catch(() => null);
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
@@ -30,6 +40,8 @@ export async function POST(req: Request) {
 
     // Same generic error for unknown email / wrong password (no user enum).
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      const failure = emailFailures.check(`login:fail:${email}`);
+      if (!failure.allowed) return tooManyRequests(failure.retryAfterMs);
       return NextResponse.json(
         { error: "Email o contraseña incorrectos" },
         { status: 401 },
