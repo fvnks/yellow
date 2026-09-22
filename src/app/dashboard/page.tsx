@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
@@ -38,9 +39,17 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <section className="space-y-2">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Panel
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+            Panel
+          </h1>
+          <Link
+            href="/facturacion"
+            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
+          >
+            Facturación electrónica →
+          </Link>
+        </div>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {active ? (
             <>
