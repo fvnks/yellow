@@ -49,4 +49,32 @@ describe("MockDteSigner", () => {
       /placeholder/,
     );
   });
+
+  it("signs the envelope (carátula slot) as well as the DTE", async () => {
+    const signer = new MockDteSigner();
+    const envio =
+      `<EnvioDTE><SetDTE/></EnvioDTE><Signature><SignatureValue></SignatureValue></Signature>`;
+    const signed = await signer.firmarEnvio(envio);
+    expect(signed).not.toContain("<SignatureValue></SignatureValue>");
+    expect(await signer.firmarEnvio(envio)).toBe(signed);
+    await expect(signer.firmarEnvio("<EnvioDTE/>")).rejects.toThrow(
+      /placeholder/,
+    );
+  });
+
+  it("turns a raw seed response into a signed getToken payload", async () => {
+    const signer = new MockDteSigner();
+    const signed = await signer.firmarSemilla(
+      `<?xml version="1.0"?><SII:RESPUESTA><SEMILLA>123456</SEMILLA></SII:RESPUESTA>`,
+    );
+    expect(signed).toContain("<getToken>");
+    expect(signed).toContain("<Semilla>123456</Semilla>");
+    expect(signed).not.toContain("<SignatureValue></SignatureValue>");
+  });
+
+  it("propagates a missing seed as an error", async () => {
+    await expect(
+      new MockDteSigner().firmarSemilla(`<SII:RESPUESTA><ESTADO>-1</ESTADO></SII:RESPUESTA>`),
+    ).rejects.toThrow(/SEMILLA|semilla/i);
+  });
 });
