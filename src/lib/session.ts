@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { db } from "@/lib/db";
 import {
   SESSION_COOKIE,
@@ -54,11 +54,19 @@ export async function createSession(
 }
 
 export async function setSessionCookie(token: string): Promise<void> {
+  // Trust the reverse proxy's protocol. A Secure cookie sent over plain
+  // HTTP is dropped by browsers/curl, which silently breaks login on
+  // deployments without TLS. Over HTTPS (x-forwarded-proto: https) the
+  // flag is always set.
+  const proto = (await headers()).get("x-forwarded-proto");
+  const secure =
+    proto != null ? proto === "https" : process.env.NODE_ENV === "production";
+
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     path: "/",
     expires: sessionExpiry(),
   });
