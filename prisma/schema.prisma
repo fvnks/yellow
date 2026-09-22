@@ -17,6 +17,23 @@ enum Role {
   MEMBER
 }
 
+/// Lifecycle of an emitted DTE: draft → signed → sent → accepted/rejected.
+enum DteEstado {
+  BORRADOR
+  FIRMADO
+  ENVIADO
+  ACEPTADO
+  RECHAZADO
+  ANULADO
+}
+
+/// SALIDA = emitted by the tenant (sales). ENTRADA = received from a
+/// third party (purchases, downloaded from the SII once certified).
+enum DteSentido {
+  SALIDA
+  ENTRADA
+}
+
 /// Tenant — root of multi-tenant isolation. Every business record
 /// must reference a tenantId to keep data partitioned per tenant.
 model Tenant {
@@ -25,11 +42,122 @@ model Tenant {
   slug      String         @unique
   /// Chilean company tax identifier (RUT), when applicable.
   rut       String?        @unique
+  // ── Emisor SII profile (nullable until the company is registered) ──
+  razonSocial        String?
+  giro                String?
+  /// Economic activity code (ACTEco) assigned by the SII.
+  actividadEconomica String?
+  direccion           String?
+  comuna              String?
+  emailSii            String?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   members   TenantMember[]
   sessions  Session[]
   invitations Invitation[]
+  cafs         Caf[]
+  dteDocuments DteDocument[]
+}
+
+/// CAF — folio authorization granted by the SII per document type.
+/// Contains the RSA private key (RSASK) used to stamp the TED, so the
+/// XML must be handled as a secret (never logged or sent to clients).
+model Caf {
+  id         String   @id @default(cuid())
+  tenantId   String
+  /// Document type this CAF authorizes (33, 34, 52, 46, 56, 61…).
+  tipoDte    Int
+  folioDesde Int
+  folioHasta Int
+  /// Next folio to allocate; advanced atomically when emitting.
+  nextFolio  Int
+  /// Full CAF XML exactly as downloaded from the SII (sensitive).
+  xml        String
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, tipoDte])
+}
+
+/// Documento Tributario Electrónico (emitted or received).
+/// All monetary amounts are integer Chilean pesos (CLP).
+model DteDocument {
+  id           String     @id @default(cuid())
+  tenantId     String
+  sentido      DteSentido @default(SALIDA)
+  /// SII document type: 33/34 facturas, 52 guía, 46 factura de compra, 56 ND, 61 NC.
+  tipoDte      Int
+  /// Assigned from the tenant's CAF at emission time.
+  folio        Int?
+  fechaEmision DateTime   @default(now())
+  // ── Receptor ──
+  receptorRut          String
+  receptorRazonSocial  String
+  receptorGiro         String?
+  receptorDireccion    String?
+  receptorComuna       String?
+  receptorEmail        String?
+  // ── Guía de despacho (52) ──
+  tipoTraslado Int?
+  motivoTraslado String?
+  // ── Totales (CLP enteros; IVA 19% redondeado) ──
+  neto   Int @default(0)
+  mntExe Int @default(0)
+  iva    Int @default(0)
+  total  Int @default(0)
+  // ── Estado de envío al SII ──
+  estado      DteEstado @default(BORRADOR)
+  trackId     String?
+  siiResponse String?
+  /// Signed DTE XML (only persisted once the document is FIRMADO+).
+  xml         String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items       DteItem[]
+  references  DteReference[]
+
+  @@index([tenantId, tipoDte, fechaEmision])
+  @@index([tenantId, estado])
+}
+
+/// Line item of a DTE. total = round(cantidad × precio) − descuento.
+model DteItem {
+  id             String   @id @default(cuid())
+  documentId     String
+  linea          Int
+  nombre         String
+  /// Quantity (decimals allowed: kg, hours, units).
+  cantidad       Decimal  @default(1) @db.Decimal(14, 3)
+  /// Unit price in CLP (integer pesos).
+  precioUnitario Int
+  /// Line discount in CLP.
+  descuento      Int      @default(0)
+  /// false → exempt from IVA (counts toward MntExe).
+  afectoIva      Boolean  @default(true)
+  /// Computed server-side from cantidad × precio − descuento.
+  total          Int
+  document       DteDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
+
+/// Reference to another DTE (required for notas de crédito/débito and
+/// informative for guías de despacho).
+model DteReference {
+  id         String   @id @default(cuid())
+  documentId String
+  /// Type of the referenced document (33, 34, 46…).
+  tipoDteRef Int
+  folioRef   Int
+  fechaRef   DateTime?
+  /// SII código: 1 = anula, 2 = corrige texto, 3 = corrige montos.
+  codigoRef  Int?
+  motivo     String?
+  document   DteDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
 }
 
 /// Application user (global). Access to tenants is granted
