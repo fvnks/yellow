@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  acceptInviteSchema,
   createTenantSchema,
+  inviteSchema,
   loginSchema,
   registerSchema,
   switchTenantSchema,
@@ -45,5 +47,29 @@ describe("createTenantSchema / switchTenantSchema", () => {
   it("requires tenantId", () => {
     expect(switchTenantSchema.safeParse({}).success).toBe(false);
     expect(switchTenantSchema.safeParse({ tenantId: "t1" }).success).toBe(true);
+  });
+});
+
+describe("inviteSchema", () => {
+  it("defaults to MEMBER and normalizes the email", () => {
+    const parsed = inviteSchema.parse({ email: "  Invitee@Example.COM " });
+    expect(parsed.email).toBe("invitee@example.com");
+    expect(parsed.role).toBe("MEMBER");
+  });
+
+  it("accepts ADMIN but rejects OWNER (no privilege escalation)", () => {
+    expect(inviteSchema.parse({ email: "a@b.co", role: "ADMIN" }).role).toBe("ADMIN");
+    expect(
+      inviteSchema.safeParse({ email: "a@b.co", role: "OWNER" }).success,
+    ).toBe(false);
+  });
+});
+
+describe("acceptInviteSchema", () => {
+  it("requires a token of sufficient length", () => {
+    expect(acceptInviteSchema.safeParse({ token: "abc" }).success).toBe(false);
+    expect(
+      acceptInviteSchema.safeParse({ token: "a".repeat(43) }).success,
+    ).toBe(true);
   });
 });

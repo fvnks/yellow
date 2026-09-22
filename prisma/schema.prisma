@@ -29,6 +29,7 @@ model Tenant {
   updatedAt DateTime       @updatedAt
   members   TenantMember[]
   sessions  Session[]
+  invitations Invitation[]
 }
 
 /// Application user (global). Access to tenants is granted
@@ -43,6 +44,28 @@ model User {
   updatedAt    DateTime       @updatedAt
   members      TenantMember[]
   sessions     Session[]
+  invitations  Invitation[]
+}
+
+/// Invitation to join a tenant with a given role. The raw token is
+/// returned once to the inviter; only its SHA-256 hash is stored.
+model Invitation {
+  id          String    @id @default(cuid())
+  tenantId    String
+  /// Normalized (lowercase) email of the invitee.
+  email       String
+  /// OWNER transfer is out of scope: invitations grant ADMIN or MEMBER.
+  role        Role      @default(MEMBER)
+  tokenHash   String    @unique
+  invitedById String?
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitedBy   User?     @relation(fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
 }
 
 /// Server-side session. The cookie carries a random token; only its
