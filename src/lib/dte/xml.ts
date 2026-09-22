@@ -159,7 +159,11 @@ export const FIRMA_PLACEHOLDER =
 export function buildDteXml(input: BuildDteInput): string {
   const parts = [
     `<?xml version="1.0" encoding="ISO-8859-1"?>`,
-    `<DTE version="1.0">`,
+    // Own xmlns so the standalone DTE (stored doc.xml) is already in the
+    // SiiDte namespace; the digest context is identical standalone or inside
+    // an <EnvioDTE>. Per DTE_v10.xsd the Signature sits after </Documento>,
+    // as a sibling inside <DTE> — mirroring the official SII example.
+    `<DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">`,
     `<Documento ID="F${input.folio}T${input.tipoDte}">`,
     `<Encabezado>`,
     buildIdDoc(input),
@@ -171,8 +175,8 @@ export function buildDteXml(input: BuildDteInput): string {
     ...(input.references ?? []).map((ref, i) => buildReferencia(ref, i + 1)),
     input.ted,
     `<TmstFirma>${input.tmstFirma}</TmstFirma>`,
-    input.firma ?? FIRMA_PLACEHOLDER,
     `</Documento>`,
+    input.firma ?? FIRMA_PLACEHOLDER,
     `</DTE>`,
   ];
   return parts.join("\n");
@@ -194,8 +198,13 @@ export interface EnvioInput {
 
 /** Build the `<EnvioDTE>` envelope with its Caratula (SII ANEXO 3). */
 export function buildEnvioDte(input: EnvioInput): string {
+  // Embedded DTEs are fragments: their standalone XML declaration must go
+  // (a nested `<?xml?>` makes the whole envelope unparsable).
+  const documentos = input.documentos.map((xml) =>
+    xml.replace(/^\s*<\?xml[^>]*\?>\s*/i, ""),
+  );
   const counts = new Map<number, number>();
-  for (const xml of input.documentos) {
+  for (const xml of documentos) {
     const tipo = Number(xml.match(/<TipoDTE>(\d+)<\/TipoDTE>/)?.[1] ?? 0);
     counts.set(tipo, (counts.get(tipo) ?? 0) + 1);
   }
@@ -203,6 +212,9 @@ export function buildEnvioDte(input: EnvioInput): string {
     .map(([tipo, n]) => `<SubTotDTE><TpoDTE>${tipo}</TpoDTE><NroDTE>${n}</NroDTE></SubTotDTE>`)
     .join("\n");
 
+  // Carátula per EnvioDTE_v10.xsd: RutEmisor, RutEnvia, RutReceptor,
+  // FchResol, NroResol, TmstFirmaEnv, SubTotDTE (no FchFirma — its absence
+  // is mandated by the schema) and a mandatory signature over SetDTE.
   return [
     `<?xml version="1.0" encoding="ISO-8859-1"?>`,
     `<EnvioDTE version="1.0" xmlns="http://www.sii.cl/SiiDte">`,
@@ -213,12 +225,12 @@ export function buildEnvioDte(input: EnvioInput): string {
     `<RutReceptor>66666666-6</RutReceptor>`,
     `<FchResol>${input.fechaResolucion}</FchResol>`,
     `<NroResol>${input.numeroResolucion}</NroResol>`,
-    `<FchFirma>${input.fchFirma}</FchFirma>`,
     `<TmstFirmaEnv>${input.fchFirma}</TmstFirmaEnv>`,
     subTotals,
     `</Caratula>`,
-    ...input.documentos,
+    ...documentos,
     `</SetDTE>`,
+    FIRMA_PLACEHOLDER,
     `</EnvioDTE>`,
   ].join("\n");
 }
