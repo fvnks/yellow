@@ -75,6 +75,8 @@ export const dteItemSchema = z.object({
   precioUnitario: z.number().int().nonnegative(),
   descuento: z.number().int().nonnegative().default(0),
   afectoIva: z.boolean().default(true),
+  /** Categoría del ítem (producto en ventas, tipo de gasto en compras). */
+  categoryId: z.string().optional(),
 });
 
 export const dteReferenceInputSchema = z.object({
@@ -88,14 +90,26 @@ export const dteReferenceInputSchema = z.object({
 
 export const createDteSchema = z
   .object({
+    /** SALIDA = factura propia (emisible); ENTRADA = factura recibida (compra). */
+    sentido: z.enum(["SALIDA", "ENTRADA"]).default("SALIDA"),
     tipoDte: z.number().int(),
     fechaEmision: dateSchema.optional(),
-    receptorRut: z.string().refine(isValidRut, "RUT del receptor inválido"),
-    receptorRazonSocial: z.string().trim().min(1, "Razón social requerida").max(60),
+    /** Folio del proveedor — required for ENTRADA; SALIDA folios come from the CAF. */
+    folio: z.number().int().positive().optional(),
+    // ── Receptor (SALIDA) ──
+    receptorRut: z.string().refine(isValidRut, "RUT del receptor inválido").optional(),
+    receptorRazonSocial: z.string().trim().min(1).max(60).optional(),
     receptorGiro: z.string().trim().max(40).optional(),
     receptorDireccion: z.string().trim().max(70).optional(),
     receptorComuna: z.string().trim().max(30).optional(),
     receptorEmail: emailSchema.optional(),
+    // ── Proveedor/emisor (ENTRADA) ──
+    emisorRut: z.string().refine(isValidRut, "RUT del proveedor inválido").optional(),
+    emisorRazonSocial: z.string().trim().min(1).max(60).optional(),
+    emisorGiro: z.string().trim().max(40).optional(),
+    // ── Commercial dimensions (validated for ownership by the route) ──
+    vendedorId: z.string().optional(),
+    costCenterId: z.string().optional(),
     /** Indicador de traslado, obligatorio en guías de despacho (52). */
     tipoTraslado: z.number().int().min(1).max(9).optional(),
     motivoTraslado: z.string().trim().max(90).optional(),
@@ -110,18 +124,57 @@ export const createDteSchema = z
         message: "Tipo de DTE no soportado",
       });
     }
+    const esSalida = data.sentido === "SALIDA";
+    if (esSalida) {
+      if (!data.receptorRut) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["receptorRut"],
+          message: "RUT del receptor requerido",
+        });
+      }
+      if (!data.receptorRazonSocial) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["receptorRazonSocial"],
+          message: "Razón social del receptor requerida",
+        });
+      }
+      if (data.tipoDte === 52 && data.tipoTraslado == null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["tipoTraslado"],
+          message: "Indicador de traslado requerido para guía (52)",
+        });
+      }
+    } else {
+      if (!data.emisorRut) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["emisorRut"],
+          message: "RUT del proveedor requerido",
+        });
+      }
+      if (!data.emisorRazonSocial) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["emisorRazonSocial"],
+          message: "Razón social del proveedor requerida",
+        });
+      }
+      if (data.folio == null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["folio"],
+          message: "Folio del documento requerido",
+        });
+      }
+    }
     if (NOTA_TIPOS.includes(data.tipoDte) && !data.references?.length) {
       ctx.addIssue({
         code: "custom",
         path: ["references"],
         message: "La nota debe referenciar el documento que corrige",
-      });
-    }
-    if (data.tipoDte === 52 && data.tipoTraslado == null) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["tipoTraslado"],
-        message: "Indicador de traslado requerido para guía (52)",
       });
     }
   });
@@ -141,6 +194,45 @@ export const updateEmisorSchema = z.object({
 
 export const uploadCafSchema = z.object({
   xml: z.string().min(1, "CAF requerido").max(20_000, "CAF demasiado largo"),
+});
+
+// ── Maestros comerciales: vendedores, centros de costo, categorías ──
+
+export const createVendedorSchema = z.object({
+  nombre: z.string().trim().min(1, "Nombre requerido").max(60),
+  email: emailSchema.optional(),
+});
+
+/** "" as email clears it. */
+export const updateVendedorSchema = z.object({
+  nombre: z.string().trim().min(1).max(60).optional(),
+  email: z.union([emailSchema, z.literal("")]).optional(),
+  activo: z.boolean().optional(),
+});
+
+export const createCentroCostoSchema = z.object({
+  codigo: z
+    .string()
+    .trim()
+    .min(1, "Código requerido")
+    .max(10)
+    .transform((v) => v.toUpperCase()),
+  nombre: z.string().trim().min(1, "Nombre requerido").max(60),
+});
+
+/** Strict: the codigo is immutable, so an update carrying it is rejected. */
+export const updateCentroCostoSchema = z.strictObject({
+  nombre: z.string().trim().min(1).max(60).optional(),
+  activo: z.boolean().optional(),
+});
+
+export const createCategoriaSchema = z.object({
+  nombre: z.string().trim().min(1, "Nombre requerido").max(60),
+});
+
+export const updateCategoriaSchema = z.object({
+  nombre: z.string().trim().min(1).max(60).optional(),
+  activo: z.boolean().optional(),
 });
 
 /** Version-proof error shaping (works across zod major versions). */

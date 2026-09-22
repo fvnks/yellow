@@ -67,6 +67,13 @@ export async function emitirDte(
   if (!canEmitir(doc.estado as DteEstado)) {
     throw new EmitError(`No se puede emitir un documento en estado ${doc.estado}`, 409);
   }
+  // Receptor is required for emission (guaranteed by createDteSchema for
+  // SALIDA, but the column is nullable for ENTRADA docs — re-check here).
+  const receptorRut = doc.receptorRut;
+  const receptorRazonSocial = doc.receptorRazonSocial;
+  if (!receptorRut || !receptorRazonSocial) {
+    throw new EmitError("El documento no tiene receptor definido", 422);
+  }
 
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
   if (!tenant) throw new EmitError("Tenant no encontrado", 404);
@@ -172,8 +179,8 @@ export async function emitirDte(
     tipoDte: doc.tipoDte,
     folio,
     fecha,
-    rutReceptor: formatRutDv(doc.receptorRut),
-    razonSocialReceptor: doc.receptorRazonSocial,
+    rutReceptor: formatRutDv(receptorRut),
+    razonSocialReceptor: receptorRazonSocial,
     mntTotal: totals.total,
     primerItem: items[0]?.nombre ?? "",
     tstEd: tmst,
@@ -187,8 +194,8 @@ export async function emitirDte(
     fechaEmision: fecha,
     emisor,
     receptor: {
-      rut: formatRutDv(doc.receptorRut),
-      razonSocial: doc.receptorRazonSocial,
+      rut: formatRutDv(receptorRut),
+      razonSocial: receptorRazonSocial,
       giro: doc.receptorGiro ?? undefined,
       direccion: doc.receptorDireccion ?? undefined,
       comuna: doc.receptorComuna ?? undefined,

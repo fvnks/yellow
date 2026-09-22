@@ -35,6 +35,10 @@ export async function GET(
     where,
     orderBy: [{ fechaEmision: "desc" }, { createdAt: "desc" }],
     take: 100,
+    include: {
+      vendedor: { select: { id: true, nombre: true } },
+      costCenter: { select: { id: true, codigo: true, nombre: true } },
+    },
   });
 
   return NextResponse.json({ documentos });
@@ -65,6 +69,43 @@ export async function POST(
       );
     }
     const data = parsed.data;
+    const esSalida = data.sentido === "SALIDA";
+
+    // ── Dimension ownership: every reference must belong to this tenant ──
+    if (data.vendedorId) {
+      const vendedor = await db.vendedor.findFirst({
+        where: { id: data.vendedorId, tenantId },
+        select: { id: true },
+      });
+      if (!vendedor) {
+        return NextResponse.json({ error: "Vendedor inválido" }, { status: 400 });
+      }
+    }
+    if (data.costCenterId) {
+      const centro = await db.centroCosto.findFirst({
+        where: { id: data.costCenterId, tenantId },
+        select: { id: true },
+      });
+      if (!centro) {
+        return NextResponse.json({ error: "Centro de costo inválido" }, { status: 400 });
+      }
+    }
+    const categoryIds = [
+      ...new Set(
+        data.items
+          .map((i) => i.categoryId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    if (categoryIds.length > 0) {
+      const found = await db.categoria.findMany({
+        where: { id: { in: categoryIds }, tenantId },
+        select: { id: true },
+      });
+      if (found.length !== categoryIds.length) {
+        return NextResponse.json({ error: "Categoría inválida" }, { status: 400 });
+      }
+    }
 
     const totals = computeTotals(
       data.tipoDte,
@@ -79,18 +120,26 @@ export async function POST(
     const documento = await db.dteDocument.create({
       data: {
         tenantId,
-        sentido: "SALIDA",
+        sentido: data.sentido,
         tipoDte: data.tipoDte,
+        folio: esSalida ? null : data.folio,
         fechaEmision: data.fechaEmision
           ? new Date(`${data.fechaEmision}T12:00:00`)
           : new Date(),
-        receptorRut: normalizeRut(data.receptorRut),
-        receptorRazonSocial: data.receptorRazonSocial,
-        receptorGiro: data.receptorGiro ?? null,
-        receptorDireccion: data.receptorDireccion ?? null,
-        receptorComuna: data.receptorComuna ?? null,
-        receptorEmail: data.receptorEmail ?? null,
-        tipoTraslado: data.tipoTraslado ?? null,
+        // ── Receptor (customer) on ventas; provider on compras ──
+        receptorRut: esSalida && data.receptorRut ? normalizeRut(data.receptorRut) : null,
+        receptorRazonSocial: esSalida ? (data.receptorRazonSocial ?? null) : null,
+        receptorGiro: esSalida ? (data.receptorGiro ?? null) : null,
+        receptorDireccion: esSalida ? (data.receptorDireccion ?? null) : null,
+        receptorComuna: esSalida ? (data.receptorComuna ?? null) : null,
+        receptorEmail: esSalida ? (data.receptorEmail ?? null) : null,
+        emisorRut: !esSalida && data.emisorRut ? normalizeRut(data.emisorRut) : null,
+        emisorRazonSocial: esSalida ? null : (data.emisorRazonSocial ?? null),
+        emisorGiro: esSalida ? null : (data.emisorGiro ?? null),
+        // ── Commercial dimensions ──
+        vendedorId: data.vendedorId ?? null,
+        costCenterId: data.costCenterId ?? null,
+        tipoTraslado: esSalida ? (data.tipoTraslado ?? null) : null,
         motivoTraslado: data.motivoTraslado ?? null,
         ...totals,
         estado: "BORRADOR",
@@ -103,6 +152,7 @@ export async function POST(
             descuento: item.descuento,
             afectoIva: item.afectoIva,
             total: lineTotal(item),
+            categoryId: item.categoryId ?? null,
           })),
         },
         ...(data.references?.length
@@ -121,7 +171,12 @@ export async function POST(
             }
           : {}),
       },
-      include: { items: { orderBy: { linea: "asc" } }, references: true },
+      include: {
+        items: { orderBy: { linea: "asc" }, include: { categoria: true } },
+        references: true,
+        vendedor: true,
+        costCenter: true,
+      },
     });
 
     return NextResponse.json({ documento }, { status: 201 });
