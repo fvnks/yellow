@@ -60,6 +60,58 @@ model Tenant {
   invitations Invitation[]
   cafs         Caf[]
   dteDocuments DteDocument[]
+  vendedores   Vendedor[]
+  centrosCosto CentroCosto[]
+  categorias   Categoria[]
+}
+
+/// Salesperson catalog (commercial entity, not a system user):
+/// one tenant's sellers do not need a Yellow account.
+model Vendedor {
+  id        String   @id @default(cuid())
+  tenantId  String
+  nombre    String
+  email     String?
+  /// Inactive sellers stop appearing in forms but keep historical docs.
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documentos DteDocument[]
+
+  @@index([tenantId, activo])
+}
+
+/// Cost center, assigned at document level (one invoice = one center).
+model CentroCosto {
+  id        String   @id @default(cuid())
+  tenantId  String
+  /// Short code (e.g. "ADM", "VENTAS"), unique per tenant.
+  codigo    String
+  nombre    String
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documentos DteDocument[]
+
+  @@unique([tenantId, codigo])
+  @@index([tenantId, activo])
+}
+
+/// Line-item category: product/service on sales, expense type on purchases.
+model Categoria {
+  id        String   @id @default(cuid())
+  tenantId  String
+  nombre    String
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items     DteItem[]
+
+  @@unique([tenantId, nombre])
+  @@index([tenantId, activo])
 }
 
 /// CAF — folio authorization granted by the SII per document type.
@@ -94,13 +146,22 @@ model DteDocument {
   /// Assigned from the tenant's CAF at emission time.
   folio        Int?
   fechaEmision DateTime   @default(now())
-  // ── Receptor ──
-  receptorRut          String
-  receptorRazonSocial  String
+  // ── Receptor (SALIDA: the customer; null on ENTRADA docs) ──
+  receptorRut          String?
+  receptorRazonSocial  String?
   receptorGiro         String?
   receptorDireccion    String?
   receptorComuna       String?
   receptorEmail        String?
+  // ── Emisor/proveedor (ENTRADA: the third-party issuer; null on SALIDA) ──
+  emisorRut          String?
+  emisorRazonSocial  String?
+  emisorGiro         String?
+  // ── Commercial dimensions ──
+  vendedorId   String?
+  costCenterId String?
+  vendedor   Vendedor?   @relation(fields: [vendedorId], references: [id], onDelete: SetNull)
+  costCenter CentroCosto? @relation(fields: [costCenterId], references: [id], onDelete: SetNull)
   // ── Guía de despacho (52) ──
   tipoTraslado Int?
   motivoTraslado String?
@@ -123,6 +184,9 @@ model DteDocument {
 
   @@index([tenantId, tipoDte, fechaEmision])
   @@index([tenantId, estado])
+  @@index([tenantId, sentido, fechaEmision])
+  @@index([tenantId, vendedorId])
+  @@index([tenantId, costCenterId])
 }
 
 /// Line item of a DTE. total = round(cantidad × precio) − descuento.
@@ -141,9 +205,13 @@ model DteItem {
   afectoIva      Boolean  @default(true)
   /// Computed server-side from cantidad × precio − descuento.
   total          Int
+  /// Product/service (sales) or expense type (purchases).
+  categoryId String?
+  categoria  Categoria? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   document       DteDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
+  @@index([categoryId])
 }
 
 /// Reference to another DTE (required for notas de crédito/débito and

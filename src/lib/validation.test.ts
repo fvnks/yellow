@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   acceptInviteSchema,
+  createCategoriaSchema,
+  createCentroCostoSchema,
   createDteSchema,
   createTenantSchema,
+  createVendedorSchema,
   inviteSchema,
   loginSchema,
   registerSchema,
   switchTenantSchema,
+  updateCentroCostoSchema,
   updateEmisorSchema,
+  updateVendedorSchema,
 } from "./validation";
 
 describe("registerSchema", () => {
@@ -132,6 +137,67 @@ describe("createDteSchema", () => {
         items: [{ ...item, precioUnitario: -1 }],
       }).success,
     ).toBe(false);
+  });
+
+  it("rejects a venta (SALIDA) without receptor", () => {
+    const sinReceptor: Partial<typeof base> = { ...base };
+    delete sinReceptor.receptorRut;
+    delete sinReceptor.receptorRazonSocial;
+    const parsed = createDteSchema.safeParse(sinReceptor);
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues.some((i) => i.path.includes("receptorRut"))).toBe(true);
+    }
+  });
+
+  it("accepts a purchase (ENTRADA) with provider + folio and no receptor", () => {
+    const parsed = createDteSchema.safeParse({
+      sentido: "ENTRADA",
+      tipoDte: 46,
+      folio: 77,
+      emisorRut: "76.543.210-3",
+      emisorRazonSocial: "Proveedor Ltda",
+      items: [item],
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.sentido).toBe("ENTRADA");
+  });
+
+  it("requires provider and folio for ENTRADA, and a valid provider RUT", () => {
+    expect(
+      createDteSchema.safeParse({ sentido: "ENTRADA", tipoDte: 46, items: [item] })
+        .success,
+    ).toBe(false);
+    const badRut = createDteSchema.safeParse({
+      sentido: "ENTRADA",
+      tipoDte: 46,
+      folio: 77,
+      emisorRut: "11.111.111-2",
+      emisorRazonSocial: "Proveedor",
+      items: [item],
+    });
+    expect(badRut.success).toBe(false);
+  });
+});
+
+describe("master data schemas", () => {
+  it("creates vendedores/centros/categorias with sensible bounds", () => {
+    expect(createVendedorSchema.safeParse({ nombre: "Ana Pérez" }).success).toBe(true);
+    expect(createVendedorSchema.safeParse({ nombre: "" }).success).toBe(false);
+    expect(
+      createCentroCostoSchema.parse({ codigo: "adm", nombre: "Administración" }),
+    ).toEqual({ codigo: "ADM", nombre: "Administración" });
+    expect(
+      createCentroCostoSchema.safeParse({ codigo: "", nombre: "x" }).success,
+    ).toBe(false);
+    expect(createCategoriaSchema.safeParse({ nombre: "Insumos" }).success).toBe(true);
+  });
+
+  it("patches allow deactivating and clearing the email", () => {
+    expect(updateVendedorSchema.safeParse({ activo: false }).success).toBe(true);
+    expect(updateVendedorSchema.safeParse({ email: "" }).success).toBe(true);
+    expect(updateVendedorSchema.safeParse({ email: "no-es-email" }).success).toBe(false);
+    expect(updateCentroCostoSchema.safeParse({ codigo: "NUEVO" }).success).toBe(false);
   });
 });
 
