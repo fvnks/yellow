@@ -28,6 +28,7 @@ model Tenant {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   members   TenantMember[]
+  sessions  Session[]
 }
 
 /// Application user (global). Access to tenants is granted
@@ -36,11 +37,27 @@ model User {
   id           String         @id @default(cuid())
   email        String         @unique
   name         String?
-  /// Hashed password. Never store plaintext credentials.
+  /// Hashed password (scrypt). Never store plaintext credentials.
   passwordHash String
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   members      TenantMember[]
+  sessions     Session[]
+}
+
+/// Server-side session. The cookie carries a random token; only its
+/// SHA-256 hash is stored, so a DB leak does not expose live sessions.
+model Session {
+  id             String   @id @default(cuid())
+  tokenHash      String   @unique
+  userId         String
+  activeTenantId String?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeTenant   Tenant?  @relation(fields: [activeTenantId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
 }
 
 /// Join table: user ↔ tenant with an RBAC role.
