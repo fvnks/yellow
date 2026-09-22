@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { getAuthContext } from "@/lib/session";
 import { TenantPanel } from "@/components/tenant-panel";
 import { MembersPanel } from "@/components/members-panel";
+import { ModuleNav } from "@/components/module-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -43,12 +43,9 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
             Panel
           </h1>
-          <Link
-            href="/facturacion"
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            Facturación electrónica →
-          </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <ModuleNav active={undefined} hideConfig={!canManage} />
+        </div>
         </div>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {active ? (

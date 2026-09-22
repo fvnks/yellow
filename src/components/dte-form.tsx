@@ -24,12 +24,15 @@ const TRASLADOS: Record<number, string> = {
 
 const NOTA_TIPOS = [56, 61];
 
+export type DimensionOption = { id: string; label: string };
+
 type ItemRow = {
   nombre: string;
   cantidad: string;
   precio: string;
   descuento: string;
   afectoIva: boolean;
+  categoryId: string;
 };
 
 type RefRow = { tipoDteRef: string; folioRef: string; motivo: string };
@@ -40,6 +43,7 @@ const EMPTY_ITEM: ItemRow = {
   precio: "",
   descuento: "0",
   afectoIva: true,
+  categoryId: "",
 };
 
 /** Client-side preview; the server recomputes authoritatively. */
@@ -68,14 +72,40 @@ const clp = new Intl.NumberFormat("es-CL", {
 const inputClass =
   "w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700";
 
-export function DteForm({ tenantId }: { tenantId: string }) {
+/**
+ * Document form for both senses: SALIDA (own invoice, emitted through SII)
+ * and ENTRADA (provider invoice, registered as a purchase).
+ */
+export function DteForm({
+  tenantId,
+  sentido = "SALIDA",
+  vendedores = [],
+  centros = [],
+  categorias = [],
+}: {
+  tenantId: string;
+  sentido?: "SALIDA" | "ENTRADA";
+  vendedores?: DimensionOption[];
+  centros?: DimensionOption[];
+  categorias?: DimensionOption[];
+}) {
   const router = useRouter();
+  const esSalida = sentido === "SALIDA";
   const [tipo, setTipo] = useState(33);
+  // ── SALIDA: customer ──
   const [receptorRut, setReceptorRut] = useState("");
   const [receptorRazonSocial, setReceptorRazonSocial] = useState("");
   const [receptorGiro, setReceptorGiro] = useState("");
   const [receptorComuna, setReceptorComuna] = useState("");
   const [tipoTraslado, setTipoTraslado] = useState(4);
+  // ── ENTRADA: provider + provider's folio ──
+  const [emisorRut, setEmisorRut] = useState("");
+  const [emisorRazonSocial, setEmisorRazonSocial] = useState("");
+  const [folio, setFolio] = useState("");
+  const [fechaEmision, setFechaEmision] = useState("");
+  // ── Commercial dimensions ──
+  const [vendedorId, setVendedorId] = useState("");
+  const [costCenterId, setCostCenterId] = useState("");
   const [items, setItems] = useState<ItemRow[]>([{ ...EMPTY_ITEM }]);
   const [refs, setRefs] = useState<RefRow[]>([
     { tipoDteRef: "33", folioRef: "", motivo: "" },
@@ -101,20 +131,31 @@ export function DteForm({ tenantId }: { tenantId: string }) {
     setBusy(true);
     try {
       const payload: Record<string, unknown> = {
+        sentido,
         tipoDte: tipo,
-        receptorRut,
-        receptorRazonSocial,
         items: items.map((row) => ({
           nombre: row.nombre,
           cantidad: Number(row.cantidad),
           precioUnitario: Number(row.precio),
           descuento: Number(row.descuento) || 0,
           afectoIva: row.afectoIva,
+          ...(row.categoryId ? { categoryId: row.categoryId } : {}),
         })),
       };
-      if (receptorGiro) payload.receptorGiro = receptorGiro;
-      if (receptorComuna) payload.receptorComuna = receptorComuna;
-      if (tipo === 52) payload.tipoTraslado = tipoTraslado;
+      if (fechaEmision) payload.fechaEmision = fechaEmision;
+      if (vendedorId) payload.vendedorId = vendedorId;
+      if (costCenterId) payload.costCenterId = costCenterId;
+      if (esSalida) {
+        payload.receptorRut = receptorRut;
+        payload.receptorRazonSocial = receptorRazonSocial;
+        if (receptorGiro) payload.receptorGiro = receptorGiro;
+        if (receptorComuna) payload.receptorComuna = receptorComuna;
+        if (tipo === 52) payload.tipoTraslado = tipoTraslado;
+      } else {
+        payload.emisorRut = emisorRut;
+        payload.emisorRazonSocial = emisorRazonSocial;
+        payload.folio = Number(folio);
+      }
       if (esNota) {
         payload.references = refs.map((ref) => ({
           tipoDteRef: Number(ref.tipoDteRef),
@@ -135,13 +176,19 @@ export function DteForm({ tenantId }: { tenantId: string }) {
         return;
       }
       setNotice(
-        `Documento creado (borrador, ${clp.format(data.documento.total)}). Emítelo desde la lista.`,
+        esSalida
+          ? `Documento creado (borrador, ${clp.format(data.documento.total)}). Emítelo desde la lista.`
+          : `Compra registrada (${clp.format(data.documento.total)}).`,
       );
       setItems([{ ...EMPTY_ITEM }]);
       setReceptorRut("");
       setReceptorRazonSocial("");
       setReceptorGiro("");
       setReceptorComuna("");
+      setEmisorRut("");
+      setEmisorRazonSocial("");
+      setFolio("");
+      setFechaEmision("");
       router.refresh();
     } finally {
       setBusy(false);
@@ -151,7 +198,7 @@ export function DteForm({ tenantId }: { tenantId: string }) {
   return (
     <section className="space-y-4">
       <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-        Nuevo documento
+        {esSalida ? "Nueva venta" : "Registrar compra"}
       </h2>
 
       {error && (
@@ -181,55 +228,153 @@ export function DteForm({ tenantId }: { tenantId: string }) {
               ))}
             </select>
           </label>
-          <label className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">RUT receptor</span>
-            <input
-              required
-              value={receptorRut}
-              onChange={(e) => setReceptorRut(e.target.value)}
-              placeholder="12.345.678-5"
-              className={inputClass}
-            />
-          </label>
-          <label className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">Razón social</span>
-            <input
-              required
-              value={receptorRazonSocial}
-              onChange={(e) => setReceptorRazonSocial(e.target.value)}
-              placeholder="Cliente SpA"
-              className={inputClass}
-            />
-          </label>
-          <label className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">Giro (opcional)</span>
-            <input
-              value={receptorGiro}
-              onChange={(e) => setReceptorGiro(e.target.value)}
-              placeholder="Comercio"
-              className={inputClass}
-            />
-          </label>
-          <label className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">Comuna (opcional)</span>
-            <input
-              value={receptorComuna}
-              onChange={(e) => setReceptorComuna(e.target.value)}
-              placeholder="Providencia"
-              className={inputClass}
-            />
-          </label>
-          {tipo === 52 && (
+
+          {esSalida ? (
+            <>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">RUT receptor</span>
+                <input
+                  required
+                  value={receptorRut}
+                  onChange={(e) => setReceptorRut(e.target.value)}
+                  placeholder="12.345.678-5"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">Razón social</span>
+                <input
+                  required
+                  value={receptorRazonSocial}
+                  onChange={(e) => setReceptorRazonSocial(e.target.value)}
+                  placeholder="Cliente SpA"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">Giro (opcional)</span>
+                <input
+                  value={receptorGiro}
+                  onChange={(e) => setReceptorGiro(e.target.value)}
+                  placeholder="Comercio"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  Comuna (opcional)
+                </span>
+                <input
+                  value={receptorComuna}
+                  onChange={(e) => setReceptorComuna(e.target.value)}
+                  placeholder="Providencia"
+                  className={inputClass}
+                />
+              </label>
+              {tipo === 52 && (
+                <label className="space-y-1 text-sm">
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    Indicador de traslado
+                  </span>
+                  <select
+                    value={tipoTraslado}
+                    onChange={(e) => setTipoTraslado(Number(e.target.value))}
+                    className={inputClass}
+                  >
+                    {Object.entries(TRASLADOS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </>
+          ) : (
+            <>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  RUT proveedor
+                </span>
+                <input
+                  required
+                  value={emisorRut}
+                  onChange={(e) => setEmisorRut(e.target.value)}
+                  placeholder="76.543.210-3"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  Proveedor
+                </span>
+                <input
+                  required
+                  value={emisorRazonSocial}
+                  onChange={(e) => setEmisorRazonSocial(e.target.value)}
+                  placeholder="Proveedor Ltda"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  Folio del documento
+                </span>
+                <input
+                  required
+                  type="number"
+                  min="1"
+                  value={folio}
+                  onChange={(e) => setFolio(e.target.value)}
+                  placeholder="1234"
+                  className={inputClass}
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  Fecha (opcional)
+                </span>
+                <input
+                  type="date"
+                  value={fechaEmision}
+                  onChange={(e) => setFechaEmision(e.target.value)}
+                  className={inputClass}
+                />
+              </label>
+            </>
+          )}
+
+          {esSalida && vendedores.length > 0 && (
             <label className="space-y-1 text-sm">
-              <span className="text-zinc-600 dark:text-zinc-400">Indicador de traslado</span>
+              <span className="text-zinc-600 dark:text-zinc-400">Vendedor</span>
               <select
-                value={tipoTraslado}
-                onChange={(e) => setTipoTraslado(Number(e.target.value))}
+                value={vendedorId}
+                onChange={(e) => setVendedorId(e.target.value)}
                 className={inputClass}
               >
-                {Object.entries(TRASLADOS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
+                <option value="">— Sin vendedor —</option>
+                {vendedores.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {centros.length > 0 && (
+            <label className="space-y-1 text-sm">
+              <span className="text-zinc-600 dark:text-zinc-400">
+                Centro de costo
+              </span>
+              <select
+                value={costCenterId}
+                onChange={(e) => setCostCenterId(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">— Sin centro de costo —</option>
+                {centros.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
                   </option>
                 ))}
               </select>
@@ -254,7 +399,7 @@ export function DteForm({ tenantId }: { tenantId: string }) {
           {items.map((row, index) => (
             <div
               key={index}
-              className="grid gap-2 rounded-lg border border-zinc-200 p-3 sm:grid-cols-[2fr_repeat(3,1fr)_auto_auto] dark:border-zinc-800"
+              className="grid gap-2 rounded-lg border border-zinc-200 p-3 sm:grid-cols-[2fr_repeat(3,1fr)_1.2fr_auto_auto] dark:border-zinc-800"
             >
               <input
                 required
@@ -292,6 +437,21 @@ export function DteForm({ tenantId }: { tenantId: string }) {
                 placeholder="$ desc."
                 className={inputClass}
               />
+              {categorias.length > 0 && (
+                <select
+                  value={row.categoryId}
+                  onChange={(e) => setItem(index, { categoryId: e.target.value })}
+                  className={inputClass}
+                  aria-label="Categoría"
+                >
+                  <option value="">— Categoría —</option>
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              )}
               <label className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
                 <input
                   type="checkbox"
@@ -393,7 +553,11 @@ export function DteForm({ tenantId }: { tenantId: string }) {
               disabled={busy}
               className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
             >
-              {busy ? "Creando…" : "Crear borrador"}
+              {busy
+                ? "Guardando…"
+                : esSalida
+                  ? "Crear borrador"
+                  : "Registrar compra"}
             </button>
           </div>
         </div>
