@@ -63,6 +63,36 @@ model Tenant {
   vendedores   Vendedor[]
   centrosCosto CentroCosto[]
   categorias   Categoria[]
+  siiCertificates SiiCertificate[]
+}
+
+/// SII digital certificate (.p12/.pfx) for the tenant's emisor.
+/// The PKCS#12 blob and its password are stored AES-256-GCM encrypted
+/// (src/lib/crypto.ts); the API only ever returns the metadata columns.
+/// The single `active` certificate drives real signing + upload.
+model SiiCertificate {
+  id        String  @id @default(cuid())
+  tenantId  String
+  /// Friendly label ("Certificado emisor 2026").
+  nombre    String
+  /// Encrypted envelope containing the base64 PKCS#12 bytes.
+  p12Encrypted String
+  /// Encrypted envelope containing the PKCS#12 password.
+  passwordEncrypted String
+  /// Subject summary extracted at upload ("CN=..., O=...").
+  subject   String?
+  /// RUT parsed from the certificate subject, when present.
+  rut       String?
+  issuer    String?
+  serialNumber String?
+  notBefore DateTime?
+  notAfter  DateTime?
+  /// Exactly one active certificate per tenant (enforced by the API).
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  tenant    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, active])
 }
 
 /// Salesperson catalog (commercial entity, not a system user):
