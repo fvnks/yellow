@@ -10,7 +10,9 @@ ADD COLUMN "giro" TEXT,
 ADD COLUMN "actividadEconomica" TEXT,
 ADD COLUMN "direccion" TEXT,
 ADD COLUMN "comuna" TEXT,
-ADD COLUMN "emailSii" TEXT;
+ADD COLUMN "emailSii" TEXT,
+ADD COLUMN "resolucionFecha" TIMESTAMP(3),
+ADD COLUMN "resolucionNumero" INTEGER;
 
 -- CreateTable
 CREATE TABLE "Caf" (

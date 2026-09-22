@@ -50,6 +50,9 @@ model Tenant {
   direccion           String?
   comuna              String?
   emailSii            String?
+  /// Resolución SII that authorized electronic emission (EnvioDTE carátula).
+  resolucionFecha     DateTime?
+  resolucionNumero    Int?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   members   TenantMember[]
