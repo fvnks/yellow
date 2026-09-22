@@ -31,6 +31,17 @@ export const switchTenantSchema = z.object({
   tenantId: z.string().min(1, "tenantId requerido"),
 });
 
+// OWNER transfer is out of scope: invitations can only grant ADMIN/MEMBER,
+// so an ADMIN cannot escalate anyone (including themselves) to OWNER.
+export const inviteSchema = z.object({
+  email: emailSchema,
+  role: z.enum(["ADMIN", "MEMBER"]).default("MEMBER"),
+});
+
+export const acceptInviteSchema = z.object({
+  token: z.string().min(10, "Token inválido").max(200),
+});
+
 /** Version-proof error shaping (works across zod major versions). */
 export function issuesOf(error: z.ZodError): Array<{ path: string; message: string }> {
   return error.issues.map((i) => ({
