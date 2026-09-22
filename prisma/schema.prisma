@@ -1,0 +1,59 @@
+// Prisma schema — Yellow
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Role of a user within a tenant (multi-tenant RBAC base).
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+/// Tenant — root of multi-tenant isolation. Every business record
+/// must reference a tenantId to keep data partitioned per tenant.
+model Tenant {
+  id        String         @id @default(cuid())
+  name      String
+  slug      String         @unique
+  /// Chilean company tax identifier (RUT), when applicable.
+  rut       String?        @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  members   TenantMember[]
+}
+
+/// Application user (global). Access to tenants is granted
+/// through TenantMember — a user can belong to several tenants.
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String?
+  /// Hashed password. Never store plaintext credentials.
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  members      TenantMember[]
+}
+
+/// Join table: user ↔ tenant with an RBAC role.
+model TenantMember {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+}

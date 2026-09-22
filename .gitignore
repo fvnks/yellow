@@ -42,3 +42,12 @@ next-env.d.ts
 
 # keep example file
 !.env.example
+
+/src/generated/prisma
+
+# prisma generated client
+src/generated/
+
+# tool-specific agent skills (canonical copy lives in .agents/)
+.claude/
+.windsurf/
