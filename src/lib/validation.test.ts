@@ -13,6 +13,7 @@ import {
   updateCentroCostoSchema,
   updateEmisorSchema,
   updateVendedorSchema,
+  uploadCertificateSchema,
 } from "./validation";
 
 describe("registerSchema", () => {
@@ -215,5 +216,40 @@ describe("updateEmisorSchema", () => {
     expect(
       updateEmisorSchema.safeParse({ resolucionFecha: "2026-02-28" }).success,
     ).toBe(true);
+  });
+});
+
+describe("uploadCertificateSchema", () => {
+  const longBase64 = "A".repeat(80);
+
+  it("accepts a p12 blob, stripping whitespace before the size check", () => {
+    const spaced = longBase64.match(/.{1,40}/g)!.join("\n");
+    const parsed = uploadCertificateSchema.parse({
+      p12Base64: spaced,
+      password: "clave123",
+      nombre: "Certificado productivo",
+    });
+    expect(parsed.p12Base64).toBe(longBase64);
+    expect(parsed.nombre).toBe("Certificado productivo");
+  });
+
+  it("rejects a blob too small to be a real PKCS#12", () => {
+    const r = uploadCertificateSchema.safeParse({
+      p12Base64: "dG9tIGNvcnRv",
+      password: "clave123",
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("requires a password and rejects oversized blobs", () => {
+    expect(
+      uploadCertificateSchema.safeParse({ p12Base64: longBase64 }).success,
+    ).toBe(false);
+    expect(
+      uploadCertificateSchema.safeParse({
+        p12Base64: "A".repeat(400_001),
+        password: "x",
+      }).success,
+    ).toBe(false);
   });
 });
