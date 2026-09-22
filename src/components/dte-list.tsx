@@ -100,6 +100,31 @@ export function DteList({
     }
   }
 
+  async function consultarEstado(documentoId: string) {
+    setError(null);
+    setNotice(null);
+    setBusyId(documentoId);
+    try {
+      const res = await fetch(
+        `/api/tenants/${tenantId}/dte/${documentoId}/estado`,
+        { method: "POST" },
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "No se pudo consultar el estado");
+        return;
+      }
+      setNotice(
+        `SII: ${data.siiEstado}` +
+          `${data.glosa ? ` — ${data.glosa}` : ""}` +
+          `${data.actualizado ? " · documento actualizado" : " · sigue en revisión"}`,
+      );
+      router.refresh();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function eliminar(documentoId: string) {
     if (!window.confirm("¿Eliminar este documento? Esta acción no se puede deshacer."))
       return;
@@ -241,6 +266,15 @@ export function DteList({
                           className="rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
                         >
                           {busyId === doc.id ? "Emitiendo…" : "Emitir"}
+                        </button>
+                      )}
+                      {esSalida && doc.estado === "ENVIADO" && doc.trackId && (
+                        <button
+                          onClick={() => consultarEstado(doc.id)}
+                          disabled={busyId === doc.id}
+                          className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        >
+                          {busyId === doc.id ? "Consultando…" : "Consultar estado"}
                         </button>
                       )}
                       {puedeBorrar(doc) && (

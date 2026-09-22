@@ -10,7 +10,7 @@
 
 import { db } from "@/lib/db";
 import { formatRutDv, normalizeRut } from "@/lib/rut";
-import { createDteSigner, createSiiClient } from "@/lib/sii";
+import { createSiiAdapters, type SiiAdapters } from "@/lib/sii";
 import { parseCaf } from "./caf";
 import { assertTransition, canEmitir, type DteEstado } from "./state";
 import { computeTotals, lineTotal } from "./totals";
@@ -50,6 +50,8 @@ export interface EmitResult {
   estado: DteEstado;
   folio: number;
   trackId: string;
+  /** Which SII adapter served this emission (mock = simulated upload). */
+  modo: "mock" | "real";
 }
 
 export async function emitirDte(
@@ -218,10 +220,32 @@ export async function emitirDte(
     tmstFirma: tmst,
   });
 
+  // The whole DTE must round-trip through ISO-8859-1 (SII file format);
+  // anything outside that range would corrupt both the upload and the
+  // digest the SII computes after re-parsing the file.
+  for (let i = 0; i < xml.length; i++) {
+    if (xml.charCodeAt(i) > 0xff) {
+      throw new EmitError(
+        `El documento contiene caracteres no compatibles con ISO-8859-1: "${xml[i]}" — revisa razón social, giro, nombres o motivos`,
+        422,
+      );
+    }
+  }
+
+  // ── Adapters: mock while no certificate is active, real SII after ──
+  let adapters: SiiAdapters;
+  try {
+    adapters = await createSiiAdapters(tenantId);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("[emitir:adapters] error", err);
+    throw new EmitError(`No se pudo preparar el SII: ${detail}`, 422);
+  }
+
   // ── 1) Sign ──
   let signed: string;
   try {
-    signed = await createDteSigner().firmar(xml);
+    signed = await adapters.signer.firmar(xml);
   } catch (err) {
     console.error("[emitir:firma] error", err);
     throw new EmitError("No se pudo firmar el documento", 500);
@@ -244,9 +268,17 @@ export async function emitirDte(
     documentos: [signed],
   });
 
+  let signedEnvio: string;
+  try {
+    signedEnvio = await adapters.signer.firmarEnvio(envio);
+  } catch (err) {
+    console.error("[emitir:firma-sobre] error", err);
+    throw new EmitError("No se pudo firmar el sobre del envío", 500);
+  }
+
   let trackId: string;
   try {
-    ({ trackId } = await createSiiClient().enviar(envio));
+    ({ trackId } = await adapters.client.enviar(signedEnvio));
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("[emitir:envio] error", err);
@@ -267,7 +299,7 @@ export async function emitirDte(
   let estadoFinal: "ACEPTADO" | "RECHAZADO" | null = null;
   let glosa: string | undefined;
   try {
-    const estado = await createSiiClient().consultarEstado(trackId);
+    const estado = await adapters.client.consultarEstado(trackId);
     glosa = estado.glosa;
     if (estado.estado === "ACEPTADO") {
       assertTransition("ENVIADO", "ACEPTADO");
@@ -288,5 +320,5 @@ export async function emitirDte(
     });
   }
 
-  return { estado: estadoFinal ?? "ENVIADO", folio, trackId };
+  return { estado: estadoFinal ?? "ENVIADO", folio, trackId, modo: adapters.modo };
 }

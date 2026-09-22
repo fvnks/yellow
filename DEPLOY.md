@@ -15,6 +15,8 @@ Repositorio: `https://github.com/fvnks/yellow`
 | Variable | Valor |
 |---|---|
 | `DATABASE_URL` | URL **interna** de Postgres (`postgres://...@<host-internal>:5432/postgres`) |
+| `CERT_ENCRYPTION_KEY` | *(opcional)* clave de 32 bytes en hex para cifrar los `.p12`. Si no existe, se deriva de `DATABASE_URL` (secreto existente, sin configuración extra) |
+| `SII_ENV` | *(opcional)* `certificacion` (default, `maullin.sii.cl`) o `produccion` (`palena.sii.cl`) — solo con un certificado `.p12` activo |
 
 La app y la base deben vivir en la **misma red interna de Coolify**; nunca uses la
 URL pública para la app.

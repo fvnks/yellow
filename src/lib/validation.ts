@@ -235,6 +235,23 @@ export const updateCategoriaSchema = z.object({
   activo: z.boolean().optional(),
 });
 
+// ── Certificado digital SII (.p12) ──
+
+export const uploadCertificateSchema = z.object({
+  nombre: z.string().trim().min(1).max(80).optional(),
+  /** Base64 of the PKCS#12 file (whitespace tolerated). */
+  p12Base64: z
+    .string()
+    .transform((v) => v.replace(/\s+/g, ""))
+    .pipe(
+      z
+        .string()
+        .min(64, "El archivo .p12 no parece válido")
+        .max(400_000, "El archivo .p12 es demasiado grande"),
+    ),
+  password: z.string().min(1, "Contraseña requerida").max(256),
+});
+
 /** Version-proof error shaping (works across zod major versions). */
 export function issuesOf(error: z.ZodError): Array<{ path: string; message: string }> {
   return error.issues.map((i) => ({

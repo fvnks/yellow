@@ -4,7 +4,9 @@ import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { getAuthContext } from "@/lib/session";
 import { formatRut } from "@/lib/rut";
+import { siiAmbiente } from "@/lib/sii/client";
 import { CafsPanel } from "@/components/cafs-panel";
+import { CertificadosPanel } from "@/components/certificados-panel";
 import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
 import { EmisorForm } from "@/components/emisor-form";
@@ -33,7 +35,7 @@ export default async function FacturacionPage() {
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
   if (!tenant) redirect("/dashboard");
 
-  const [documentos, vendedores, centros, categorias, cafs, resumenRaw] =
+  const [documentos, vendedores, centros, categorias, cafs, certificates, resumenRaw] =
     await Promise.all([
       db.dteDocument.findMany({
         where: { tenantId, sentido: "SALIDA" },
@@ -62,6 +64,19 @@ export default async function FacturacionPage() {
             orderBy: [{ tipoDte: "asc" }, { folioDesde: "asc" }],
           })
         : Promise.resolve([]),
+      db.siiCertificate.findMany({
+        where: { tenantId },
+        orderBy: [{ active: "desc" }, { createdAt: "desc" }],
+        select: {
+          id: true,
+          nombre: true,
+          subject: true,
+          rut: true,
+          notBefore: true,
+          notAfter: true,
+          active: true,
+        },
+      }),
       // Sales grouped by vendedor (all senses' totals are CLP integers).
       db.dteDocument.groupBy({
         by: ["vendedorId"],
@@ -101,6 +116,9 @@ export default async function FacturacionPage() {
     tenant.comuna
   );
 
+  const certActivo = certificates.find((c) => c.active) ?? null;
+  const ambiente = siiAmbiente();
+
   return (
     <div className="space-y-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -110,11 +128,23 @@ export default async function FacturacionPage() {
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             {tenant.name} ·{" "}
-            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-              modo simulado
+            <span
+              className={`rounded px-1.5 py-0.5 text-xs ${
+                certActivo
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+              }`}
+            >
+              {certActivo
+                ? `SII real · ${ambiente === "produccion" ? "producción" : "certificación"}`
+                : "modo simulado"}
             </span>{" "}
             <span className="text-zinc-500">
-              (adaptador mock del SII hasta la certificación)
+              {certActivo
+                ? canManage
+                  ? `(certificado: ${certActivo.nombre})`
+                  : "(certificado activo)"
+                : "(adaptador mock del SII — sube un .p12 para emitir de verdad)"}
             </span>
           </p>
         </div>
@@ -166,6 +196,19 @@ export default async function FacturacionPage() {
               folioDesde: c.folioDesde,
               folioHasta: c.folioHasta,
               nextFolio: c.nextFolio,
+              active: c.active,
+            }))}
+          />
+          <hr className="border-zinc-200 dark:border-zinc-800" />
+          <CertificadosPanel
+            tenantId={tenantId}
+            certificates={certificates.map((c) => ({
+              id: c.id,
+              nombre: c.nombre,
+              subject: c.subject,
+              rut: c.rut,
+              notBefore: c.notBefore?.toISOString() ?? null,
+              notAfter: c.notAfter?.toISOString() ?? null,
               active: c.active,
             }))}
           />

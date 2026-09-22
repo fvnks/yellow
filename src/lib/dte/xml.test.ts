@@ -39,11 +39,22 @@ describe("esc", () => {
 });
 
 describe("buildDteXml", () => {
-  it("declares ISO-8859-1 and wraps Documento with a stable ID", () => {
+  it("declares ISO-8859-1, the SiiDte namespace and a stable Documento ID", () => {
     const xml = buildDteXml(base);
     expect(xml.startsWith('<?xml version="1.0" encoding="ISO-8859-1"?>')).toBe(true);
+    expect(xml).toContain('<DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">');
     expect(xml).toContain('<Documento ID="F27T33">');
     expect(xml.trimEnd().endsWith("</DTE>")).toBe(true);
+  });
+
+  it("places the signature placeholder after </Documento>, inside <DTE>", () => {
+    const xml = buildDteXml(base);
+    const docClose = xml.indexOf("</Documento>");
+    const sig = xml.indexOf("<Signature");
+    const dteClose = xml.indexOf("</DTE>");
+    expect(docClose).toBeGreaterThan(-1);
+    expect(sig).toBeGreaterThan(docClose);
+    expect(sig).toBeLessThan(dteClose);
   });
 
   it("emits Encabezado sections with emisor, receptor and totals", () => {
@@ -168,5 +179,40 @@ describe("buildEnvioDte", () => {
     expect(envio).toContain("<SubTotDTE><TpoDTE>33</TpoDTE><NroDTE>1</NroDTE></SubTotDTE>");
     expect(envio).toContain('<Documento ID="F27T33">');
     expect(envio.trimEnd().endsWith("</EnvioDTE>")).toBe(true);
+  });
+
+  it("embeds DTEs as fragments (no nested XML declaration)", () => {
+    const dte = buildDteXml(base);
+    const envio = buildEnvioDte({
+      rutEmisor: "76543210-3",
+      rutEnvia: "76543210-3",
+      fechaResolucion: "2026-09-01",
+      numeroResolucion: 0,
+      fchFirma: "2026-09-22T15:00:01",
+      documentos: [dte],
+    });
+    // Exactly one declaration: the envelope's own.
+    expect(envio.match(/<\?xml/g)).toHaveLength(1);
+    expect(envio).toContain("<DTE xmlns=");
+  });
+
+  it("follows EnvioDTE_v10: no FchFirma, signature after SetDTE", () => {
+    const dte = buildDteXml(base);
+    const envio = buildEnvioDte({
+      rutEmisor: "76543210-3",
+      rutEnvia: "76543210-3",
+      fechaResolucion: "2026-09-01",
+      numeroResolucion: 0,
+      fchFirma: "2026-09-22T15:00:01",
+      documentos: [dte],
+    });
+    expect(envio).not.toContain("<FchFirma>");
+    expect(envio).toContain("<TmstFirmaEnv>2026-09-22T15:00:01</TmstFirmaEnv>");
+    const setClose = envio.lastIndexOf("</SetDTE>");
+    const envioSig = envio.lastIndexOf("<Signature");
+    expect(envioSig).toBeGreaterThan(setClose);
+    // The envelope's own placeholder must be the LAST empty SignatureValue.
+    const placeholders = envio.match(/<SignatureValue><\/SignatureValue>/g) ?? [];
+    expect(placeholders.length).toBe(2); // DTE + carátula
   });
 });

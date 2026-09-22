@@ -1,9 +1,10 @@
 /**
  * Ports for everything that talks to the SII or signs DTE XML.
  *
- * Today only mock adapters exist (the emisor is not certified yet);
- * the real ones (OAuth token via api.sii.cl with the .p12 certificate,
- * and XMLDSIG signing) plug in behind the same interfaces.
+ * Two implementations exist: the in-process mock (used until the emisor
+ * is certified) and the real adapters (XMLDSIG with the tenant's .p12 +
+ * SOAP/multipart against maullin.sii.cl or palena.sii.cl). The factory
+ * in `index.ts` picks automatically based on the active certificate.
  */
 
 export type EstadoEnvio = "PENDIENTE" | "ACEPTADO" | "RECHAZADO";
@@ -18,4 +19,8 @@ export interface SiiClient {
 export interface DteSigner {
   /** Return the DTE XML with its `<Signature>` filled in. */
   firmar(dteXml: string): Promise<string>;
+  /** Sign the `<EnvioDTE>` envelope (carátula signature over `<SetDTE>`). */
+  firmarEnvio(envioXml: string): Promise<string>;
+  /** Turn a raw CrSeed response into a signed `<getToken>` payload. */
+  firmarSemilla(seedResponseXml: string): Promise<string>;
 }
