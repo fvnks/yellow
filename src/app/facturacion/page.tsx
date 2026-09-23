@@ -274,9 +274,9 @@ export default async function FacturacionPage() {
             <table className="tbl">
               <thead>
                 <tr>
-                  <th>Vendedor</th>
-                  <th className="text-right">Docs</th>
-                  <th className="text-right">Total ventas</th>
+                  <th scope="col">Vendedor</th>
+                  <th scope="col" className="text-right">Docs</th>
+                  <th scope="col" className="text-right">Total ventas</th>
                 </tr>
               </thead>
               <tbody>
