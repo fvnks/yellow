@@ -55,9 +55,12 @@ export default async function ComprasPage() {
           <h1 className="text-2xl font-semibold text-ink">Compras</h1>
           <p className="text-sm text-ink-soft">
             Facturas recibidas de proveedores ·{" "}
-            <span className="text-ink-soft">
-              la descarga automática desde el SII llega con la certificación
-            </span>
+            <Link
+              href="/descargas?sentido=ENTRADA"
+              className="text-blue hover:underline"
+            >
+              descarga el registro del SII en /descargas
+            </Link>
           </p>
         </div>
         <div className="flex items-center gap-2">

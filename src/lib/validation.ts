@@ -252,6 +252,14 @@ export const uploadCertificateSchema = z.object({
   password: z.string().min(1, "Contraseña requerida").max(256),
 });
 
+// ── Credenciales del portal SII (clave tributaria) para descargas RCV ──
+
+export const portalCredentialSchema = z.object({
+  rut: z.string().refine(isValidRut, "RUT inválido"),
+  /** Clave tributaria: mínimo 8 caracteres según el SII. */
+  clave: z.string().min(8, "La clave tributaria tiene al menos 8 caracteres").max(256),
+});
+
 // ── Anulación de DTE (FAQ SII 001.003.2167.006) ──
 
 export const anularDteSchema = z.object({
