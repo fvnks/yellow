@@ -69,8 +69,7 @@ const clp = new Intl.NumberFormat("es-CL", {
   maximumFractionDigits: 0,
 });
 
-const inputClass =
-  "w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700";
+const inputClass = "field";
 
 /**
  * Document form for both senses: SALIDA (own invoice, emitted through SII)
@@ -197,25 +196,17 @@ export function DteForm({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+      <h2 className="text-lg font-medium text-ink">
         {esSalida ? "Nueva venta" : "Registrar compra"}
       </h2>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-      {notice && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-          {notice}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
+      {notice && <p className="alert alert-ok">{notice}</p>}
 
       <form onSubmit={submit} className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">Tipo</span>
+            <span className="text-ink">Tipo</span>
             <select
               value={tipo}
               onChange={(e) => setTipo(Number(e.target.value))}
@@ -232,7 +223,7 @@ export function DteForm({
           {esSalida ? (
             <>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">RUT receptor</span>
+                <span className="text-ink">RUT receptor</span>
                 <input
                   required
                   value={receptorRut}
@@ -242,7 +233,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Razón social</span>
+                <span className="text-ink">Razón social</span>
                 <input
                   required
                   value={receptorRazonSocial}
@@ -252,7 +243,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Giro (opcional)</span>
+                <span className="text-ink">Giro (opcional)</span>
                 <input
                   value={receptorGiro}
                   onChange={(e) => setReceptorGiro(e.target.value)}
@@ -261,9 +252,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  Comuna (opcional)
-                </span>
+                <span className="text-ink">Comuna (opcional)</span>
                 <input
                   value={receptorComuna}
                   onChange={(e) => setReceptorComuna(e.target.value)}
@@ -273,9 +262,7 @@ export function DteForm({
               </label>
               {tipo === 52 && (
                 <label className="space-y-1 text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400">
-                    Indicador de traslado
-                  </span>
+                  <span className="text-ink">Indicador de traslado</span>
                   <select
                     value={tipoTraslado}
                     onChange={(e) => setTipoTraslado(Number(e.target.value))}
@@ -293,9 +280,7 @@ export function DteForm({
           ) : (
             <>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  RUT proveedor
-                </span>
+                <span className="text-ink">RUT proveedor</span>
                 <input
                   required
                   value={emisorRut}
@@ -305,9 +290,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  Proveedor
-                </span>
+                <span className="text-ink">Proveedor</span>
                 <input
                   required
                   value={emisorRazonSocial}
@@ -317,9 +300,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  Folio del documento
-                </span>
+                <span className="text-ink">Folio del documento</span>
                 <input
                   required
                   type="number"
@@ -331,9 +312,7 @@ export function DteForm({
                 />
               </label>
               <label className="space-y-1 text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  Fecha (opcional)
-                </span>
+                <span className="text-ink">Fecha (opcional)</span>
                 <input
                   type="date"
                   value={fechaEmision}
@@ -346,7 +325,7 @@ export function DteForm({
 
           {esSalida && vendedores.length > 0 && (
             <label className="space-y-1 text-sm">
-              <span className="text-zinc-600 dark:text-zinc-400">Vendedor</span>
+              <span className="text-ink">Vendedor</span>
               <select
                 value={vendedorId}
                 onChange={(e) => setVendedorId(e.target.value)}
@@ -363,9 +342,7 @@ export function DteForm({
           )}
           {centros.length > 0 && (
             <label className="space-y-1 text-sm">
-              <span className="text-zinc-600 dark:text-zinc-400">
-                Centro de costo
-              </span>
+              <span className="text-ink">Centro de costo</span>
               <select
                 value={costCenterId}
                 onChange={(e) => setCostCenterId(e.target.value)}
@@ -384,13 +361,11 @@ export function DteForm({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Ítems
-            </span>
+            <span className="text-sm font-medium text-ink">Ítems</span>
             <button
               type="button"
               onClick={() => setItems((rows) => [...rows, { ...EMPTY_ITEM }])}
-              className="rounded-md border border-zinc-300 px-3 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              className="btn btn-ghost px-3 py-1 text-xs"
             >
               + Agregar ítem
             </button>
@@ -399,7 +374,7 @@ export function DteForm({
           {items.map((row, index) => (
             <div
               key={index}
-              className="grid gap-2 rounded-lg border border-zinc-200 p-3 sm:grid-cols-[2fr_repeat(3,1fr)_1.2fr_auto_auto] dark:border-zinc-800"
+              className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[2fr_repeat(3,1fr)_1.2fr_auto_auto]"
             >
               <input
                 required
@@ -452,7 +427,7 @@ export function DteForm({
                   ))}
                 </select>
               )}
-              <label className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+              <label className="flex items-center gap-1.5 text-xs text-ink-soft">
                 <input
                   type="checkbox"
                   checked={row.afectoIva}
@@ -467,7 +442,7 @@ export function DteForm({
                     rows.length > 1 ? rows.filter((_, i) => i !== index) : rows,
                   )
                 }
-                className="text-xs text-red-600 underline hover:text-red-800 dark:text-red-400"
+                className="text-xs text-err underline hover:opacity-80"
               >
                 Quitar
               </button>
@@ -477,13 +452,13 @@ export function DteForm({
 
         {esNota && (
           <div className="space-y-2">
-            <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <span className="block text-sm font-medium text-ink">
               Documento de referencia (obligatorio)
             </span>
             {refs.map((ref, index) => (
               <div
                 key={index}
-                className="grid gap-2 rounded-lg border border-dashed border-zinc-300 p-3 sm:grid-cols-4 dark:border-zinc-700"
+                className="grid gap-2 rounded-md border border-dashed border-line p-3 sm:grid-cols-4"
               >
                 <select
                   value={ref.tipoDteRef}
@@ -517,7 +492,7 @@ export function DteForm({
                       rows.length > 1 ? rows.filter((_, i) => i !== index) : rows,
                     )
                   }
-                  className="text-xs text-red-600 underline hover:text-red-800 dark:text-red-400"
+                  className="text-xs text-err underline hover:opacity-80"
                 >
                   Quitar
                 </button>
@@ -531,27 +506,27 @@ export function DteForm({
                   { tipoDteRef: "33", folioRef: "", motivo: "" },
                 ])
               }
-              className="rounded-md border border-zinc-300 px-3 py-1 text-xs hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              className="btn btn-ghost px-3 py-1 text-xs"
             >
               + Agregar referencia
             </button>
           </div>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-900">
-          <div className="flex gap-4 text-zinc-600 dark:text-zinc-400">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-block px-4 py-3 text-sm">
+          <div className="flex gap-4 text-ink-soft">
             <span>Neto {clp.format(totals.neto)}</span>
             {totals.mntExe > 0 && <span>Exento {clp.format(totals.mntExe)}</span>}
             <span>IVA {clp.format(totals.iva)}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="font-medium text-ink">
               Total {clp.format(totals.total)}
             </span>
             <button
               type="submit"
               disabled={busy}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+              className="btn btn-primary px-4 py-2 text-sm"
             >
               {busy
                 ? "Guardando…"
