@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   metodosAnulacion,
   tipoNotaCompensatoria,
@@ -85,6 +85,17 @@ export function DteList({
   const [advertencia, setAdvertencia] = useState<string | null>(null);
   // ── Diálogo de anulación (NC automática o anulación directa) ──
   const [anulando, setAnulando] = useState<Documento | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const anularOrigenRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (anulando) {
+      requestAnimationFrame(() => dialogRef.current?.focus());
+    } else {
+      anularOrigenRef.current?.focus();
+      anularOrigenRef.current = null;
+    }
+  }, [anulando]);
   const [anularMetodo, setAnularMetodo] = useState<MetodoAnulacion>("directa");
   const [anularMotivo, setAnularMotivo] = useState("");
   const [anularError, setAnularError] = useState<string | null>(null);
@@ -163,12 +174,35 @@ export function DteList({
     }
   }
 
-  function abrirAnular(doc: Documento) {
+    /** Teclado del diálogo: Esc cierra y Tab queda atrapado dentro. */
+  function manejarTeclasDialogo(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") {
+      setAnulando(null);
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const foco = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), textarea, select, a[href]',
+    );
+    if (!foco || foco.length === 0) return;
+    const primero = foco[0];
+    const ultimo = foco[foco.length - 1];
+    if (e.shiftKey && document.activeElement === primero) {
+      e.preventDefault();
+      ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+      e.preventDefault();
+      primero.focus();
+    }
+  }
+
+function abrirAnular(doc: Documento) {
     const permitidos = metodosAnulacion(doc.estado, doc.tipoDte);
     if (permitidos.length === 0) return;
     setAnularMetodo(permitidos.includes("nc") ? "nc" : "directa");
     setAnularMotivo("");
     setAnularError(null);
+    anularOrigenRef.current = document.activeElement as HTMLElement | null;
     setAnulando(doc);
   }
 
@@ -236,9 +270,9 @@ export function DteList({
         )}
       </div>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
-      {advertencia && <p className="alert alert-warn">{advertencia}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
+      {advertencia && <p className="alert alert-warn" role="status">{advertencia}</p>}
 
       {visibles.length === 0 ? (
         <p className="text-sm text-ink-soft">
@@ -249,20 +283,20 @@ export function DteList({
           <table className="tbl">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Folio</th>
-                <th>{esSalida ? "Receptor" : "Proveedor"}</th>
-                <th>Centro costo</th>
-                {esSalida && <th>Vendedor</th>}
-                <th className="text-right">Total</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Folio</th>
+                <th scope="col">{esSalida ? "Receptor" : "Proveedor"}</th>
+                <th scope="col">Centro costo</th>
+                {esSalida && <th scope="col">Vendedor</th>}
+                <th scope="col" className="text-right">Total</th>
                 {esSalida && (
                   <>
-                    <th>Estado</th>
-                    <th>Track</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Track</th>
                   </>
                 )}
-                <th></th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
@@ -399,13 +433,17 @@ export function DteList({
 
       {anulando && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          ref={dialogRef}
+          tabIndex={-1}
+          onKeyDown={manejarTeclasDialogo}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 outline-none"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="dialogo-anular-titulo"
         >
           <div className="panel w-full max-w-lg space-y-4 p-5 shadow-xl">
             <div>
-              <h3 className="text-base font-semibold text-ink">
+              <h3 id="dialogo-anular-titulo" className="text-base font-semibold text-ink">
                 Anular {TIPO_LABEL[anulando.tipoDte] ?? anulando.tipoDte} N°{" "}
                 {anulando.folio ?? "—"}
               </h3>
@@ -493,7 +531,7 @@ export function DteList({
             </label>
 
             {anularError && (
-              <p className="alert alert-error text-xs">{anularError}</p>
+              <p className="alert alert-error text-xs" role="alert">{anularError}</p>
             )}
 
             <div className="flex justify-end gap-2">
