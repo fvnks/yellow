@@ -11,6 +11,7 @@ import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
 import { EmisorForm } from "@/components/emisor-form";
 import { ModuleNav } from "@/components/module-nav";
+import { PortalCredencialPanel } from "@/components/portal-credencial-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,16 @@ export default async function FacturacionPage() {
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
   if (!tenant) redirect("/dashboard");
 
-  const [documentos, vendedores, centros, categorias, cafs, certificates, resumenRaw] =
+  const [
+    documentos,
+    vendedores,
+    centros,
+    categorias,
+    cafs,
+    certificates,
+    resumenRaw,
+    portalCredential,
+  ] =
     await Promise.all([
       db.dteDocument.findMany({
         where: { tenantId, sentido: "SALIDA" },
@@ -84,6 +94,7 @@ export default async function FacturacionPage() {
         _sum: { total: true },
         _count: { _all: true },
       }),
+      db.siiPortalCredential.findUnique({ where: { tenantId } }),
     ]);
 
   const vendedorName = new Map(vendedores.map((v) => [v.id, v.nombre]));
@@ -202,6 +213,18 @@ export default async function FacturacionPage() {
               notAfter: c.notAfter?.toISOString() ?? null,
               active: c.active,
             }))}
+          />
+          <hr className="border-line" />
+          <PortalCredencialPanel
+            tenantId={tenantId}
+            credential={
+              portalCredential
+                ? {
+                    rut: portalCredential.rut,
+                    createdAt: portalCredential.createdAt.toISOString(),
+                  }
+                : null
+            }
           />
           <hr className="border-line" />
         </>
