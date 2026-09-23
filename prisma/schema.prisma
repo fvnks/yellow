@@ -64,6 +64,7 @@ model Tenant {
   centrosCosto CentroCosto[]
   categorias   Categoria[]
   siiCertificates SiiCertificate[]
+  siiPortalCredential SiiPortalCredential?
 }
 
 /// SII digital certificate (.p12/.pfx) for the tenant's emisor.
@@ -93,6 +94,21 @@ model SiiCertificate {
   tenant    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, active])
+}
+
+/// Portal credentials (RUT + clave tributaria) for the RCV download
+/// services — the session that serves /descargas. The clave is stored
+/// AES-256-GCM encrypted (src/lib/crypto.ts); the API only ever returns
+/// the RUT and creation date, never the clave.
+model SiiPortalCredential {
+  id        String @id @default(cuid())
+  tenantId  String @unique
+  /// Company RUT, stored dashed ("76543210-3").
+  rut       String
+  /// Encrypted envelope containing the clave tributaria.
+  claveEncrypted String
+  createdAt DateTime @default(now())
+  tenant    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 /// Salesperson catalog (commercial entity, not a system user):
