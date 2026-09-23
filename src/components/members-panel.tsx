@@ -90,42 +90,30 @@ export function MembersPanel({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-        Miembros
-      </h2>
+      <h2 className="text-lg font-semibold text-ink">Miembros</h2>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-      {notice && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-          {notice}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
+      {notice && <p className="alert alert-ok">{notice}</p>}
 
       <ul className="space-y-2">
         {members.map((m) => (
           <li
             key={m.userId}
-            className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800"
+            className="panel flex items-center justify-between px-4 py-3"
           >
             <div>
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <p className="text-sm font-medium text-ink">
                 {m.name ?? m.email}
               </p>
-              {m.name && <p className="text-xs text-zinc-500">{m.email}</p>}
+              {m.name && <p className="text-xs text-ink-soft">{m.email}</p>}
             </div>
-            <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              {m.role}
-            </span>
+            <span className="chip chip-muted">{m.role}</span>
           </li>
         ))}
       </ul>
 
       {canManage && (
-        <div className="space-y-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+        <div className="panel space-y-4 p-4">
           <form onSubmit={invite} className="flex flex-wrap gap-2">
             <input
               type="email"
@@ -133,12 +121,12 @@ export function MembersPanel({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@ejemplo.com"
-              className="min-w-48 flex-1 rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700"
+              className="field min-w-48 flex-1"
             />
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as "ADMIN" | "MEMBER")}
-              className="rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none dark:border-zinc-700"
+              className="field w-auto"
             >
               <option value="MEMBER">Miembro</option>
               <option value="ADMIN">Admin</option>
@@ -146,25 +134,22 @@ export function MembersPanel({
             <button
               type="submit"
               disabled={busy}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+              className="btn btn-primary"
             >
               Invitar
             </button>
           </form>
 
           {lastLink && (
-            <div className="space-y-2 rounded-md bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
-              <p className="text-zinc-700 dark:text-zinc-300">
+            <div className="space-y-2 rounded-md bg-block p-3 text-sm">
+              <p className="text-ink">
                 Comparte este enlace (se muestra solo una vez):
               </p>
-              <code className="block break-all text-xs text-zinc-600 dark:text-zinc-400">
+              <code className="block break-all text-xs text-ink-soft">
                 {window.location.origin}
                 {lastLink}
               </code>
-              <button
-                onClick={copyLink}
-                className="rounded-md border border-zinc-300 px-3 py-1 text-xs hover:bg-zinc-200 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              >
+              <button onClick={copyLink} className="btn btn-ghost">
                 Copiar enlace
               </button>
             </div>
@@ -172,22 +157,22 @@ export function MembersPanel({
 
           {invitations.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <p className="text-sm font-medium text-ink">
                 Invitaciones pendientes
               </p>
               <ul className="space-y-2">
                 {invitations.map((inv) => (
                   <li
                     key={inv.id}
-                    className="flex items-center justify-between rounded-md border border-dashed border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
+                    className="flex items-center justify-between rounded-md border border-dashed border-line px-3 py-2 text-sm"
                   >
-                    <span className="text-zinc-700 dark:text-zinc-300">
+                    <span className="text-ink">
                       {inv.email} · {inv.role}
                     </span>
                     <button
                       onClick={() => revoke(inv.id)}
                       disabled={busy}
-                      className="text-xs text-red-600 underline hover:text-red-800 disabled:opacity-50 dark:text-red-400"
+                      className="text-xs text-err underline hover:opacity-80 disabled:opacity-50"
                     >
                       Revocar
                     </button>

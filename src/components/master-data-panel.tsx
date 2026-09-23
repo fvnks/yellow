@@ -16,9 +16,6 @@ type MasterItem = {
   [key: string]: unknown;
 };
 
-const inputClass =
-  "w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700";
-
 /**
  * Generic CRUD list + create form for tenant master data
  * (vendedores, centros de costo, categorías). Edit = activate/deactivate;
@@ -105,30 +102,20 @@ export function MasterDataPanel({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-          {title}
-        </h2>
-        {hint && <p className="text-sm text-zinc-500">{hint}</p>}
+        <h2 className="text-lg font-semibold text-ink">{title}</h2>
+        {hint && <p className="text-sm text-ink-soft">{hint}</p>}
       </div>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-      {notice && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-          {notice}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
+      {notice && <p className="alert alert-ok">{notice}</p>}
 
       <form
         onSubmit={submit}
-        className="flex flex-wrap items-end gap-3 rounded-lg bg-zinc-100 p-3 dark:bg-zinc-900"
+        className="flex flex-wrap items-end gap-3 rounded-md bg-block p-3"
       >
         {fields.map((field) => (
           <label key={field.key} className="min-w-40 flex-1 space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">{field.label}</span>
+            <span className="text-ink">{field.label}</span>
             <input
               required
               type={field.type ?? "text"}
@@ -137,25 +124,21 @@ export function MasterDataPanel({
                 setValues((v) => ({ ...v, [field.key]: e.target.value }))
               }
               placeholder={field.placeholder}
-              className={inputClass}
+              className="field"
             />
           </label>
         ))}
-        <button
-          type="submit"
-          disabled={busy}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={busy} className="btn btn-primary">
           {busy ? "Guardando…" : "Agregar"}
         </button>
       </form>
 
       {items.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-soft">
           Aún no hay {itemNoun}s. Crea el primero arriba.
         </p>
       ) : (
-        <ul className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 dark:divide-zinc-900 dark:border-zinc-800">
+        <ul className="divide-y divide-line rounded-md border border-line">
           {items.map((item) => (
             <li
               key={item.id}
@@ -163,21 +146,19 @@ export function MasterDataPanel({
             >
               <span className="flex flex-wrap items-center gap-2">
                 {fields.map((field) => (
-                  <span key={field.key} className="text-zinc-800 dark:text-zinc-200">
+                  <span key={field.key} className="text-ink">
                     {String(item[field.key] ?? "")}
                   </span>
                 ))}
                 {!item.activo && (
-                  <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-500 dark:bg-zinc-800">
-                    inactivo
-                  </span>
+                  <span className="chip chip-muted">inactivo</span>
                 )}
               </span>
               <button
                 type="button"
                 onClick={() => toggle(item)}
                 disabled={busy}
-                className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="btn btn-ghost"
               >
                 {item.activo ? "Desactivar" : "Activar"}
               </button>

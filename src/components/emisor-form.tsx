@@ -92,50 +92,30 @@ export function EmisorForm({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-          Perfil del emisor
-        </h2>
-        <span
-          className={`rounded px-2 py-0.5 text-xs ${
-            completo
-              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-              : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-          }`}
-        >
+        <h2 className="text-lg font-semibold text-ink">Perfil del emisor</h2>
+        <span className={completo ? "chip chip-ok" : "chip chip-orange"}>
           {completo ? "listo para emitir" : "incompleto"}
         </span>
       </div>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-      {notice && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-          {notice}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
+      {notice && <p className="alert alert-ok">{notice}</p>}
 
       <form onSubmit={save} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {FIELDS.map((field) => (
           <label key={field.key} className="space-y-1 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-400">{field.label}</span>
+            <span className="text-ink">{field.label}</span>
             <input
               type={field.type ?? "text"}
               value={form[field.key]}
               onChange={(e) => set(field.key, e.target.value)}
               placeholder={field.placeholder}
-              className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700"
+              className="field"
             />
           </label>
         ))}
         <div className="flex items-end">
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-          >
+          <button type="submit" disabled={busy} className="btn btn-primary">
             {busy ? "Guardando…" : "Guardar perfil"}
           </button>
         </div>

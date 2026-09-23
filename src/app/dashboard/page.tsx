@@ -40,18 +40,16 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <section className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Panel
-          </h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <ModuleNav active={undefined} hideConfig={!canManage} />
+          <h1 className="text-2xl font-semibold text-ink">Panel</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <ModuleNav active={undefined} hideConfig={!canManage} />
+          </div>
         </div>
-        </div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-ink-soft">
           {active ? (
             <>
               Tenant activo:{" "}
-              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+              <span className="font-medium text-ink">
                 {active.tenant.name}
               </span>{" "}
               ({active.tenant.slug}) · rol {active.role}
@@ -86,10 +84,8 @@ export default async function DashboardPage() {
         />
       )}
 
-      <section className="space-y-2 text-sm text-zinc-500">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-          Cuenta
-        </h2>
+      <section className="space-y-2 text-sm text-ink-soft">
+        <h2 className="text-lg font-medium text-ink">Cuenta</h2>
         <p>
           {ctx.user.name ? `${ctx.user.name} · ` : ""}
           {ctx.user.email}

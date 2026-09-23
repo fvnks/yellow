@@ -66,15 +66,11 @@ export function TenantPanel({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+      <h2 className="text-lg font-semibold text-ink">
         Tus espacios de trabajo
       </h2>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
 
       <ul className="space-y-2">
         {memberships.map((m) => {
@@ -82,22 +78,16 @@ export function TenantPanel({
           return (
             <li
               key={m.tenantId}
-              className={`flex items-center justify-between rounded-lg border px-4 py-3 ${
-                isActive
-                  ? "border-zinc-900 dark:border-zinc-100"
-                  : "border-zinc-200 dark:border-zinc-800"
+              className={`panel flex items-center justify-between px-4 py-3 ${
+                isActive ? "border-navy" : ""
               }`}
             >
               <div>
-                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                <p className="text-sm font-medium text-ink">
                   {m.tenant.name}
-                  {isActive && (
-                    <span className="ml-2 rounded bg-zinc-900 px-1.5 py-0.5 text-xs text-white dark:bg-zinc-100 dark:text-zinc-900">
-                      activo
-                    </span>
-                  )}
+                  {isActive && <span className="chip chip-navy ml-2">activo</span>}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-ink-soft">
                   {m.tenant.slug} · {m.role}
                 </p>
               </div>
@@ -105,7 +95,7 @@ export function TenantPanel({
                 <button
                   onClick={() => switchTenant(m.tenantId)}
                   disabled={busy}
-                  className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="btn btn-ghost"
                 >
                   Cambiar
                 </button>
@@ -122,12 +112,12 @@ export function TenantPanel({
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Nuevo espacio de trabajo"
           maxLength={100}
-          className="flex-1 rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700"
+          className="field flex-1"
         />
         <button
           type="submit"
           disabled={busy || !newName.trim()}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          className="btn btn-primary"
         >
           Crear
         </button>
