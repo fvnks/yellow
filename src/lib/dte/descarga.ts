@@ -243,8 +243,12 @@ export async function registroDelPeriodo(
 /** CSV local (modo mock) con el mismo espíritu que la exportación del SII. */
 export function csvRegistro(docs: DocumentoRegistro[]): string {
   const esc = (v: string | number): string => {
+    // Neutraliza fórmulas de hoja de cálculo (OWASP CSV injection): Excel y
+    // LibreOffice interpretan celdas que arrancan con = + - @ o un carácter
+    // de control, así que se prefija un apóstrofo antes de comillar.
     const s = String(v);
-    return /[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    const seguro = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+    return /[;"\r\n]/.test(seguro) ? `"${seguro.replace(/"/g, '""')}"` : seguro;
   };
   const encabezado = [
     "Tipo",

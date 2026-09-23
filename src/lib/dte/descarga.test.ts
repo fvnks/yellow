@@ -53,6 +53,41 @@ describe("resolverModo", () => {
   });
 });
 
+describe("csvRegistro: neutraliza fórmulas de hoja de cálculo", () => {
+  /** Fila válida de DocumentoRegistro: `fila()` más los campos obligatorios. */
+  const doc = (over?: Partial<DocumentoRegistro>): DocumentoRegistro => ({
+    ...fila(),
+    estado: "ACEPTADO",
+    xmlLocal: true,
+    ...over,
+  });
+
+  it("prefija apóstrofo a celdas que arrancan con =, +, - o @", () => {
+    const csv = csvRegistro([
+      doc({ contraparteRazonSocial: "=1+1" }),
+      doc({ folio: 1005, contraparteRazonSocial: "+56911112222" }),
+      doc({ folio: 1006, contraparteRazonSocial: "-cmd" }),
+      doc({ folio: 1007, contraparteRazonSocial: "@usuario" }),
+    ]);
+    const filas = csv.split("\r\n");
+    expect(filas[1]).toContain("33;1004;2026-09-15;76111222-5;'=1+1");
+    expect(filas[2]).toContain("76111222-5;'+56911112222");
+    expect(filas[3]).toContain("76111222-5;'-cmd");
+    expect(filas[4]).toContain("76111222-5;'@usuario");
+  });
+
+  it("el prefijo convive con el comillado cuando la celda tiene ;", () => {
+    const csv = csvRegistro([doc({ contraparteRazonSocial: "=1+1;2" })]);
+    expect(csv.split("\r\n")[1]).toContain("\"'=1+1;2\"");
+  });
+
+  it("deja intactas las celdas normales", () => {
+    const csv = csvRegistro([doc()]);
+    expect(csv.split("\r\n")[1]).toContain(";Cliente SpA;");
+    expect(csv).not.toContain("'");
+  });
+});
+
 describe("documentosMock", () => {
   it("incluye sólo ACEPTADO/ANULADO con folio y mapea la contraparte", () => {
     const docs = [
