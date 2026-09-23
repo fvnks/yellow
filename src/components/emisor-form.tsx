@@ -98,8 +98,8 @@ export function EmisorForm({
         </span>
       </div>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       <form onSubmit={save} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {FIELDS.map((field) => (

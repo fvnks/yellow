@@ -25,6 +25,7 @@ export function ModuleNav({
           <Link
             key={link.id}
             href={link.href}
+            aria-current={active === link.id ? "page" : undefined}
             className={
               active === link.id
                 ? "rounded-md bg-navy px-3 py-1.5 text-sm font-medium text-white transition hover:bg-navy-hover"

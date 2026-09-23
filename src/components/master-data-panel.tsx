@@ -106,8 +106,8 @@ export function MasterDataPanel({
         {hint && <p className="text-sm text-ink-soft">{hint}</p>}
       </div>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       <form
         onSubmit={submit}

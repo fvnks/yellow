@@ -252,13 +252,13 @@ export default async function LibrosPage({
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th>Tipo</th>
-                    <th className="text-right">Docs</th>
-                    <th className="text-right">Anulados</th>
-                    <th className="text-right">Exento</th>
-                    <th className="text-right">Neto</th>
-                    <th className="text-right">IVA</th>
-                    <th className="text-right">Total</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col" className="text-right">Docs</th>
+                    <th scope="col" className="text-right">Anulados</th>
+                    <th scope="col" className="text-right">Exento</th>
+                    <th scope="col" className="text-right">Neto</th>
+                    <th scope="col" className="text-right">IVA</th>
+                    <th scope="col" className="text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -295,14 +295,14 @@ export default async function LibrosPage({
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Folio</th>
-                    <th>Contraparte</th>
-                    <th>Estado</th>
-                    <th className="text-right">Neto</th>
-                    <th className="text-right">IVA</th>
-                    <th className="text-right">Total</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Folio</th>
+                    <th scope="col">Contraparte</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" className="text-right">Neto</th>
+                    <th scope="col" className="text-right">IVA</th>
+                    <th scope="col" className="text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>

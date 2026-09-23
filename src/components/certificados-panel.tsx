@@ -132,8 +132,8 @@ export function CertificadosPanel({
         Certificado digital (firma del SII)
       </h2>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       {certificates.length > 0 ? (
         <ul className="space-y-2">
@@ -189,6 +189,7 @@ export function CertificadosPanel({
         <input
           ref={fileRef}
           type="file"
+          aria-label="Archivo del certificado digital (.p12)"
           accept=".p12,.pfx,application/x-pkcs12"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="w-full text-sm text-ink-soft file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-navy-hover"
@@ -198,6 +199,7 @@ export function CertificadosPanel({
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            aria-label="Contraseña del certificado .p12"
             placeholder="Contraseña del .p12"
             autoComplete="new-password"
             className="field w-auto"
@@ -206,6 +208,7 @@ export function CertificadosPanel({
             type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
+            aria-label="Nombre del certificado (opcional)"
             placeholder="Nombre (opcional)"
             className="field w-auto min-w-40"
           />
