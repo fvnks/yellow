@@ -26,6 +26,15 @@ export class MockSiiClient implements SiiClient {
     }
     return { estado: "ACEPTADO", glosa: "Documento aprobado (mock SII)" };
   }
+
+  async anularFolio(
+    input: { tipoDte: number; folio: number },
+  ): Promise<{ ok: boolean; glosa?: string }> {
+    if (!Number.isInteger(input.folio) || input.folio < 1) {
+      throw new Error(`Folio inválido: ${input.folio}`);
+    }
+    return { ok: true, glosa: `Folio ${input.tipoDte} N° ${input.folio} anulado (mock SII)` };
+  }
 }
 
 /** Fill every empty `<SignatureValue>` placeholder deterministically. */

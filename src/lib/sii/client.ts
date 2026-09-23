@@ -16,9 +16,11 @@
  */
 
 import { randomUUID } from "node:crypto";
+import https from "node:https";
 import { esc } from "@/lib/dte/xml";
 import { normalizeRut } from "@/lib/rut";
 import { findTag, unescapeXmlText } from "@/lib/xmlutil";
+import type { CertificateMaterial } from "./pkcs12";
 import type { EstadoEnvio, SiiClient } from "./types";
 
 export type SiiAmbiente = "certificacion" | "produccion";
@@ -144,6 +146,56 @@ function summarize(text: string): string {
   return (plain || text).slice(0, 300);
 }
 
+/**
+ * Minimal mTLS request against the cert-authenticated portal (anulación
+ * de folios). node:https carries the .p12 material; the response is read
+ * as ISO-8859-1, the SII's legacy encoding.
+ */
+function mtlsCall(
+  url: string,
+  material: CertificateMaterial,
+  opts: { method: "GET" | "POST"; body?: string },
+): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const target = new URL(url);
+    const req = https.request(
+      {
+        hostname: target.hostname,
+        port: target.port || 443,
+        path: target.pathname + target.search,
+        method: opts.method,
+        key: material.privateKeyPem,
+        cert: material.certificatePem,
+        rejectUnauthorized: true,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; YellowSii/1.0)",
+          Accept: "text/html,application/xhtml+xml,*/*",
+          ...(opts.body
+            ? {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(opts.body),
+              }
+            : {}),
+        },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", () =>
+          resolve({
+            status: res.statusCode ?? 0,
+            body: Buffer.concat(chunks).toString("latin1"),
+          }),
+        );
+      },
+    );
+    req.setTimeout(HTTP_TIMEOUT_MS, () => req.destroy(new Error("timeout tras 30 s")));
+    req.on("error", reject);
+    if (opts.body) req.write(opts.body);
+    req.end();
+  });
+}
+
 export interface RealSiiClientOptions {
   ambiente: SiiAmbiente;
   /** Tenant emisor RUT (normalized "765432103" or hyphenated — both accepted). */
@@ -152,6 +204,8 @@ export interface RealSiiClientOptions {
   cacheKey: string;
   signSeed: SeedSigner;
   fetchImpl?: FetchLike;
+  /** .p12 material for portal calls that require client-certificate TLS. */
+  certificate?: CertificateMaterial;
 }
 
 export class RealSiiClient implements SiiClient {
@@ -252,5 +306,65 @@ export class RealSiiClient implements SiiClient {
       estado: "PENDIENTE",
       glosa: glosa ?? (codigo ? `Código SII ${codigo}` : undefined),
     };
+  }
+
+  /**
+   * Anulación de folios aún no recepcionados (FAQ SII 001.003.2167.006,
+   * caso "previo al envío"): el portal `cvc_cgi/dte/af_anular3` exige
+   * sesión con certificado digital (mTLS) y sólo acepta folios que el SII
+   * no ha recibido. Al ser una interfaz de formulario, cualquier cambio
+   * del SII se refleja en la glosa devuelta para ajustarla con un .p12
+   * real a la mano.
+   */
+  async anularFolio(
+    input: { tipoDte: number; folio: number },
+  ): Promise<{ ok: boolean; glosa?: string }> {
+    const { tipoDte, folio } = input;
+    if (!Number.isInteger(folio) || folio < 1) {
+      throw new SiiClientError(`Folio inválido: ${folio}`);
+    }
+    const material = this.opts.certificate;
+    if (!material) {
+      throw new SiiClientError(
+        "Falta el certificado digital (.p12) para anular folios en el SII",
+      );
+    }
+
+    const form = new URLSearchParams({
+      tipo: String(tipoDte),
+      desde: String(folio),
+      hasta: String(folio),
+      rut: this.rutBody,
+      dv: this.rutDv,
+    }).toString();
+
+    const res = await mtlsCall(`${this.base}/cvc_cgi/dte/af_anular3`, material, {
+      method: "POST",
+      body: form,
+    }).catch((err: unknown) => {
+      throw new SiiClientError(
+        `Sin respuesta del portal del SII (anulación de folio): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    });
+    if (res.status < 200 || res.status >= 300) {
+      throw new SiiClientError(
+        `El portal del SII respondió HTTP ${res.status}: ${summarize(res.body)}`,
+      );
+    }
+    if (/no se encuentra autenticado/i.test(res.body)) {
+      throw new SiiClientError(
+        "El SII no aceptó la sesión con certificado digital (anulación de folios)",
+      );
+    }
+    if (/folio[s]? anulad/i.test(res.body) || /anulaci[oó]n (realizada|efectuada)/i.test(res.body)) {
+      return { ok: true, glosa: summarize(res.body) };
+    }
+    if (/recepcionad/i.test(res.body)) {
+      return {
+        ok: false,
+        glosa: "El folio ya fue recepcionado por el SII: anúlalo con una nota de crédito/débito.",
+      };
+    }
+    return { ok: false, glosa: summarize(res.body) || `Respuesta sin reconocer (HTTP ${res.status})` };
   }
 }
