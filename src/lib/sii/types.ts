@@ -14,6 +14,11 @@ export interface SiiClient {
   enviar(envioXml: string): Promise<{ trackId: string }>;
   /** Query the fate of a previously uploaded envío. */
   consultarEstado(trackId: string): Promise<{ estado: EstadoEnvio; glosa?: string }>;
+  /**
+   * Report a signed-but-never-uploaded folio as null (SII FAQ
+   * 001.003.2167.006 — "informar la nulidad del folio").
+   */
+  anularFolio(input: { tipoDte: number; folio: number }): Promise<{ ok: boolean; glosa?: string }>;
 }
 
 export interface DteSigner {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   acceptInviteSchema,
+  anularDteSchema,
   createCategoriaSchema,
   createCentroCostoSchema,
   createDteSchema,
@@ -251,5 +252,26 @@ describe("uploadCertificateSchema", () => {
         password: "x",
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("anularDteSchema", () => {
+  it("accepts both methods with a concrete motivo", () => {
+    expect(
+      anularDteSchema.safeParse({ metodo: "nc", motivo: "Error en datos del receptor" })
+        .success,
+    ).toBe(true);
+    expect(
+      anularDteSchema.safeParse({
+        metodo: "directa",
+        motivo: "Pedido cancelado por el cliente",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects unknown methods and empty, tiny or oversized motivos", () => {
+    expect(anularDteSchema.safeParse({ metodo: "borrar", motivo: "Motivo válido aquí" }).success).toBe(false);
+    expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "abc" }).success).toBe(false);
+    expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "x".repeat(91) }).success).toBe(false);
   });
 });

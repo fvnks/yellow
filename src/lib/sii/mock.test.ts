@@ -28,6 +28,17 @@ describe("MockSiiClient", () => {
       estado: "RECHAZADO",
     });
   });
+
+  it("annuls a never-sent folio (mock) and rejects nonsense folios", async () => {
+    const client = new MockSiiClient();
+    await expect(client.anularFolio({ tipoDte: 33, folio: 1002 })).resolves.toEqual({
+      ok: true,
+      glosa: "Folio 33 N° 1002 anulado (mock SII)",
+    });
+    await expect(client.anularFolio({ tipoDte: 33, folio: 0 })).rejects.toThrow(
+      /Folio inválido/,
+    );
+  });
 });
 
 describe("MockDteSigner", () => {

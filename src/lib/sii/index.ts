@@ -61,6 +61,8 @@ export async function createSiiAdapters(tenantId: string): Promise<SiiAdapters> 
     rut: tenant.rut,
     cacheKey: `${tenantId}:${cert.id}:${ambiente}`,
     signSeed: (seedResponseXml) => signer.firmarSemilla(seedResponseXml),
+    // Portal calls (anulación de folios) authenticate with this material.
+    certificate: material,
   });
   return { signer, client, modo: "real", ambiente };
 }

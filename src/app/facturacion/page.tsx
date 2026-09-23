@@ -242,6 +242,7 @@ export default async function FacturacionPage() {
           estado: d.estado,
           trackId: d.trackId,
           siiResponse: d.siiResponse,
+          motivoAnulacion: d.motivoAnulacion,
           vendedor: d.vendedor,
           costCenter: d.costCenter,
         }))}

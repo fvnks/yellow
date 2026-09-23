@@ -204,6 +204,8 @@ model DteDocument {
   estado      DteEstado @default(BORRADOR)
   trackId     String?
   siiResponse String?
+  /// Cómo se anuló (NC/ND emitida, folio anulado o carta al SII) + motivo.
+  motivoAnulacion String?
   /// Signed DTE XML (only persisted once the document is FIRMADO+).
   xml         String?
   createdAt   DateTime  @default(now())
