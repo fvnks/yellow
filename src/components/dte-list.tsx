@@ -15,6 +15,8 @@ type Documento = {
   total: number;
   estado: string;
   trackId: string | null;
+  /** Motivo de rechazo/error persistido por el SII (glosa o error de envío). */
+  siiResponse: string | null;
   vendedor: { id: string; nombre: string } | null;
   costCenter: { id: string; codigo: string; nombre: string } | null;
 };
@@ -245,12 +247,24 @@ export function DteList({
                   </td>
                   {esSalida && (
                     <>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 align-top">
                         <span
                           className={`rounded px-2 py-0.5 text-xs ${ESTADO_STYLES[doc.estado] ?? ""}`}
                         >
                           {doc.estado}
                         </span>
+                        {doc.siiResponse && (
+                          <p
+                            className={`mt-1 max-w-56 truncate text-xs ${
+                              doc.estado === "RECHAZADO" || doc.estado === "FIRMADO"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-zinc-500 dark:text-zinc-400"
+                            }`}
+                            title={doc.siiResponse}
+                          >
+                            {doc.siiResponse}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-2 font-mono text-xs text-zinc-500">
                         {doc.trackId ?? "—"}
