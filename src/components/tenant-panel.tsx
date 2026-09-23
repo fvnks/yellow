@@ -70,7 +70,7 @@ export function TenantPanel({
         Tus espacios de trabajo
       </h2>
 
-      {error && <p className="alert alert-error">{error}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
 
       <ul className="space-y-2">
         {memberships.map((m) => {
@@ -110,6 +110,7 @@ export function TenantPanel({
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          aria-label="Nombre del nuevo espacio de trabajo"
           placeholder="Nuevo espacio de trabajo"
           maxLength={100}
           className="field flex-1"

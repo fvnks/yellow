@@ -200,8 +200,8 @@ export function DteForm({
         {esSalida ? "Nueva venta" : "Registrar compra"}
       </h2>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       <form onSubmit={submit} className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -380,6 +380,7 @@ export function DteForm({
                 required
                 value={row.nombre}
                 onChange={(e) => setItem(index, { nombre: e.target.value })}
+                aria-label="Descripción del ítem"
                 placeholder="Descripción"
                 className={inputClass}
               />
@@ -390,6 +391,7 @@ export function DteForm({
                 min="0.001"
                 value={row.cantidad}
                 onChange={(e) => setItem(index, { cantidad: e.target.value })}
+                aria-label="Cantidad"
                 placeholder="Cant."
                 className={inputClass}
               />
@@ -400,6 +402,7 @@ export function DteForm({
                 min="0"
                 value={row.precio}
                 onChange={(e) => setItem(index, { precio: e.target.value })}
+                aria-label="Precio unitario"
                 placeholder="$ unitario"
                 className={inputClass}
               />
@@ -409,6 +412,7 @@ export function DteForm({
                 min="0"
                 value={row.descuento}
                 onChange={(e) => setItem(index, { descuento: e.target.value })}
+                aria-label="Descuento"
                 placeholder="$ desc."
                 className={inputClass}
               />
@@ -461,6 +465,7 @@ export function DteForm({
                 className="grid gap-2 rounded-md border border-dashed border-line p-3 sm:grid-cols-4"
               >
                 <select
+                  aria-label="Tipo de documento de referencia"
                   value={ref.tipoDteRef}
                   onChange={(e) => setRef(index, { tipoDteRef: e.target.value })}
                   className={inputClass}
@@ -476,12 +481,14 @@ export function DteForm({
                   min="1"
                   value={ref.folioRef}
                   onChange={(e) => setRef(index, { folioRef: e.target.value })}
+                  aria-label="Folio de referencia"
                   placeholder="Folio"
                   className={inputClass}
                 />
                 <input
                   value={ref.motivo}
                   onChange={(e) => setRef(index, { motivo: e.target.value })}
+                  aria-label="Motivo de referencia"
                   placeholder="Motivo (opcional)"
                   className={inputClass}
                 />

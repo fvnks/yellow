@@ -95,8 +95,8 @@ export function PortalCredencialPanel({
         </p>
       )}
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       <form onSubmit={guardar} className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">

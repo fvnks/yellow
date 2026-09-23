@@ -49,8 +49,8 @@ export function CafsPanel({ tenantId, cafs }: { tenantId: string; cafs: Caf[] })
         CAF — folios autorizados
       </h2>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       {cafs.length > 0 ? (
         <ul className="space-y-2">
@@ -86,6 +86,7 @@ export function CafsPanel({ tenantId, cafs }: { tenantId: string; cafs: Caf[] })
         <textarea
           value={xml}
           onChange={(e) => setXml(e.target.value)}
+          aria-label="Contenido XML del CAF"
           placeholder="Pega el contenido del CAF (XML del SII)…"
           rows={5}
           className="field font-mono text-xs"

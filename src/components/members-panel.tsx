@@ -92,8 +92,8 @@ export function MembersPanel({
     <section className="space-y-4">
       <h2 className="text-lg font-semibold text-ink">Miembros</h2>
 
-      {error && <p className="alert alert-error">{error}</p>}
-      {notice && <p className="alert alert-ok">{notice}</p>}
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      {notice && <p className="alert alert-ok" role="status">{notice}</p>}
 
       <ul className="space-y-2">
         {members.map((m) => (
@@ -120,10 +120,12 @@ export function MembersPanel({
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-label="Email del miembro a invitar"
               placeholder="email@ejemplo.com"
               className="field min-w-48 flex-1"
             />
             <select
+              aria-label="Rol del miembro"
               value={role}
               onChange={(e) => setRole(e.target.value as "ADMIN" | "MEMBER")}
               className="field w-auto"
