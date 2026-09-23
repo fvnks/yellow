@@ -252,6 +252,14 @@ export const uploadCertificateSchema = z.object({
   password: z.string().min(1, "Contraseña requerida").max(256),
 });
 
+// ── Anulación de DTE (FAQ SII 001.003.2167.006) ──
+
+export const anularDteSchema = z.object({
+  metodo: z.enum(["nc", "directa"]),
+  /** Copiado a RazonRef (XSD maxLength 90) cuando se crea la nota. */
+  motivo: z.string().trim().min(5, "Describe el motivo (mínimo 5 caracteres)").max(90),
+});
+
 /** Version-proof error shaping (works across zod major versions). */
 export function issuesOf(error: z.ZodError): Array<{ path: string; message: string }> {
   return error.issues.map((i) => ({
