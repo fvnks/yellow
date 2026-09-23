@@ -26,8 +26,8 @@ export function ModuleNav({
             href={link.href}
             className={
               active === link.id
-                ? "rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
-                : "rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                ? "rounded-md bg-navy px-3 py-1.5 text-sm font-medium text-white transition hover:bg-navy-hover"
+                : "rounded-md px-3 py-1.5 text-sm text-blue transition hover:bg-blue-bright hover:text-white"
             }
           >
             {link.label}

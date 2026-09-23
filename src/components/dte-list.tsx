@@ -38,12 +38,12 @@ const TIPO_LABEL: Record<number, string> = {
 };
 
 const ESTADO_STYLES: Record<string, string> = {
-  BORRADOR: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-  FIRMADO: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-  ENVIADO: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-  ACEPTADO: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  RECHAZADO: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
-  ANULADO: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  BORRADOR: "chip chip-muted",
+  FIRMADO: "chip chip-blue",
+  ENVIADO: "chip chip-orange",
+  ACEPTADO: "chip chip-ok",
+  RECHAZADO: "chip chip-err",
+  ANULADO: "chip chip-muted",
 };
 
 const clp = new Intl.NumberFormat("es-CL", {
@@ -54,8 +54,7 @@ const clp = new Intl.NumberFormat("es-CL", {
 
 const EMITIBLES = new Set(["BORRADOR", "FIRMADO"]);
 
-const selectClass =
-  "rounded-md border border-zinc-300 bg-transparent px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700";
+const selectClass = "field w-auto px-2 py-1 text-xs";
 
 /**
  * Document list for both senses. SALIDA shows estado/track + emit/delete-draft
@@ -213,11 +212,11 @@ export function DteList({
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+        <h2 className="text-lg font-medium text-ink">
           {esSalida ? "Documentos emitidos" : "Compras registradas"}
         </h2>
         {esSalida && vendedores.length > 0 && (
-          <label className="flex items-center gap-2 text-xs text-zinc-500">
+          <label className="flex items-center gap-2 text-xs text-ink-soft">
             Vendedor
             <select
               value={vendedorFilter}
@@ -235,84 +234,63 @@ export function DteList({
         )}
       </div>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-      {notice && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-          {notice}
-        </p>
-      )}
-      {advertencia && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          {advertencia}
-        </p>
-      )}
+      {error && <p className="alert alert-error">{error}</p>}
+      {notice && <p className="alert alert-ok">{notice}</p>}
+      {advertencia && <p className="alert alert-warn">{advertencia}</p>}
 
       {visibles.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-soft">
           {esSalida ? "Aún no hay documentos." : "Aún no hay compras."}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-md border border-line">
+          <table className="tbl">
             <thead>
-              <tr className="border-b border-zinc-200 text-left text-xs text-zinc-500 dark:border-zinc-800">
-                <th className="px-4 py-2 font-medium">Fecha</th>
-                <th className="px-4 py-2 font-medium">Tipo</th>
-                <th className="px-4 py-2 font-medium">Folio</th>
-                <th className="px-4 py-2 font-medium">
-                  {esSalida ? "Receptor" : "Proveedor"}
-                </th>
-                <th className="px-4 py-2 font-medium">Centro costo</th>
-                {esSalida && (
-                  <th className="px-4 py-2 font-medium">Vendedor</th>
-                )}
-                <th className="px-4 py-2 text-right font-medium">Total</th>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Folio</th>
+                <th>{esSalida ? "Receptor" : "Proveedor"}</th>
+                <th>Centro costo</th>
+                {esSalida && <th>Vendedor</th>}
+                <th className="text-right">Total</th>
                 {esSalida && (
                   <>
-                    <th className="px-4 py-2 font-medium">Estado</th>
-                    <th className="px-4 py-2 font-medium">Track</th>
+                    <th>Estado</th>
+                    <th>Track</th>
                   </>
                 )}
-                <th className="px-4 py-2 font-medium"></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {visibles.map((doc) => (
-                <tr
-                  key={doc.id}
-                  className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
-                >
-                  <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                <tr key={doc.id}>
+                  <td className="text-ink-soft">
                     {new Date(doc.fechaEmision).toLocaleDateString("es-CL")}
                   </td>
-                  <td className="px-4 py-2">{TIPO_LABEL[doc.tipoDte] ?? doc.tipoDte}</td>
-                  <td className="px-4 py-2 font-mono">{doc.folio ?? "—"}</td>
-                  <td className="max-w-56 truncate px-4 py-2">
+                  <td>{TIPO_LABEL[doc.tipoDte] ?? doc.tipoDte}</td>
+                  <td className="font-mono">{doc.folio ?? "—"}</td>
+                  <td className="max-w-56 truncate">
                     {esSalida ? doc.receptorRazonSocial : doc.emisorRazonSocial}
-                    <span className="ml-2 text-xs text-zinc-500">
+                    <span className="ml-2 text-xs text-ink-soft">
                       {esSalida ? doc.receptorRut : doc.emisorRut}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
+                  <td className="text-ink-soft">
                     {doc.costCenter?.codigo ?? "—"}
                   </td>
                   {esSalida && (
-                    <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400">
-                      {doc.vendedor?.nombre ?? "—"}
-                    </td>
+                    <td className="text-ink-soft">{doc.vendedor?.nombre ?? "—"}</td>
                   )}
-                  <td className="px-4 py-2 text-right font-medium">
+                  <td className="text-right font-medium">
                     {clp.format(doc.total)}
                   </td>
                   {esSalida && (
                     <>
-                      <td className="px-4 py-2 align-top">
+                      <td className="align-top">
                         <span
-                          className={`rounded px-2 py-0.5 text-xs ${ESTADO_STYLES[doc.estado] ?? ""}`}
+                          className={ESTADO_STYLES[doc.estado] ?? "chip chip-muted"}
                         >
                           {doc.estado}
                         </span>
@@ -320,8 +298,8 @@ export function DteList({
                           <p
                             className={`mt-1 max-w-56 truncate text-xs ${
                               doc.estado === "RECHAZADO" || doc.estado === "FIRMADO"
-                                ? "text-red-600 dark:text-red-400"
-                                : "text-zinc-500 dark:text-zinc-400"
+                                ? "text-err"
+                                : "text-ink-soft"
                             }`}
                             title={doc.siiResponse}
                           >
@@ -330,25 +308,25 @@ export function DteList({
                         )}
                         {doc.motivoAnulacion && (
                           <p
-                            className="mt-1 max-w-56 truncate text-xs text-zinc-500 dark:text-zinc-400"
+                            className="mt-1 max-w-56 truncate text-xs text-ink-soft"
                             title={doc.motivoAnulacion}
                           >
                             {doc.motivoAnulacion}
                           </p>
                         )}
                       </td>
-                      <td className="px-4 py-2 font-mono text-xs text-zinc-500">
+                      <td className="font-mono text-xs text-ink-soft">
                         {doc.trackId ?? "—"}
                       </td>
                     </>
                   )}
-                  <td className="px-4 py-2 text-right">
+                  <td className="text-right">
                     <span className="flex justify-end gap-2">
                       {esSalida && EMITIBLES.has(doc.estado) && (
                         <button
                           onClick={() => emitir(doc.id)}
                           disabled={busyId === doc.id}
-                          className="rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+                          className="btn btn-primary px-3 py-1 text-xs"
                         >
                           {busyId === doc.id ? "Emitiendo…" : "Emitir"}
                         </button>
@@ -357,7 +335,7 @@ export function DteList({
                         <button
                           onClick={() => consultarEstado(doc.id)}
                           disabled={busyId === doc.id}
-                          className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          className="btn btn-ghost px-3 py-1 text-xs"
                         >
                           {busyId === doc.id ? "Consultando…" : "Consultar estado"}
                         </button>
@@ -368,7 +346,7 @@ export function DteList({
                           <button
                             onClick={() => abrirAnular(doc)}
                             disabled={busyId === doc.id}
-                            className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400 dark:hover:bg-red-950"
+                            className="btn btn-danger px-3 py-1 text-xs"
                           >
                             Anular
                           </button>
@@ -377,7 +355,7 @@ export function DteList({
                         <button
                           onClick={() => eliminar(doc.id)}
                           disabled={busyId === doc.id}
-                          className="rounded-md border border-zinc-300 px-3 py-1 text-xs text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-zinc-700 dark:text-red-400 dark:hover:bg-red-950"
+                          className="btn btn-danger px-3 py-1 text-xs"
                         >
                           Eliminar
                         </button>
@@ -397,13 +375,13 @@ export function DteList({
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-lg space-y-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="panel w-full max-w-lg space-y-4 p-5 shadow-xl">
             <div>
-              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              <h3 className="text-base font-semibold text-ink">
                 Anular {TIPO_LABEL[anulando.tipoDte] ?? anulando.tipoDte} N°{" "}
                 {anulando.folio ?? "—"}
               </h3>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-ink-soft">
                 {anulando.receptorRazonSocial ?? anulando.receptorRut ?? ""} ·{" "}
                 {clp.format(anulando.total)} · {anulando.estado}
               </p>
@@ -437,36 +415,34 @@ export function DteList({
               if (permitidos.length === 1) {
                 const unica = opciones[permitidos[0]];
                 return (
-                  <p className="rounded-md bg-zinc-50 p-3 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                    <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                      {unica.label}.
-                    </span>{" "}
+                  <p className="rounded-md bg-block p-3 text-xs text-ink-soft">
+                    <span className="font-medium text-ink">{unica.label}.</span>{" "}
                     {unica.desc}
                   </p>
                 );
               }
               return (
                 <fieldset className="space-y-2">
-                  <legend className="text-xs font-medium text-zinc-500">
+                  <legend className="text-xs font-medium text-ink-soft">
                     Método de anulación
                   </legend>
                   {permitidos.map((m) => (
                     <label
                       key={m}
-                      className="flex cursor-pointer gap-2 rounded-md border border-zinc-200 p-3 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60"
+                      className="flex cursor-pointer gap-2 rounded-md border border-line p-3 hover:bg-block"
                     >
                       <input
                         type="radio"
                         name="metodo-anulacion"
                         checked={anularMetodo === m}
                         onChange={() => setAnularMetodo(m)}
-                        className="mt-0.5 accent-red-600"
+                        className="mt-0.5 accent-navy"
                       />
                       <span>
-                        <span className="block text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                        <span className="block text-sm font-medium text-ink">
                           {opciones[m].label}
                         </span>
-                        <span className="mt-0.5 block text-xs text-zinc-500">
+                        <span className="mt-0.5 block text-xs text-ink-soft">
                           {opciones[m].desc}
                         </span>
                       </span>
@@ -476,7 +452,7 @@ export function DteList({
               );
             })()}
 
-            <label className="block space-y-1 text-xs font-medium text-zinc-500">
+            <label className="block space-y-1 text-xs font-medium text-ink-soft">
               Motivo (máx. 90 caracteres)
               <textarea
                 value={anularMotivo}
@@ -484,27 +460,25 @@ export function DteList({
                 maxLength={90}
                 rows={2}
                 placeholder="Ej.: error en los datos del receptor"
-                className="w-full rounded-md border border-zinc-300 bg-transparent px-2 py-1.5 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700 dark:text-zinc-100"
+                className="field text-sm"
               />
             </label>
 
             {anularError && (
-              <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-950 dark:text-red-300">
-                {anularError}
-              </p>
+              <p className="alert alert-error text-xs">{anularError}</p>
             )}
 
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setAnulando(null)}
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="btn btn-ghost px-3 py-1.5 text-xs"
               >
                 Cancelar
               </button>
               <button
                 onClick={anular}
                 disabled={busyId === anulando.id || anularMotivo.trim().length < 5}
-                className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+                className="btn bg-err px-3 py-1.5 text-xs font-medium text-white hover:bg-err/90"
               >
                 {busyId === anulando.id ? "Anulando…" : "Anular documento"}
               </button>

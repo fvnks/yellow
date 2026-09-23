@@ -52,22 +52,17 @@ export default async function ComprasPage() {
     <div className="space-y-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Compras
-          </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-2xl font-semibold text-ink">Compras</h1>
+          <p className="text-sm text-ink-soft">
             Facturas recibidas de proveedores ·{" "}
-            <span className="text-zinc-500">
+            <span className="text-ink-soft">
               la descarga automática desde el SII llega con la certificación
             </span>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <ModuleNav active="compras" hideConfig={!canManage} />
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
+          <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
         </div>

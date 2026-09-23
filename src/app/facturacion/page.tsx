@@ -123,23 +123,17 @@ export default async function FacturacionPage() {
     <div className="space-y-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-semibold text-ink">
             Facturación electrónica
           </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-ink-soft">
             {tenant.name} ·{" "}
-            <span
-              className={`rounded px-1.5 py-0.5 text-xs ${
-                certActivo
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                  : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-              }`}
-            >
+            <span className={certActivo ? "chip chip-ok" : "chip chip-orange"}>
               {certActivo
                 ? `SII real · ${ambiente === "produccion" ? "producción" : "certificación"}`
                 : "modo simulado"}
             </span>{" "}
-            <span className="text-zinc-500">
+            <span className="text-ink-soft">
               {certActivo
                 ? canManage
                   ? `(certificado: ${certActivo.nombre})`
@@ -150,17 +144,14 @@ export default async function FacturacionPage() {
         </div>
         <div className="flex items-center gap-2">
           <ModuleNav active="facturacion" hideConfig={!canManage} />
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
+          <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
         </div>
       </header>
 
       {canManage && !perfilCompleto && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+        <p className="alert alert-warn">
           Completa el perfil del emisor: no se puede emitir sin RUT, razón
           social, giro, actividad económica, dirección y comuna.
         </p>
@@ -187,7 +178,7 @@ export default async function FacturacionPage() {
                 : "",
             }}
           />
-          <hr className="border-zinc-200 dark:border-zinc-800" />
+          <hr className="border-line" />
           <CafsPanel
             tenantId={tenantId}
             cafs={cafs.map((c) => ({
@@ -199,7 +190,7 @@ export default async function FacturacionPage() {
               active: c.active,
             }))}
           />
-          <hr className="border-zinc-200 dark:border-zinc-800" />
+          <hr className="border-line" />
           <CertificadosPanel
             tenantId={tenantId}
             certificates={certificates.map((c) => ({
@@ -212,7 +203,7 @@ export default async function FacturacionPage() {
               active: c.active,
             }))}
           />
-          <hr className="border-zinc-200 dark:border-zinc-800" />
+          <hr className="border-line" />
         </>
       )}
 
@@ -249,34 +240,27 @@ export default async function FacturacionPage() {
       />
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-          Ventas por vendedor
-        </h2>
+        <h2 className="text-lg font-medium text-ink">Ventas por vendedor</h2>
         {resumen.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-ink-soft">
             Todavía no hay ventas registradas.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-md border border-line">
+            <table className="tbl">
               <thead>
-                <tr className="border-b border-zinc-200 text-left text-xs text-zinc-500 dark:border-zinc-800">
-                  <th className="px-4 py-2 font-medium">Vendedor</th>
-                  <th className="px-4 py-2 text-right font-medium">Docs</th>
-                  <th className="px-4 py-2 text-right font-medium">Total ventas</th>
+                <tr>
+                  <th>Vendedor</th>
+                  <th className="text-right">Docs</th>
+                  <th className="text-right">Total ventas</th>
                 </tr>
               </thead>
               <tbody>
                 {resumen.map((r) => (
-                  <tr
-                    key={r.nombre}
-                    className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
-                  >
-                    <td className="px-4 py-2">{r.nombre}</td>
-                    <td className="px-4 py-2 text-right text-zinc-600 dark:text-zinc-400">
-                      {r.docs}
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium">
+                  <tr key={r.nombre}>
+                    <td>{r.nombre}</td>
+                    <td className="text-right text-ink-soft">{r.docs}</td>
+                    <td className="text-right font-medium">
                       {clp.format(r.total)}
                     </td>
                   </tr>

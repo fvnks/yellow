@@ -41,65 +41,52 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-black">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-      >
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Iniciar sesión
-        </h1>
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <form onSubmit={onSubmit} className="panel w-full max-w-sm space-y-4 p-8 shadow-sm">
+        <h1 className="text-2xl font-semibold text-ink">Iniciar sesión</h1>
 
-        {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-            {error}
-          </p>
-        )}
+        {error && <p className="alert alert-error">{error}</p>}
         {issues.map((i) => (
-          <p key={i.path + i.message} className="text-xs text-red-600 dark:text-red-400">
+          <p key={i.path + i.message} className="text-xs text-err">
             {i.path}: {i.message}
           </p>
         ))}
 
         <label className="block space-y-1 text-sm">
-          <span className="text-zinc-700 dark:text-zinc-300">Email</span>
+          <span className="text-ink">Email</span>
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700"
+            className="field"
           />
         </label>
 
         <label className="block space-y-1 text-sm">
-          <span className="text-zinc-700 dark:text-zinc-300">Contraseña</span>
+          <span className="text-ink">Contraseña</span>
           <input
             type="password"
             required
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-zinc-500 dark:border-zinc-700"
+            className="field"
           />
         </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary w-full">
           {loading ? "Entrando…" : "Entrar"}
         </button>
 
-        <p className="text-center text-sm text-zinc-500">
+        <p className="text-center text-sm text-ink-soft">
           ¿No tienes cuenta?{" "}
-          <Link href="/register" className="underline hover:text-zinc-800 dark:hover:text-zinc-200">
+          <Link href="/register" className="underline hover:text-orange-ink">
             Regístrate
           </Link>
         </p>
       </form>
-    </main>
+    </div>
   );
 }

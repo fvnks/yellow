@@ -40,19 +40,16 @@ export default async function ConfiguracionPage() {
     <div className="space-y-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-semibold text-ink">
             Configuración comercial
           </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-ink-soft">
             Vendedores, centros de costo y categorías de {active.tenant.name}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <ModuleNav active="configuracion" />
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
+          <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
         </div>
@@ -76,7 +73,7 @@ export default async function ConfiguracionPage() {
         }))}
       />
 
-      <hr className="border-zinc-200 dark:border-zinc-800" />
+      <hr className="border-line" />
 
       <MasterDataPanel
         tenantId={tenantId}
@@ -96,7 +93,7 @@ export default async function ConfiguracionPage() {
         }))}
       />
 
-      <hr className="border-zinc-200 dark:border-zinc-800" />
+      <hr className="border-line" />
 
       <MasterDataPanel
         tenantId={tenantId}

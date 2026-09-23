@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+/** Pill naranja sobre la franja navy del header (como "Cerrar Sesión" del SII). */
 export function LogoutButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export function LogoutButton() {
     <button
       onClick={onClick}
       disabled={loading}
-      className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      className="rounded-full border border-orange px-2.5 py-0.5 text-xs font-medium text-white transition hover:bg-orange/20 disabled:opacity-50"
     >
       {loading ? "Saliendo…" : "Cerrar sesión"}
     </button>
