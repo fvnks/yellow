@@ -43,7 +43,7 @@ export function cafFixtureXml(overrides?: CafFixtureOverrides): string {
 <RSAPK><M>fake</M><E>Aw==</E></RSAPK>
 <IDK>100</IDK>
 </DA>
-<FRMA algoritmo="SHA1withRSA">firmaDelSii</FRMA>
+<FRMA algoritmo="SHA1withRSA">ZmlybWFEZWxTaWk=</FRMA>
 </CAF>
 <RSASK>${overrides?.rsask ?? pemPriv}</RSASK>
 <RSAPUBK>pub</RSAPUBK>

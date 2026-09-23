@@ -13,7 +13,7 @@ describe("parseCaf", () => {
     expect(caf.fechaAutorizacion).toBe("2026-09-01");
     expect(caf.rsaskPem).toContain("BEGIN RSA PRIVATE KEY");
     expect(caf.cafXml).toContain('<CAF version="1.0">');
-    expect(caf.cafXml).toContain("firmaDelSii");
+    expect(caf.cafXml).toContain('<FRMA algoritmo="SHA1withRSA">ZmlybWFEZWxTaWk=');
   });
 
   it("wraps raw base64 RSASK into PEM headers", () => {
