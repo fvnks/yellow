@@ -22,7 +22,10 @@
  *
  * Fechas: FchDoc y FchResol usan chileDate (America/Santiago) y
  * TmstFirma el stamp UTC, igual que la emisión de DTE en ./emit.
+ * RUT: formatRutDv pone el guion del XML (la BD guarda sólo dígitos),
+ * igual que hace emitirDte con el emisor.
  */
+import { formatRutDv } from "../rut";
 import { chileDate } from "./emit";
 import { esc } from "./xml";
 
@@ -156,9 +159,11 @@ export function buildLibroXml(input: BuildLibroInput): string {
   ) {
     throw new Error("El número de resolución del SII debe tener hasta 6 dígitos.");
   }
-  if (!RUT_RE.test(input.rutEmisor)) {
+  if (!RUT_RE.test(formatRutDv(input.rutEmisor))) {
     throw new Error(`RUT del emisor inválido: "${input.rutEmisor}".`);
   }
+
+  const rutEmisor = formatRutDv(input.rutEmisor);
 
   const docs = documentosLibro(input.documentos);
   const totales = agruparPorTipo(input.documentos);
@@ -172,8 +177,8 @@ export function buildLibroXml(input: BuildLibroInput): string {
   );
   l.push(`  <EnvioLibro ID="LibroCV-${sentido}-${periodo}">`);
   l.push(`    <Caratula>`);
-  l.push(tag("RutEmisorLibro", input.rutEmisor, "      "));
-  l.push(tag("RutEnvia", input.rutEmisor, "      "));
+  l.push(tag("RutEmisorLibro", rutEmisor, "      "));
+  l.push(tag("RutEnvia", rutEmisor, "      "));
   l.push(tag("PeriodoTributario", periodo, "      "));
   l.push(tag("FchResol", input.fechaResolucion, "      "));
   l.push(tag("NroResol", input.numeroResolucion, "      "));
@@ -210,12 +215,13 @@ export function buildLibroXml(input: BuildLibroInput): string {
     l.push(`      <TasaImp>19.0</TasaImp>`);
     l.push(tag("FchDoc", chileDate(d.fechaEmision), "      "));
     if (d.contraparteRut) {
-      if (!RUT_RE.test(d.contraparteRut)) {
+      const rut = formatRutDv(d.contraparteRut);
+      if (!RUT_RE.test(rut)) {
         throw new Error(
           `RUT de contraparte inválido en folio ${d.folio}: "${d.contraparteRut}".`,
         );
       }
-      l.push(tag("RUTDoc", d.contraparteRut, "      "));
+      l.push(tag("RUTDoc", rut, "      "));
     }
     if (d.contraparteRazonSocial) {
       // RznSoc: máx. 50 caracteres según el XSD.

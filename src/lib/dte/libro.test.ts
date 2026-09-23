@@ -238,6 +238,20 @@ describe("buildLibroXml", () => {
     ).toThrow(/Tipo de operación inválido/);
   });
 
+  it("normaliza el RUT al formato XML con guion (la BD guarda sólo dígitos)", () => {
+    const xml = buildLibroXml({ ...input(VENTAS), rutEmisor: "765432103" });
+    expect(xml).toContain("<RutEmisorLibro>76543210-3</RutEmisorLibro>");
+    const sinGuion = VENTAS.map((d) => ({
+      ...d,
+      contraparteRut: d.contraparteRut
+        ? d.contraparteRut.replace("-", "")
+        : null,
+    }));
+    const xml2 = buildLibroXml(input(sinGuion));
+    expect(xml2).toContain("<RUTDoc>12345678-5</RUTDoc>");
+    expect(xml2).not.toContain("<RUTDoc>123456785</RUTDoc>");
+  });
+
   it("rechaza RUT de contraparte inválido nombrando el folio", () => {
     expect(() =>
       buildLibroXml(

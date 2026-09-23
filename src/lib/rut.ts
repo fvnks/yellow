@@ -3,7 +3,7 @@
  * Check digit uses the Modulo 11 algorithm mandated by the SII.
  */
 
-/** Strip dots, hyphens and whitespace; uppercase. "12.345.678-5" → "12345678-5". */
+/** Strip dots, hyphens and whitespace; uppercase. "12.345.678-5" → "123456785" (digits only — use formatRutDv to re-insert the XML hyphen). */
 export function normalizeRut(rut: string): string {
   return rut.replace(/[.\-\s]/g, "").toUpperCase();
 }
