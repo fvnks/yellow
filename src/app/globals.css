@@ -139,6 +139,9 @@
     border-color: var(--c-blue-bright);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-blue-bright) 25%, transparent);
   }
+  .field[aria-invalid="true"] {
+    border-color: var(--c-err);
+  }
 
   .alert {
     border: 1px solid;
