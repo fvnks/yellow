@@ -97,9 +97,9 @@ model SiiCertificate {
 }
 
 /// Portal credentials (RUT + clave tributaria) for the RCV download
-/// services — the session that serves /descargas. The clave is stored
-/// AES-256-GCM encrypted (src/lib/crypto.ts); the API only ever returns
-/// the RUT and creation date, never the clave.
+/// services — the session that serves the Registro CSV en /libros. The
+/// clave is stored AES-256-GCM encrypted (src/lib/crypto.ts); the API
+/// only ever returns the RUT and creation date, never the clave.
 model SiiPortalCredential {
   id        String @id @default(cuid())
   tenantId  String @unique

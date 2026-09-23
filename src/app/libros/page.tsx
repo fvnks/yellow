@@ -192,6 +192,13 @@ export default async function LibrosPage({
           >
             Descargar XML
           </a>
+          <a
+            href={`/api/tenants/${tenantId}/descargas?sentido=${sentido}&periodo=${periodo}&formato=csv`}
+            className="btn btn-ghost"
+            download={`registro-${sentido === "SALIDA" ? "ventas" : "compras"}-${periodo}.csv`}
+          >
+            Registro CSV
+          </a>
         </div>
       </div>
 

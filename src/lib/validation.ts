@@ -252,7 +252,7 @@ export const uploadCertificateSchema = z.object({
   password: z.string().min(1, "Contraseña requerida").max(256),
 });
 
-// ── Credenciales del portal SII (clave tributaria) para descargas RCV ──
+// ── Credenciales del portal SII (clave tributaria) para el registro CSV ──
 
 export const portalCredentialSchema = z.object({
   rut: z.string().refine(isValidRut, "RUT inválido"),
