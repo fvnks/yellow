@@ -18,6 +18,12 @@ describe("canTransition", () => {
     expect(canTransition("ENVIADO", "RECHAZADO")).toBe(true);
   });
 
+  it("annuls a signed (never-sent) folio, but never an in-flight one", () => {
+    expect(canTransition("FIRMADO", "ANULADO")).toBe(true);
+    expect(canTransition("ENVIADO", "ANULADO")).toBe(false);
+    expect(canTransition("BORRADOR", "ANULADO")).toBe(false);
+  });
+
   it("denies skipping steps and terminal states", () => {
     expect(canTransition("BORRADOR", "ENVIADO")).toBe(false);
     expect(canTransition("BORRADOR", "ACEPTADO")).toBe(false);

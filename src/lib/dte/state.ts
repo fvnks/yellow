@@ -2,10 +2,11 @@
  * DTE lifecycle state machine.
  *
  *   BORRADOR → FIRMADO → ENVIADO → ACEPTADO → ANULADO
- *                            └─────→ RECHAZADO
+ *                └────────→ ANULADO  └─────→ RECHAZADO
  *
- * A FIRMADO document can resume emission (re-send) — the folio, once
- * assigned, is never reused. Terminal states have no outgoing edges.
+ * A FIRMADO document can resume emission (re-send) or be annulled
+ * directly: its folio never reached the SII (FAQ 001.003.2167.006).
+ * The folio, once assigned, is never reused. Terminal states are final.
  */
 
 export type DteEstado =
@@ -18,7 +19,8 @@ export type DteEstado =
 
 const TRANSITIONS: Record<DteEstado, readonly DteEstado[]> = {
   BORRADOR: ["FIRMADO"],
-  FIRMADO: ["ENVIADO"],
+  // A signed, never-sent folio may also be annulled directly.
+  FIRMADO: ["ENVIADO", "ANULADO"],
   ENVIADO: ["ACEPTADO", "RECHAZADO"],
   ACEPTADO: ["ANULADO"],
   RECHAZADO: [],
