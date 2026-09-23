@@ -32,14 +32,14 @@
   --c-blue: #0061a0;
   --c-blue-bright: #0272ba;
   --c-orange: #eb510d;
-  --c-orange-ink: #c2410c;
+  --c-orange-ink: #9a3412;
   --c-surface: #f4f6f8;
   --c-panel: #ffffff;
   --c-block: #eef1f4;
   --c-ink: #10233a;
   --c-ink-soft: #5c6773;
   --c-line: #d7dce2;
-  --c-field: #8b949e;
+  --c-field: #838c96;
   --c-ok: #2f6b31;
   --c-err: #b3352f;
 }
@@ -112,7 +112,7 @@
   }
   .btn-danger {
     background: transparent;
-    border-color: color-mix(in srgb, var(--c-err) 45%, transparent);
+    border-color: var(--c-err);
     color: var(--c-err);
   }
   .btn-danger:hover:not(:disabled) {
