@@ -25,7 +25,9 @@ export interface DteItemXml {
   precioUnitario: number;
   descuento?: number;
   afectoIva?: boolean;
-  /** Bruto: round(cantidad × precioUnitario) — discounts go in <DscRng>. */
+  /** Neto por línea (bruto − descuento): lo que exige el SII en <MontoItem>
+   *  para que Σ MontoItem cuadre con MntNeto. El descuento informativo va
+   *  además en <DescuentoMonto>. */
   monto: number;
 }
 
@@ -109,9 +111,12 @@ function buildReceptor(receptor: BuildDteInput["receptor"]): string {
     `<RznSocRecep>${esc(receptor.razonSocial)}</RznSocRecep>`,
   ];
   if (receptor.giro) lines.push(`<GiroRecep>${esc(receptor.giro)}</GiroRecep>`);
+  if (receptor.email) lines.push(`<CorreoRecep>${esc(receptor.email)}</CorreoRecep>`);
   if (receptor.direccion) lines.push(`<DirRecep>${esc(receptor.direccion)}</DirRecep>`);
-  if (receptor.comuna) lines.push(`<CmnaRecep>${esc(receptor.comuna)}</CmnaRecep>`);
-  if (receptor.email) lines.push(`<EmailRecep>${esc(receptor.email)}</EmailRecep>`);
+  if (receptor.comuna) {
+    lines.push(`<CmnaRecep>${esc(receptor.comuna)}</CmnaRecep>`);
+    lines.push(`<CiudadRecep>${esc(receptor.comuna)}</CiudadRecep>`);
+  }
   return `<Receptor>\n${lines.join("\n")}\n</Receptor>`;
 }
 
@@ -130,17 +135,12 @@ function buildTotales(totales: BuildDteInput["totales"]): string {
 function buildDetalle(item: DteItemXml): string {
   const lines = [`<NroLinDet>${item.linea}</NroLinDet>`];
   if (item.afectoIva === false) lines.push(`<IndExe>1</IndExe>`);
-  lines.push(`<DscItem>${esc(item.nombre)}</DscItem>`);
-  lines.push(`<CantItem>${fmtCantidad(item.cantidad)}</CantItem>`);
+  lines.push(`<NmbItem>${esc(item.nombre.slice(0, 80))}</NmbItem>`);
+  lines.push(`<QtyItem>${fmtCantidad(item.cantidad)}</QtyItem>`);
   lines.push(`<PrcItem>${item.precioUnitario}</PrcItem>`);
-  lines.push(`<MontoItem>${item.monto}</MontoItem>`);
   const descuento = item.descuento ?? 0;
-  if (descuento > 0) {
-    lines.push(
-      `<DscRng><NroLinDR>1</NroLinDR><GlosaDR>Descuento</GlosaDR>` +
-        `<TpoMov>D</TpoMov><ValorDR>${descuento}</ValorDR></DscRng>`,
-    );
-  }
+  if (descuento > 0) lines.push(`<DescuentoMonto>${descuento}</DescuentoMonto>`);
+  lines.push(`<MontoItem>${item.monto}</MontoItem>`);
   return `<Detalle>\n${lines.join("\n")}\n</Detalle>`;
 }
 

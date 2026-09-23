@@ -206,7 +206,8 @@ export async function emitirDte(
     totales: totals,
     items: items.map((i) => ({
       ...i,
-      monto: Math.round(i.cantidad * i.precioUnitario),
+      // Neto por línea (ya descontado) para que Σ MontoItem = MntNeto.
+      monto: i.total,
     })),
     references: doc.references.map((r) => ({
       tipoDteRef: r.tipoDteRef,

@@ -101,7 +101,7 @@ describe("buildDteXml", () => {
     expect(xml).toContain('<Documento ID="F27T34">');
   });
 
-  it("formats quantities without trailing zeros and adds DscRng for discounts", () => {
+  it("formats quantities without trailing zeros and adds DescuentoMonto for discounts", () => {
     const xml = buildDteXml({
       ...base,
       items: [
@@ -111,15 +111,13 @@ describe("buildDteXml", () => {
           cantidad: 2.5,
           precioUnitario: 999,
           descuento: 100,
-          monto: 2498,
+          monto: 2398, // neto: 2.5 × 999 → 2498 − 100
         },
       ],
     });
-    expect(xml).toContain("<CantItem>2.5</CantItem>");
-    expect(xml).toContain("<MontoItem>2498</MontoItem>");
-    expect(xml).toContain(
-      "<DscRng><NroLinDR>1</NroLinDR><GlosaDR>Descuento</GlosaDR><TpoMov>D</TpoMov><ValorDR>100</ValorDR></DscRng>",
-    );
+    expect(xml).toContain("<QtyItem>2.5</QtyItem>");
+    expect(xml).toContain("<MontoItem>2398</MontoItem>");
+    expect(xml).toContain("<DescuentoMonto>100</DescuentoMonto>");
   });
 
   it("adds IndTraslado only for guías de despacho (52)", () => {
