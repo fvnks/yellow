@@ -190,10 +190,11 @@ export async function POST(
       const mensaje =
         advertencia ??
         `Anulación: emitida ${etiqueta} N° ${folioNota} — documento N° ${doc.folio} anulado.`;
+      // Re-fetch: emitirDte avanzó la nota (folio/estado) tras el create.
       return NextResponse.json({
         mensaje,
         advertencia,
-        nota,
+        nota: (await refetch(tenantId, nota.id)) ?? nota,
         documento: (await refetch(tenantId, doc.id)) ?? doc,
       });
     }
