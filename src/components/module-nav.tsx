@@ -1,12 +1,11 @@
 import Link from "next/link";
 
-type ModuleId = "facturacion" | "compras" | "libros" | "descargas" | "configuracion";
+type ModuleId = "facturacion" | "compras" | "libros" | "configuracion";
 
 const LINKS: Array<{ id: ModuleId; href: string; label: string }> = [
   { id: "facturacion", href: "/facturacion", label: "Facturación" },
   { id: "compras", href: "/compras", label: "Compras" },
   { id: "libros", href: "/libros", label: "Libros" },
-  { id: "descargas", href: "/descargas", label: "Descargas" },
   { id: "configuracion", href: "/configuracion", label: "Configuración" },
 ];
 

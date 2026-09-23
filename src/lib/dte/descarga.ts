@@ -1,6 +1,6 @@
 /**
- * Descarga del registro de compras/ventas + XML/PDF por documento
- * (la función central de /descargas).
+ * Registro del periodo + CSV (exportación desde /descargas; el botón
+ * «Registro CSV» vive en /libros).
  *
  * Dos adaptadores tras la misma fachada:
  *
@@ -9,12 +9,10 @@
  *  - **mock** — sin credenciales: el registro se compone con los
  *    documentos aceptados/anulados del tenant en Yellow.
  *
- * El XML se resuelve SIEMPRE contra la BD local (ahí están las ventas
- * firmadas): las filas sin XML local quedan con un motivo honesto —
- * el de terceros sólo lo sirve el portal del SII (Consulta de
- * documentos) y el de ventas externas nunca pasó por Yellow. El PDF se
- * genera localmente desde ese XML (`pdf.ts`), igual que todos los
- * proveedores: el SII no ofrece un servicio de PDF.
+ * El XML/PDF de cada documento se descarga desde su fila en
+ * Facturación/Compras (`/dte/{id}/archivo`): el XML sólo existe para lo
+ * firmado en Yellow y el PDF se genera localmente (`pdf.ts`), igual que
+ * todos los proveedores — el SII no ofrece un servicio de PDF.
  */
 
 import { decryptSecret, DecryptError } from "@/lib/crypto";
@@ -240,31 +238,6 @@ export async function registroDelPeriodo(
     }
     throw err;
   }
-}
-
-/** XML local de un documento del periodo (null cuando no está). */
-export async function xmlDelPeriodo(
-  tenantId: string,
-  sentido: SentidoDescarga,
-  periodo: string,
-  tipoDte: number,
-  folio: number,
-): Promise<string | null> {
-  const bounds = periodoBounds(periodo);
-  if (!bounds) {
-    throw new Error(`Periodo inválido: "${periodo}" (se espera AAAA-MM).`);
-  }
-  const doc = await db.dteDocument.findFirst({
-    where: {
-      tenantId,
-      sentido,
-      tipoDte,
-      folio,
-      fechaEmision: { gte: bounds.gte, lt: bounds.lt },
-    },
-    select: { xml: true },
-  });
-  return doc?.xml ?? null;
 }
 
 /** CSV local (modo mock) con el mismo espíritu que la exportación del SII. */

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * Guarda la clave tributaria del portal SII (cifrada con AES-256-GCM) que
- * alimenta el registro real de /descargas. Se monta sólo para OWNER/ADMIN
+ * alimenta el Registro CSV real de /libros. Se monta sólo para OWNER/ADMIN
  * (Facturación); la clave nunca se vuelve a leer desde el servidor, sólo
  * se reemplaza o elimina.
  */
@@ -40,7 +40,9 @@ export function PortalCredencialPanel({
         return;
       }
       setClave("");
-      setNotice("Credenciales guardadas. /descargas usará el registro real del SII.");
+      setNotice(
+        "Credenciales guardadas: el Registro CSV de Libros usará el registro real del SII.",
+      );
       router.refresh();
     } finally {
       setBusy(false);
@@ -60,7 +62,9 @@ export function PortalCredencialPanel({
         setError(data.error ?? "No se pudieron eliminar las credenciales");
         return;
       }
-      setNotice("Credenciales eliminadas: /descargas vuelve al modo simulado.");
+      setNotice(
+        "Credenciales eliminadas: el Registro CSV de Libros vuelve al modo simulado.",
+      );
       router.refresh();
     } finally {
       setBusy(false);
@@ -71,13 +75,14 @@ export function PortalCredencialPanel({
     <section className="space-y-4">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-ink">
-          Portal SII — clave tributaria (descargas)
+          Portal SII — clave tributaria (registro CSV)
         </h2>
         <p className="text-sm text-ink-soft">
-          Abre la sesión del portal para traer el registro real de compras y
-          ventas a <span className="font-mono">/descargas</span>. Se guarda
-          cifrada, no se muestra nunca y sin ella esa página trabaja en modo
-          simulado con los documentos de Yellow.
+          Abre la sesión del portal para exportar el registro real de compras
+          y ventas desde <span className="font-mono">/libros</span> (botón
+          «Registro CSV»). Se guarda cifrada, no se muestra nunca y sin ella
+          la exportación trabaja en modo simulado con los documentos de
+          Yellow.
         </p>
       </div>
 

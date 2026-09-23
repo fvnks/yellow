@@ -8,7 +8,7 @@ import { issuesOf, portalCredentialSchema } from "@/lib/validation";
 
 /**
  * Credenciales del portal SII (RUT + clave tributaria) que alimentan la
- * descarga del registro de compras/ventas desde /descargas. La clave se
+ * descarga del registro de compras/ventas (Registro CSV en /libros). La clave se
  * guarda cifrada (AES-256-GCM) y jamás sale por la API. OWNER/ADMIN.
  */
 

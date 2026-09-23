@@ -24,6 +24,8 @@ type Documento = {
   siiResponse: string | null;
   /** Detalle de la anulación (método + motivo), cuando el doc fue anulado. */
   motivoAnulacion: string | null;
+  /** true → el DTE firmado está en Yellow y su XML es descargable. */
+  xmlDisponible: boolean;
   vendedor: { id: string; nombre: string } | null;
   costCenter: { id: string; codigo: string; nombre: string } | null;
 };
@@ -322,6 +324,32 @@ export function DteList({
                   )}
                   <td className="text-right">
                     <span className="flex justify-end gap-2">
+                      {doc.xmlDisponible && (
+                        <a
+                          href={`/api/tenants/${tenantId}/dte/${doc.id}/archivo?formato=xml`}
+                          className="btn btn-ghost px-3 py-1 text-xs"
+                          download={`dte-${doc.tipoDte}-${doc.folio ?? doc.id}.xml`}
+                        >
+                          XML
+                        </a>
+                      )}
+                      {(doc.xmlDisponible || doc.folio != null) && (
+                        <a
+                          href={`/api/tenants/${tenantId}/dte/${doc.id}/archivo?formato=pdf`}
+                          className="btn btn-ghost px-3 py-1 text-xs"
+                          download={`dte-${doc.tipoDte}-${doc.folio ?? doc.id}.pdf`}
+                        >
+                          PDF
+                        </a>
+                      )}
+                      {!esSalida && !doc.xmlDisponible && doc.folio != null && (
+                        <span
+                          className="px-3 py-1 text-xs text-ink-soft"
+                          title="El XML del proveedor sólo lo sirve el portal del SII (Consulta de documentos); Yellow no lo almacena."
+                        >
+                          XML en el SII
+                        </span>
+                      )}
                       {esSalida && EMITIBLES.has(doc.estado) && (
                         <button
                           onClick={() => emitir(doc.id)}

@@ -1,25 +1,23 @@
 import { NextResponse } from "next/server";
 import { findMembership } from "@/lib/authz";
 import { DecryptError } from "@/lib/crypto";
-import { csvDelPeriodo, registroDelPeriodo, xmlDelPeriodo } from "@/lib/dte/descarga";
-import { pdfDesdeXml, PdfError } from "@/lib/dte/pdf";
+import { csvDelPeriodo, registroDelPeriodo } from "@/lib/dte/descarga";
 import { periodoBounds } from "@/lib/dte/libro-periodo";
 import { PortalError } from "@/lib/sii/portal";
 import { getAuthContext } from "@/lib/session";
 
 /**
- * GET — descargas del SII desde /descargas. Cualquier miembro puede.
+ * GET — registro de compras/ventas del periodo. Cualquier miembro puede.
+ * El botón «Registro CSV» vive en /libros; el XML/PDF de cada documento
+ * se descarga desde su fila (Facturación/Compras).
  *
  * Query:
  *   ?periodo=AAAA-MM            (obligatorio)
  *   ?sentido=SALIDA|ENTRADA     (defecto SALIDA)
- *   ?formato=json|csv|xml|pdf   (defecto json; xml/pdf llevan además
- *                                ?tipo=33&folio=1004)
+ *   ?formato=json|csv           (defecto json)
  *
  * - json: registro completo del periodo (modo, documentos, aviso)
  * - csv:  exportación del registro (en modo real es la del SII mismo)
- * - xml:  el DTE firmado local (null → 404 con el motivo honesto)
- * - pdf:  representación impresa generada desde ese XML
  */
 export async function GET(
   req: Request,
@@ -60,60 +58,14 @@ export async function GET(
     }
   }
 
-  // ── XML / PDF de un documento puntual ──
-  if (formato === "xml" || formato === "pdf") {
-    const tipo = Number(url.searchParams.get("tipo"));
-    const folio = Number(url.searchParams.get("folio"));
-    if (!Number.isInteger(tipo) || !Number.isInteger(folio) || tipo <= 0 || folio <= 0) {
-      return NextResponse.json(
-        { error: "Se requiere ?tipo y ?folio válidos" },
-        { status: 400 },
-      );
-    }
-
-    let xml: string | null;
-    try {
-      xml = await xmlDelPeriodo(tenantId, sentido, periodo, tipo, folio);
-    } catch (err) {
-      return errRespuesta(err);
-    }
-    if (!xml) {
-      return NextResponse.json(
-        {
-          error: `XML del documento ${tipo} N° ${folio} no está en Yellow`,
-          motivo:
-            "El XML de terceros (y de documentos emitidos fuera de Yellow) sólo se sirve desde el portal del SII.",
-        },
-        { status: 404 },
-      );
-    }
-
-    if (formato === "xml") {
-      return new NextResponse(Buffer.from(xml, "latin1"), {
-        headers: {
-          "Content-Type": "application/xml; charset=ISO-8859-1",
-          "Content-Disposition": `attachment; filename="dte-${tipo}-${folio}.xml"`,
-        },
-      });
-    }
-
-    try {
-      const pdf = pdfDesdeXml(xml);
-      return new NextResponse(new Uint8Array(pdf), {
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": `attachment; filename="dte-${tipo}-${folio}.pdf"`,
-        },
-      });
-    } catch (err) {
-      if (err instanceof PdfError) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
-      }
-      return errRespuesta(err);
-    }
+  if (formato !== "json") {
+    return NextResponse.json(
+      { error: `Formato no soportado: "${formato}" (usa json o csv; el XML/PDF de cada documento se descarga desde su fila).` },
+      { status: 400 },
+    );
   }
 
-  // ── Registro JSON (lo consume la página y los refrescos del cliente) ──
+  // ── Registro JSON ──
   try {
     const registro = await registroDelPeriodo(tenantId, sentido, periodo);
     return NextResponse.json(registro);

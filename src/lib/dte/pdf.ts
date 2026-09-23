@@ -1,5 +1,7 @@
 /**
- * Representación impresa de un DTE en PDF, generada desde su XML.
+ * Representación impresa de un DTE en PDF: desde su XML firmado o,
+ * cuando no hay XML local (compras de terceros), desde el registro
+ * estructurado de Yellow.
  *
  * El SII no publica un servicio de PDF: la vía habitual (y la de todos
  * los proveedores) es convertir el XML del documento a un PDF legible.
@@ -180,13 +182,20 @@ function linea(size: number, texto: string, extra?: Partial<Row>): Row {
   return { size, partes: [{ x: MARGIN, texto }], ...extra };
 }
 
-function construirRows(d: DatosDte): Row[] {
+/**
+ * Origen de los datos: "xml" (extractados del DTE firmado, con timbre)
+ * o "registro" (fila estructurada de Yellow para un documento cuyo XML
+ * no está almacenado — típicamente una compra).
+ */
+type OrigenPdf = "xml" | "registro";
+
+function construirRows(d: DatosDte, fuente: OrigenPdf): Row[] {
   const rows: Row[] = [];
   const etiqueta = ETIQUETA_TIPO[d.tipoDte] ?? `Tipo ${d.tipoDte}`;
 
   rows.push(linea(15, `${etiqueta} N° ${d.folio}`, { bold: true, gap: 6 }));
   rows.push(linea(11, d.emisor.razonSocial, { bold: true }));
-  rows.push(linea(10, `RUT ${d.emisor.rut}`));
+  if (d.emisor.rut) rows.push(linea(10, `RUT ${d.emisor.rut}`));
   if (d.emisor.giro) rows.push(linea(10, d.emisor.giro));
   const origen = [d.emisor.direccion, d.emisor.comuna].filter(Boolean).join(", ");
   if (origen) rows.push(linea(10, origen, { gap: 8 }));
@@ -253,21 +262,37 @@ function construirRows(d: DatosDte): Row[] {
   }
   if (d.referencias.length > 0) rows.push({ size: 6, partes: [{ x: MARGIN, texto: " " }], gap: 6 });
 
-  rows.push(
-    linea(
-      8,
-      `Timbre (TED) F${d.folio}T${d.tipoDte}${d.tmstFirma ? ` - firma ${d.tmstFirma}` : ""}.`,
-      { gris: true },
-    ),
-  );
-  rows.push(
-    linea(
-      8,
-      "Representación impresa generada por Yellow a partir del XML firmado: " +
-        "el documento tributario electrónico es el archivo XML.",
-      { gris: true },
-    ),
-  );
+  if (fuente === "xml") {
+    rows.push(
+      linea(
+        8,
+        `Timbre (TED) F${d.folio}T${d.tipoDte}${d.tmstFirma ? ` - firma ${d.tmstFirma}` : ""}.`,
+        { gris: true },
+      ),
+    );
+    rows.push(
+      linea(
+        8,
+        "Representación impresa generada por Yellow a partir del XML firmado: " +
+          "el documento tributario electrónico es el archivo XML.",
+        { gris: true },
+      ),
+    );
+  } else {
+    rows.push(
+      linea(8, `Sin timbre (TED): el PDF se generó desde el registro local.`, {
+        gris: true,
+      }),
+    );
+    rows.push(
+      linea(
+        8,
+        "Representación impresa generada por Yellow desde el registro local: " +
+          "no reemplaza el DTE del proveedor, que sólo se sirve desde el portal del SII.",
+        { gris: true },
+      ),
+    );
+  }
   return rows;
 }
 
@@ -375,9 +400,28 @@ function escribirPdf(paginas: string[]): Buffer {
   return Buffer.concat(partes);
 }
 
+function construirPdf(datos: DatosDte, origen: OrigenPdf): Buffer {
+  const filas = paginar(construirRows(datos, origen));
+  return escribirPdf(filas.map(contenidoPagina));
+}
+
 /** PDF completo de la representación impresa de un DTE. Lanza PdfError. */
 export function pdfDesdeXml(xml: string): Buffer {
-  const datos = extraerDatosDte(xml);
-  const filas = paginar(construirRows(datos));
-  return escribirPdf(filas.map(contenidoPagina));
+  return construirPdf(extraerDatosDte(xml), "xml");
+}
+
+/**
+ * PDF construido desde datos estructurados (registro local) cuando no
+ * hay XML almacenado: compras de terceros y borradores. Lanza PdfError
+ * si no hay folio ni líneas de detalle — sin eso no hay DTE que
+ * representar.
+ */
+export function pdfDesdeDatos(datos: DatosDte): Buffer {
+  if (!Number.isInteger(datos.folio) || datos.folio <= 0) {
+    throw new PdfError("El documento no tiene folio: no hay DTE que representar.");
+  }
+  if (datos.items.length === 0) {
+    throw new PdfError("El documento no tiene líneas de detalle.");
+  }
+  return construirPdf(datos, "registro");
 }

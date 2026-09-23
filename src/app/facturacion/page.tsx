@@ -257,6 +257,7 @@ export default async function FacturacionPage() {
           trackId: d.trackId,
           siiResponse: d.siiResponse,
           motivoAnulacion: d.motivoAnulacion,
+          xmlDisponible: Boolean(d.xml),
           vendedor: d.vendedor,
           costCenter: d.costCenter,
         }))}
