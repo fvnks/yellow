@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { extraerDatosDte, pdfDesdeXml, PdfError } from "./pdf";
+import {
+  extraerDatosDte,
+  pdfDesdeDatos,
+  pdfDesdeXml,
+  PdfError,
+  type DatosDte,
+} from "./pdf";
 
 /**
  * XML de referencia con los mismos patrones que emite `buildDteXml`
@@ -144,5 +150,60 @@ describe("pdfDesdeXml", () => {
 
   it("rechaza un XML incompleto", () => {
     expect(() => pdfDesdeXml("<DTE><Documento></Documento></DTE>")).toThrow(PdfError);
+  });
+});
+
+/** Datos estructurados de una compra (sin XML almacenado). */
+function datosCompra(over?: Partial<DatosDte>): DatosDte {
+  return {
+    tipoDte: 46,
+    folio: 880,
+    fecha: "2026-09-15",
+    emisor: {
+      rut: "76111222-5",
+      razonSocial: "Proveedora Ñuble SpA",
+      giro: "Suministros",
+      direccion: "",
+      comuna: "",
+    },
+    receptor: {
+      rut: "76543210-3",
+      razonSocial: "Yellow Test SpA",
+      giro: "Software",
+      direccion: "Av. Providencia 1234",
+      comuna: "Providencia",
+    },
+    totales: { neto: 500000, mntExe: 0, iva: 95000, total: 595000 },
+    items: [{ nombre: "Insumos de oficina", cantidad: 5, precioUnitario: 100000, monto: 500000 }],
+    referencias: [],
+    tmstFirma: "",
+    ...over,
+  };
+}
+
+describe("pdfDesdeDatos", () => {
+  it("produce un PDF estructuralmente válido con encabezado y totales", () => {
+    const texto = pdfDesdeDatos(datosCompra()).toString("latin1");
+
+    expect(texto.startsWith("%PDF-1.4\n")).toBe(true);
+    expect(texto.trimEnd().endsWith("%%EOF")).toBe(true);
+    expect(texto).toContain("xref");
+    expect(texto).toContain("Factura de Compra Electrónica N° 880");
+    expect(texto).toContain("76111222-5");
+    expect(texto).toContain("$595.000"); // total es-CL
+  });
+
+  it("declara el origen local y omite el timbre (no hay TED sin XML)", () => {
+    const texto = pdfDesdeDatos(datosCompra()).toString("latin1");
+
+    expect(texto).toContain("desde el registro local");
+    expect(texto).toContain("portal del SII");
+    expect(texto).not.toContain("Timbre (TED) F880");
+    expect(texto).not.toContain("a partir del XML firmado");
+  });
+
+  it("rechaza datos sin folio ni líneas de detalle", () => {
+    expect(() => pdfDesdeDatos(datosCompra({ folio: 0 }))).toThrow(PdfError);
+    expect(() => pdfDesdeDatos(datosCompra({ items: [] }))).toThrow(PdfError);
   });
 });
