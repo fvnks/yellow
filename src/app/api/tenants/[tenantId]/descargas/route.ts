@@ -99,7 +99,7 @@ export async function GET(
 
     try {
       const pdf = pdfDesdeXml(xml);
-      return new NextResponse(pdf, {
+      return new NextResponse(new Uint8Array(pdf), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="dte-${tipo}-${folio}.pdf"`,
