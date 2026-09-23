@@ -13,12 +13,27 @@ export type Certificado = {
   active: boolean;
 };
 
-function vigencia(cert: Certificado): { texto: string; vencido: boolean } {
-  if (!cert.notAfter) return { texto: "vigencia desconocida", vencido: false };
+/** Human-readable validity + whether the certificate expired or expires soon (≤30 d). */
+function vigencia(cert: Certificado): {
+  texto: string;
+  vencido: boolean;
+  porVencer: boolean;
+} {
+  if (!cert.notAfter) {
+    return { texto: "vigencia desconocida", vencido: false, porVencer: false };
+  }
   const hasta = new Date(cert.notAfter);
+  const dias = Math.ceil((hasta.getTime() - Date.now()) / 86_400_000);
+  const vencido = dias < 0;
+  const porVencer = !vencido && dias <= 30;
   return {
-    texto: `hasta ${hasta.toLocaleDateString("es-CL")}`,
-    vencido: hasta.getTime() < Date.now(),
+    texto: vencido
+      ? `vencido el ${hasta.toLocaleDateString("es-CL")}`
+      : porVencer
+        ? `vence el ${hasta.toLocaleDateString("es-CL")} (en ${dias} días)`
+        : `hasta ${hasta.toLocaleDateString("es-CL")}`,
+    vencido,
+    porVencer,
   };
 }
 
@@ -147,7 +162,18 @@ export function CertificadosPanel({
                     )}
                   </span>
                   <span className="block truncate text-xs text-zinc-500">
-                    {cert.subject ?? "Sin subject"} · vigencia {v.texto}
+                    {cert.subject ?? "Sin subject"} ·{" "}
+                    <span
+                      className={
+                        v.vencido
+                          ? "font-medium text-red-600 dark:text-red-400"
+                          : v.porVencer
+                            ? "font-medium text-amber-600 dark:text-amber-400"
+                            : undefined
+                      }
+                    >
+                      vigencia {v.texto}
+                    </span>
                     {cert.rut ? ` · RUT ${cert.rut}` : ""}
                   </span>
                 </span>
