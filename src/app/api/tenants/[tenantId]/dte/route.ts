@@ -142,7 +142,10 @@ export async function POST(
         tipoTraslado: esSalida ? (data.tipoTraslado ?? null) : null,
         motivoTraslado: data.motivoTraslado ?? null,
         ...totals,
-        estado: "BORRADOR",
+        // Ventas: borrador hasta emitirse. Compras: DTE de terceros ya válido
+        // ante el SII — al registrarlas quedan incorporadas al libro (no hay
+        // etapa de emisión para ENTRADA).
+        estado: esSalida ? "BORRADOR" : "ACEPTADO",
         items: {
           create: data.items.map((item, index) => ({
             linea: index + 1,
