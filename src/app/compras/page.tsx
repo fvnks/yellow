@@ -54,12 +54,13 @@ export default async function ComprasPage() {
         <div>
           <h1 className="text-2xl font-semibold text-ink">Compras</h1>
           <p className="text-sm text-ink-soft">
-            Facturas recibidas de proveedores ·{" "}
+            Facturas recibidas de proveedores · cada fila descarga su XML y
+            PDF ·{" "}
             <Link
-              href="/descargas?sentido=ENTRADA"
+              href="/libros?sentido=ENTRADA"
               className="text-blue hover:underline"
             >
-              descarga el registro del SII en /descargas
+              registro CSV en Libros
             </Link>
           </p>
         </div>
@@ -96,6 +97,7 @@ export default async function ComprasPage() {
           trackId: d.trackId,
           siiResponse: d.siiResponse,
           motivoAnulacion: d.motivoAnulacion,
+          xmlDisponible: Boolean(d.xml),
           vendedor: d.vendedor,
           costCenter: d.costCenter,
         }))}
