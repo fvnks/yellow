@@ -1,14 +1,33 @@
-/** Pie navy al estilo sii.cl: marca, alcance real del producto y nada más. */
+import Link from "next/link";
+import { SOPORTE_EMAIL } from "@/lib/contacto";
+
+/** Pie navy al estilo sii.cl: marca, alcance del producto y accesos legales. */
 export function AppFooter() {
   return (
     <footer className="mt-10 bg-navy">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-2 px-6 py-6 text-xs text-white/75">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-white/75">
         <span className="flex items-center gap-2">
           <span aria-hidden className="h-3 w-3 bg-orange" />
           <span className="font-semibold text-white">Yellow</span>
           <span>Facturación electrónica · DTE ante el SII</span>
         </span>
-        <span>Emisión, anulación y registro de compras y ventas</span>
+        <span className="flex items-center gap-4">
+          {SOPORTE_EMAIL ? (
+            <a href={`mailto:${SOPORTE_EMAIL}`} className="hover:text-white">
+              Contacto
+            </a>
+          ) : (
+            <Link href="/#contacto" className="hover:text-white">
+              Contacto
+            </Link>
+          )}
+          <Link href="/terminos" className="hover:text-white">
+            Términos
+          </Link>
+          <Link href="/privacidad" className="hover:text-white">
+            Privacidad
+          </Link>
+        </span>
       </div>
     </footer>
   );
