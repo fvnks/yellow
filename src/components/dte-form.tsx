@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CompraRapida, type CompraExistente } from "./compra-rapida";
 
 const TIPOS: Record<number, string> = {
   33: "Factura (33)",
@@ -71,6 +72,41 @@ const clp = new Intl.NumberFormat("es-CL", {
 
 const inputClass = "field";
 
+/** Tabs del modo de registro de compras (rápida vs itemizada). */
+function TabsRegistro({
+  modo,
+  setModo,
+}: {
+  modo: "rapida" | "itemizada";
+  setModo: (m: "rapida" | "itemizada") => void;
+}) {
+  const base = "rounded-md px-3 py-1.5 text-sm transition";
+  const tabs: Array<{ id: "rapida" | "itemizada"; label: string }> = [
+    { id: "rapida", label: "Rápida" },
+    { id: "itemizada", label: "Itemizada" },
+  ];
+  return (
+    <div role="tablist" aria-label="Modo de registro" className="flex flex-wrap gap-2">
+      {tabs.map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          role="tab"
+          aria-selected={modo === t.id}
+          onClick={() => setModo(t.id)}
+          className={
+            modo === t.id
+              ? `${base} bg-navy font-medium text-white`
+              : `${base} text-blue hover:bg-blue-bright hover:text-white`
+          }
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /**
  * Document form for both senses: SALIDA (own invoice, emitted through SII)
  * and ENTRADA (provider invoice, registered as a purchase).
@@ -81,12 +117,15 @@ export function DteForm({
   vendedores = [],
   centros = [],
   categorias = [],
+  existentes = [],
 }: {
   tenantId: string;
   sentido?: "SALIDA" | "ENTRADA";
   vendedores?: DimensionOption[];
   centros?: DimensionOption[];
   categorias?: DimensionOption[];
+  /** Compras ya registradas — habilita el aviso de folio duplicado en el modo rápido. */
+  existentes?: CompraExistente[];
 }) {
   const router = useRouter();
   const esSalida = sentido === "SALIDA";
@@ -112,6 +151,8 @@ export function DteForm({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // ── Modo de registro (compras): captura rápida o formulario itemizado ──
+  const [modo, setModo] = useState<"rapida" | "itemizada">("rapida");
 
   const esNota = NOTA_TIPOS.includes(tipo);
   const totals = previewTotals(tipo, items);
@@ -194,11 +235,28 @@ export function DteForm({
     }
   }
 
+  if (!esSalida && modo === "rapida") {
+    return (
+      <section className="space-y-4">
+        <h2 className="text-lg font-medium text-ink">Registrar compra</h2>
+        <TabsRegistro modo={modo} setModo={setModo} />
+        <CompraRapida
+          tenantId={tenantId}
+          centros={centros}
+          categorias={categorias}
+          existentes={existentes}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-4">
       <h2 className="text-lg font-medium text-ink">
         {esSalida ? "Nueva venta" : "Registrar compra"}
       </h2>
+
+      {!esSalida && <TabsRegistro modo={modo} setModo={setModo} />}
 
       {error && <p className="alert alert-error" role="alert">{error}</p>}
       {notice && <p className="alert alert-ok" role="status">{notice}</p>}
