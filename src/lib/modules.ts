@@ -1,12 +1,11 @@
 /**
  * Registro de módulos activables por tenant. El panel (launcher) muestra
  * el registro completo; la barra de navegación y las páginas filtran por
- * lo activado. Añadir un módulo nuevo = sumarlo aquí + su página + la
- * enum ModuleKey de Prisma.
+ * lo activado. FACTURACION/COMPRAS quedaron consolidados en ERP.
  */
 import { db } from "@/lib/db";
 
-export type ModuloKey = "FACTURACION" | "COMPRAS" | "LIBROS" | "REPORTES";
+export type ModuloKey = "ERP" | "LIBROS" | "REPORTES";
 
 export type DefinicionModulo = {
   key: ModuloKey;
@@ -21,20 +20,13 @@ export type DefinicionModulo = {
 
 export const MODULOS: DefinicionModulo[] = [
   {
-    key: "FACTURACION",
-    href: "/facturacion",
-    nombre: "Facturación",
+    key: "ERP",
+    href: "/erp",
+    nombre: "ERP",
     descripcion:
-      "Emite facturas, guías y notas al SII, consulta estados y anula con nota de crédito.",
-    sigla: "FAC",
-  },
-  {
-    key: "COMPRAS",
-    href: "/compras",
-    nombre: "Compras",
-    descripcion:
-      "Registra facturas de proveedores y clasifícalas por área y categoría.",
-    sigla: "COM",
+      "Ventas y compras en un solo lugar: emisión de DTE, registro de proveedores, clasificación y anulación.",
+    sigla: "ERP",
+    nuevo: true,
   },
   {
     key: "LIBROS",
@@ -51,12 +43,11 @@ export const MODULOS: DefinicionModulo[] = [
     descripcion:
       "Ventas por vendedor, compras por área y categoría, y top de proveedores del periodo.",
     sigla: "REP",
-    nuevo: true,
   },
 ];
 
 /** Módulos activados por defecto; el resto se activa desde el panel. */
-export const MODULOS_CORE: ModuloKey[] = ["FACTURACION", "COMPRAS", "LIBROS"];
+export const MODULOS_CORE: ModuloKey[] = ["ERP", "LIBROS"];
 
 const KEYS = new Set<string>(MODULOS.map((m) => m.key));
 
@@ -71,5 +62,9 @@ export async function modulosActivos(tenantId: string): Promise<Set<ModuloKey>> 
     where: { tenantId },
     select: { key: true },
   });
-  return new Set(filas.map((f) => f.key));
+  const activos = new Set<ModuloKey>();
+  for (const fila of filas) {
+    if (esModuloKey(fila.key)) activos.add(fila.key);
+  }
+  return activos;
 }
