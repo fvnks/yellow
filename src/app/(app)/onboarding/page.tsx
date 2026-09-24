@@ -2,11 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
-import { MODULOS, modulosActivos, type ModuloKey } from "@/lib/modules";
 import { getAuthContext } from "@/lib/session";
 import { TenantPanel } from "@/components/tenant-panel";
 import { MembersPanel } from "@/components/members-panel";
-import { ModuleLauncher } from "@/components/module-launcher";
 import { OnboardingPasos, type PasoOnboarding } from "@/components/onboarding-pasos";
 
 export const dynamic = "force-dynamic";
@@ -29,60 +27,52 @@ const CONSEJOS = [
   },
 ];
 
-export default async function DashboardPage() {
+/**
+ * Onboarding del área: puesta en marcha con progreso real del tenant y
+ * administración del espacio de trabajo (equipo y espacios), al estilo
+ * Inicio → Onboarding del ERP de referencia.
+ */
+export default async function OnboardingPage() {
   const ctx = await getAuthContext();
   if (!ctx) redirect("/login");
 
   const active = ctx.memberships.find(
     (m) => m.tenantId === ctx.session.activeTenantId,
   );
+  if (!active) redirect("/dashboard");
 
-  const tenantId = active?.tenantId ?? null;
-  const canManage = tenantId ? canManageTenant(ctx, tenantId) : false;
+  const tenantId = active.tenantId;
+  const canManage = canManageTenant(ctx, tenantId);
 
   const [
     members,
     invitations,
-    activos,
     tenant,
     certActivo,
     cafs,
     ventas,
     compras,
   ] = await Promise.all([
-    tenantId
-      ? db.tenantMember.findMany({
-          where: { tenantId },
-          orderBy: { createdAt: "asc" },
-          include: { user: { select: { id: true, email: true, name: true } } },
-        })
-      : Promise.resolve([]),
-    tenantId && canManage
+    db.tenantMember.findMany({
+      where: { tenantId },
+      orderBy: { createdAt: "asc" },
+      include: { user: { select: { id: true, email: true, name: true } } },
+    }),
+    canManage
       ? db.invitation.findMany({
           where: { tenantId, acceptedAt: null, expiresAt: { gt: new Date() } },
           orderBy: { createdAt: "desc" },
           select: { id: true, email: true, role: true, expiresAt: true },
         })
       : Promise.resolve([]),
-    tenantId
-      ? modulosActivos(tenantId)
-      : Promise.resolve(new Set<ModuloKey>()),
-    tenantId ? db.tenant.findUnique({ where: { id: tenantId } }) : null,
-    tenantId
-      ? db.siiCertificate.findFirst({
-          where: { tenantId, active: true },
-          select: { id: true },
-        })
-      : Promise.resolve(null),
-    tenantId
-      ? db.caf.count({ where: { tenantId, active: true } })
-      : Promise.resolve(0),
-    tenantId
-      ? db.dteDocument.count({ where: { tenantId, sentido: "SALIDA" } })
-      : Promise.resolve(0),
-    tenantId
-      ? db.dteDocument.count({ where: { tenantId, sentido: "ENTRADA" } })
-      : Promise.resolve(0),
+    db.tenant.findUnique({ where: { id: tenantId } }),
+    db.siiCertificate.findFirst({
+      where: { tenantId, active: true },
+      select: { id: true },
+    }),
+    db.caf.count({ where: { tenantId, active: true } }),
+    db.dteDocument.count({ where: { tenantId, sentido: "SALIDA" } }),
+    db.dteDocument.count({ where: { tenantId, sentido: "ENTRADA" } }),
   ]);
 
   const perfilCompleto = !!(
@@ -150,9 +140,7 @@ export default async function DashboardPage() {
               Bienvenido a tu Yellow
             </h1>
             <p className="text-sm text-ink-soft">
-              {active
-                ? `${active.tenant.name} · configura y empieza a facturar`
-                : "Aún no perteneces a ningún tenant."}
+              {active.tenant.name} · configura y empieza a facturar
             </p>
           </div>
           <p className="text-sm font-medium text-ink">Tu progreso: {progreso}%</p>
@@ -175,16 +163,6 @@ export default async function DashboardPage() {
       <section className="relative">
         <OnboardingPasos pasos={pasos} />
       </section>
-
-      {tenantId && (
-        <div className="relative">
-          <ModuleLauncher
-            tenantId={tenantId}
-            canManage={canManage}
-            modulos={MODULOS.map((m) => ({ ...m, activo: activos.has(m.key) }))}
-          />
-        </div>
-      )}
 
       <section className="relative space-y-3">
         <h2 className="text-lg font-medium text-ink">Cuentas claras</h2>
@@ -210,26 +188,24 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {tenantId && (
-        <div className="relative">
-          <MembersPanel
-            tenantId={tenantId}
-            members={members.map((m) => ({
-              userId: m.userId,
-              email: m.user.email,
-              name: m.user.name,
-              role: m.role,
-            }))}
-            invitations={invitations.map((i) => ({
-              id: i.id,
-              email: i.email,
-              role: i.role,
-              expiresAt: i.expiresAt.toISOString(),
-            }))}
-            canManage={canManage}
-          />
-        </div>
-      )}
+      <div className="relative">
+        <MembersPanel
+          tenantId={tenantId}
+          members={members.map((m) => ({
+            userId: m.userId,
+            email: m.user.email,
+            name: m.user.name,
+            role: m.role,
+          }))}
+          invitations={invitations.map((i) => ({
+            id: i.id,
+            email: i.email,
+            role: i.role,
+            expiresAt: i.expiresAt.toISOString(),
+          }))}
+          canManage={canManage}
+        />
+      </div>
 
       <section className="relative space-y-2 text-sm text-ink-soft">
         <h2 className="text-lg font-medium text-ink">Cuenta</h2>

@@ -31,7 +31,10 @@ export default async function AppLayout({
   const grupos: SidebarGrupo[] = [
     {
       titulo: "Inicio",
-      items: [{ href: "/dashboard", label: "Panel de control" }],
+      items: [
+        { href: "/dashboard", label: "Panel" },
+        { href: "/onboarding", label: "Onboarding" },
+      ],
     },
   ];
   if (activos.has("ERP")) {
