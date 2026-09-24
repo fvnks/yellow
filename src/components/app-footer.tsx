@@ -21,6 +21,9 @@ export function AppFooter() {
               Contacto
             </Link>
           )}
+          <Link href="/diseno" className="hover:text-white">
+            Diseño web
+          </Link>
           <Link href="/terminos" className="hover:text-white">
             Términos
           </Link>
