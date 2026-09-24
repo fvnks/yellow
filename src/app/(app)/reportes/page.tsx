@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { periodoBounds } from "@/lib/dte/libro-periodo";
@@ -211,11 +210,6 @@ export default async function ReportesPage({
           <p className="text-sm text-ink-soft">
             {active.tenant.name} · {etiquetaPeriodo(periodo)}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="btn btn-ghost">
-            ← Panel
-          </Link>
         </div>
       </header>
 

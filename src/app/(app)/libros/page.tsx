@@ -136,11 +136,6 @@ export default async function LibrosPage({
             {etiquetaPeriodo(periodo)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="btn btn-ghost">
-            ← Panel
-          </Link>
-        </div>
       </header>
 
       {!perfilResolucion && (

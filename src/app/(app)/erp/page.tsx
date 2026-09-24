@@ -59,9 +59,6 @@ export default async function ErpPage({
               Compras
             </Link>
           </div>
-          <Link href="/dashboard" className="btn btn-ghost">
-            ← Panel
-          </Link>
         </div>
       </header>
 
