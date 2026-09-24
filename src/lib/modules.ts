@@ -13,6 +13,10 @@ export type DefinicionModulo = {
   href: string;
   nombre: string;
   descripcion: string;
+  /** Sigla tipográfica del tile del portal (mono sobre navy). */
+  sigla: string;
+  /** Distintivo "Nuevo" para el módulo incorporado más reciente. */
+  nuevo?: boolean;
 };
 
 export const MODULOS: DefinicionModulo[] = [
@@ -22,6 +26,7 @@ export const MODULOS: DefinicionModulo[] = [
     nombre: "Facturación",
     descripcion:
       "Emite facturas, guías y notas al SII, consulta estados y anula con nota de crédito.",
+    sigla: "FAC",
   },
   {
     key: "COMPRAS",
@@ -29,6 +34,7 @@ export const MODULOS: DefinicionModulo[] = [
     nombre: "Compras",
     descripcion:
       "Registra facturas de proveedores y clasifícalas por área y categoría.",
+    sigla: "COM",
   },
   {
     key: "LIBROS",
@@ -36,6 +42,7 @@ export const MODULOS: DefinicionModulo[] = [
     nombre: "Libros",
     descripcion:
       "Libro de compras y ventas por periodo, con el XML oficial y el registro CSV.",
+    sigla: "LIB",
   },
   {
     key: "REPORTES",
@@ -43,6 +50,8 @@ export const MODULOS: DefinicionModulo[] = [
     nombre: "Reportes",
     descripcion:
       "Ventas por vendedor, compras por área y categoría, y top de proveedores del periodo.",
+    sigla: "REP",
+    nuevo: true,
   },
 ];
 
