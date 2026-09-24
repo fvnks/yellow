@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Modo oscuro por clase (ThemeToggle + script anti-flash en layout). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Paleta oficial sii.cl (homer.sii.cl/responsive/css/h_estilos.css):
    navy #002c48 · azul link #0061a0 · azul vivo #0272ba · naranja #eb510d
    grises: bloques #eeeeee · bordes #d3d3d3 · texto secundario #706f6f
@@ -44,22 +47,23 @@
   --c-err: #b3352f;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --c-blue: #5fb0ea;
-    --c-blue-bright: #2e9be0;
-    --c-orange: #f4661c;
-    --c-orange-ink: #f4732f;
-    --c-surface: #0a141d;
-    --c-panel: #0f1b27;
-    --c-block: #16222f;
-    --c-ink: #e8eef4;
-    --c-ink-soft: #98a1a8;
-    --c-line: #24333f;
-    --c-field: #5d7186;
-    --c-ok: #6db06f;
-    --c-err: #e0716b;
-  }
+/* Modo oscuro: se activa con la clase .dark en <html>. Es exactamente el
+   diseño que tenía la página cuando seguía al sistema; se conserva igual y
+   ahora lo elige el usuario (claro por defecto). */
+.dark {
+  --c-blue: #5fb0ea;
+  --c-blue-bright: #2e9be0;
+  --c-orange: #f4661c;
+  --c-orange-ink: #f4732f;
+  --c-surface: #0a141d;
+  --c-panel: #0f1b27;
+  --c-block: #16222f;
+  --c-ink: #e8eef4;
+  --c-ink-soft: #98a1a8;
+  --c-line: #24333f;
+  --c-field: #5d7186;
+  --c-ok: #6db06f;
+  --c-err: #e0716b;
 }
 
 @layer base {

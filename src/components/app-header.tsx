@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getAuthContext } from "@/lib/session";
 import { siiAmbiente } from "@/lib/sii/client";
 
@@ -34,16 +35,19 @@ export async function AppHeader() {
             Yellow
           </span>
         </Link>
-        {!ctx && (
-          <span className="flex items-center gap-2">
-            <Link href="/login" className="btn btn-ghost">
-              Ingresar
-            </Link>
-            <Link href="/register" className="btn btn-primary">
-              Crear cuenta
-            </Link>
-          </span>
-        )}
+        <span className="flex items-center gap-2">
+          <ThemeToggle />
+          {!ctx && (
+            <>
+              <Link href="/login" className="btn btn-ghost">
+                Ingresar
+              </Link>
+              <Link href="/register" className="btn btn-primary">
+                Crear cuenta
+              </Link>
+            </>
+          )}
+        </span>
       </div>
     </header>
   );
