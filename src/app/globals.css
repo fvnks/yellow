@@ -94,6 +94,10 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+  /* Push físico al presionar, coherente con la landing. */
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
   .btn-primary {
     background: var(--c-navy);
     color: #fff;
@@ -230,5 +234,6 @@
     background: var(--c-panel);
     border: 1px solid var(--c-line);
     border-radius: 6px;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--c-navy) 5%, transparent);
   }
 }

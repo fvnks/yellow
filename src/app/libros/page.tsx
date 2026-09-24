@@ -9,6 +9,7 @@ import {
 } from "@/lib/dte/libro-periodo";
 import { getAuthContext } from "@/lib/session";
 import { ModuleNav } from "@/components/module-nav";
+import { modulosActivos } from "@/lib/modules";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,9 @@ export default async function LibrosPage({
   if (!active) redirect("/dashboard");
 
   const tenantId = active.tenantId;
+  const activos = await modulosActivos(tenantId);
+  if (!activos.has("LIBROS")) redirect("/dashboard");
+
   const params = await searchParams;
   const sentido = params.sentido === "ENTRADA" ? "ENTRADA" : "SALIDA";
 
@@ -134,7 +138,7 @@ export default async function LibrosPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ModuleNav active="libros" />
+          <ModuleNav active="libros" activos={[...activos]} />
           <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>

@@ -11,6 +11,7 @@ import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
 import { EmisorForm } from "@/components/emisor-form";
 import { ModuleNav } from "@/components/module-nav";
+import { modulosActivos } from "@/lib/modules";
 import { PortalCredencialPanel } from "@/components/portal-credencial-panel";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,9 @@ export default async function FacturacionPage() {
 
   const tenantId = active.tenantId;
   const canManage = canManageTenant(ctx, tenantId);
+
+  const activos = await modulosActivos(tenantId);
+  if (!activos.has("FACTURACION")) redirect("/dashboard");
 
   const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
   if (!tenant) redirect("/dashboard");
@@ -154,7 +158,11 @@ export default async function FacturacionPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ModuleNav active="facturacion" hideConfig={!canManage} />
+          <ModuleNav
+            active="facturacion"
+            activos={[...activos]}
+            hideConfig={!canManage}
+          />
           <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>

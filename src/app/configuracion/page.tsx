@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getAuthContext } from "@/lib/session";
 import { MasterDataPanel } from "@/components/master-data-panel";
 import { ModuleNav } from "@/components/module-nav";
+import { modulosActivos } from "@/lib/modules";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,8 @@ export default async function ConfiguracionPage() {
 
   const tenantId = active.tenantId;
   if (!canManageTenant(ctx, tenantId)) redirect("/dashboard");
+
+  const activos = await modulosActivos(tenantId);
 
   const [vendedores, centros, categorias] = await Promise.all([
     db.vendedor.findMany({
@@ -48,7 +51,7 @@ export default async function ConfiguracionPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ModuleNav active="configuracion" />
+          <ModuleNav active="configuracion" activos={[...activos]} />
           <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
