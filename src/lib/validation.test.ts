@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   acceptInviteSchema,
   anularDteSchema,
+  classifyCompraSchema,
   createCategoriaSchema,
   createCentroCostoSchema,
   createDteSchema,
@@ -273,5 +274,24 @@ describe("anularDteSchema", () => {
     expect(anularDteSchema.safeParse({ metodo: "borrar", motivo: "Motivo válido aquí" }).success).toBe(false);
     expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "abc" }).success).toBe(false);
     expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "x".repeat(91) }).success).toBe(false);
+  });
+});
+
+describe("classifyCompraSchema", () => {
+  it("accepts ids, empty strings (clear) and partial payloads", () => {
+    expect(
+      classifyCompraSchema.safeParse({ costCenterId: "c1", categoriaId: "k1" })
+        .success,
+    ).toBe(true);
+    // "" clears the dimension; the route maps it to null.
+    expect(
+      classifyCompraSchema.safeParse({ costCenterId: "", categoriaId: "" }).success,
+    ).toBe(true);
+    // One dimension only: the other one stays untouched.
+    expect(classifyCompraSchema.safeParse({ categoriaId: "k1" }).success).toBe(true);
+  });
+
+  it("rejects a payload with no dimension at all", () => {
+    expect(classifyCompraSchema.safeParse({}).success).toBe(false);
   });
 });
