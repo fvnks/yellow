@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
@@ -6,7 +7,6 @@ import { getAuthContext } from "@/lib/session";
 import { TenantPanel } from "@/components/tenant-panel";
 import { MembersPanel } from "@/components/members-panel";
 import { ModuleLauncher } from "@/components/module-launcher";
-import { ModuleNav } from "@/components/module-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -56,13 +56,6 @@ export default async function DashboardPage() {
       <section className="relative space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold text-ink">Panel</h1>
-          <div className="flex flex-wrap items-center gap-2">
-            <ModuleNav
-              active={undefined}
-              activos={[...activos]}
-              hideConfig={!canManage}
-            />
-          </div>
         </div>
         <p className="text-sm text-ink-soft">
           {active ? (
@@ -122,6 +115,17 @@ export default async function DashboardPage() {
         <p>
           {ctx.user.name ? `${ctx.user.name} · ` : ""}
           {ctx.user.email}
+          {canManage && (
+            <>
+              {" · "}
+              <Link
+                href="/configuracion"
+                className="text-blue underline hover:text-orange-ink"
+              >
+                Configuración
+              </Link>
+            </>
+          )}
         </p>
       </section>
     </div>
