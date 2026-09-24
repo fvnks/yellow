@@ -119,7 +119,9 @@ export async function POST(
         comentario: data.comentario ?? null,
         vendedorId: data.vendedorId ?? null,
         costCenterId: data.costCenterId ?? null,
-        ...totals,
+        neto: totals.neto,
+        iva: totals.iva,
+        total: totals.total,
         items: {
           create: data.items.map((item, index) => ({
             linea: index + 1,
