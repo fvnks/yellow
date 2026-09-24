@@ -6,6 +6,7 @@ import {
   createCategoriaSchema,
   createCentroCostoSchema,
   createDteSchema,
+  createGastoSchema,
   createTenantSchema,
   createVendedorSchema,
   inviteSchema,
@@ -15,6 +16,7 @@ import {
   toggleModuloSchema,
   updateCentroCostoSchema,
   updateEmisorSchema,
+  updateGastoSchema,
   updateVendedorSchema,
   uploadCertificateSchema,
 } from "./validation";
@@ -290,6 +292,42 @@ describe("toggleModuloSchema", () => {
   it("rejects a missing key or flag", () => {
     expect(toggleModuloSchema.safeParse({ activo: true }).success).toBe(false);
     expect(toggleModuloSchema.safeParse({ key: "REPORTES" }).success).toBe(false);
+  });
+});
+
+describe("createGastoSchema", () => {
+  const base = {
+    descripcion: "Taxi a reunión",
+    monto: 4500,
+    categoriaId: "cat1",
+    fecha: "2026-09-24",
+  };
+
+  it("accepts a complete expense and an optional reimbursement date", () => {
+    expect(createGastoSchema.safeParse(base).success).toBe(true);
+    expect(createGastoSchema.safeParse({ ...base, fechaReembolso: "2026-09-25" }).success).toBe(true);
+    expect(createGastoSchema.safeParse({ ...base, comentario: "Recorrido visita cliente" }).success).toBe(true);
+  });
+
+  it("rejects empty/invalid amounts and missing fields", () => {
+    expect(createGastoSchema.safeParse({ ...base, monto: 0 }).success).toBe(false);
+    expect(createGastoSchema.safeParse({ ...base, monto: 12.5 }).success).toBe(false);
+    expect(createGastoSchema.safeParse({ ...base, descripcion: "" }).success).toBe(false);
+    expect(createGastoSchema.safeParse({ monto: 100, categoriaId: "x", fecha: "2026-09-24" }).success).toBe(false);
+    expect(createGastoSchema.safeParse({ ...base, fecha: "2026-13-01" }).success).toBe(false);
+  });
+});
+
+describe("updateGastoSchema", () => {
+  it("accepts a partial update and null to reset the reimbursement", () => {
+    expect(updateGastoSchema.safeParse({ fechaReembolso: "2026-09-25" }).success).toBe(true);
+    expect(updateGastoSchema.safeParse({ fechaReembolso: null }).success).toBe(true);
+    expect(updateGastoSchema.safeParse({ monto: 5000 }).success).toBe(true);
+  });
+
+  it("rejects an empty payload and invalid values", () => {
+    expect(updateGastoSchema.safeParse({}).success).toBe(false);
+    expect(updateGastoSchema.safeParse({ monto: -1 }).success).toBe(false);
   });
 });
 

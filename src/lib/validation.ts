@@ -200,6 +200,30 @@ export const toggleModuloSchema = z.object({
   activo: z.boolean(),
 });
 
+/** Gasto de caja menor con reembolso opcional (mismo maestro de categorías). */
+export const createGastoSchema = z.object({
+  descripcion: z.string().trim().min(1, "Descripción requerida").max(120),
+  monto: z.number().int("El monto debe ser un entero en CLP").positive("El monto debe ser mayor a 0"),
+  categoriaId: z.string().min(1, "Categoría requerida"),
+  fecha: dateSchema,
+  fechaReembolso: dateSchema.optional(),
+  comentario: z.string().trim().max(500, "Máx. 500 caracteres").optional(),
+});
+
+/** Edición parcial de un gasto; fechaReembolso null vuelve a pendiente. */
+export const updateGastoSchema = z
+  .object({
+    descripcion: z.string().trim().min(1).max(120).optional(),
+    monto: z.number().int().positive().optional(),
+    categoriaId: z.string().optional(),
+    fecha: dateSchema.optional(),
+    fechaReembolso: z.union([dateSchema, z.null()]).optional(),
+    comentario: z.string().trim().max(500).optional(),
+  })
+  .refine((d) => Object.keys(d).length > 0, {
+    message: "Nada que actualizar",
+  });
+
 /** Partial update of the tenant's emisor profile. */
 export const updateEmisorSchema = z.object({
   rut: z.string().refine(isValidRut, "RUT inválido").optional(),
