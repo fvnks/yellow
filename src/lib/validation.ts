@@ -194,6 +194,12 @@ export const classifyCompraSchema = z
     message: "Envía al menos una dimensión (área o categoría)",
   });
 
+/** Payload de activación/desactivación de un módulo (la clave se valida en la ruta). */
+export const toggleModuloSchema = z.object({
+  key: z.string().min(1, "Módulo requerido"),
+  activo: z.boolean(),
+});
+
 /** Partial update of the tenant's emisor profile. */
 export const updateEmisorSchema = z.object({
   rut: z.string().refine(isValidRut, "RUT inválido").optional(),

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { MODULOS_CORE } from "@/lib/modules";
 import { getAuthContext } from "@/lib/session";
 import { uniqueSlug } from "@/lib/slug";
 import { createTenantSchema, issuesOf } from "@/lib/validation";
@@ -27,6 +28,10 @@ export async function POST(req: Request) {
       });
       await tx.tenantMember.create({
         data: { userId: ctx.user.id, tenantId: tenant.id, role: "OWNER" },
+      });
+      // Los módulos core quedan activos desde el primer día.
+      await tx.tenantModule.createMany({
+        data: MODULOS_CORE.map((key) => ({ tenantId: tenant.id, key })),
       });
       // Switch the session to the newly created tenant.
       await tx.session.update({

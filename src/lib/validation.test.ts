@@ -12,6 +12,7 @@ import {
   loginSchema,
   registerSchema,
   switchTenantSchema,
+  toggleModuloSchema,
   updateCentroCostoSchema,
   updateEmisorSchema,
   updateVendedorSchema,
@@ -274,6 +275,21 @@ describe("anularDteSchema", () => {
     expect(anularDteSchema.safeParse({ metodo: "borrar", motivo: "Motivo válido aquí" }).success).toBe(false);
     expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "abc" }).success).toBe(false);
     expect(anularDteSchema.safeParse({ metodo: "nc", motivo: "x".repeat(91) }).success).toBe(false);
+  });
+});
+
+describe("toggleModuloSchema", () => {
+  it("accepts a key + flag pair", () => {
+    expect(toggleModuloSchema.parse({ key: "REPORTES", activo: true })).toEqual({
+      key: "REPORTES",
+      activo: true,
+    });
+    expect(toggleModuloSchema.safeParse({ key: "LIBROS", activo: false }).success).toBe(true);
+  });
+
+  it("rejects a missing key or flag", () => {
+    expect(toggleModuloSchema.safeParse({ activo: true }).success).toBe(false);
+    expect(toggleModuloSchema.safeParse({ key: "REPORTES" }).success).toBe(false);
   });
 });
 
