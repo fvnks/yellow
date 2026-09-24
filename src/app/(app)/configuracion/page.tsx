@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
@@ -45,11 +44,6 @@ export default async function ConfiguracionPage() {
           <p className="text-sm text-ink-soft">
             Vendedores, centros de costo y categorías de {active.tenant.name}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="btn btn-ghost">
-            ← Panel
-          </Link>
         </div>
       </header>
 
