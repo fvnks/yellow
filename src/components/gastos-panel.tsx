@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus, X } from "@phosphor-icons/react";
 
 const clp = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -52,6 +53,7 @@ export function GastosPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [formAbierto, setFormAbierto] = useState(false);
 
   const total = gastos.reduce((acc, g) => acc + g.monto, 0);
   const pendiente = gastos
@@ -149,6 +151,29 @@ export function GastosPanel({
         <span className="chip chip-ok">Reembolsado: {clp.format(reembolsado)}</span>
       </div>
 
+      <button
+        type="button"
+        onClick={() => setFormAbierto((prev) => !prev)}
+        className={
+          formAbierto
+            ? "btn btn-ghost px-4 py-2 text-sm"
+            : "btn btn-primary px-4 py-2 text-sm"
+        }
+      >
+        {formAbierto ? (
+          <>
+            <X size={16} weight="bold" aria-hidden />
+            Cerrar
+          </>
+        ) : (
+          <>
+            <Plus size={16} weight="bold" aria-hidden />
+            Nuevo gasto
+          </>
+        )}
+      </button>
+
+      {formAbierto && (
       <form onSubmit={submit} className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="space-y-1 text-sm">
@@ -235,6 +260,7 @@ export function GastosPanel({
           {busy ? "Registrando…" : "Registrar gasto"}
         </button>
       </form>
+      )}
 
       <div className="space-y-3">
         {gastos.length === 0 ? (
