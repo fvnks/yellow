@@ -78,6 +78,7 @@ model Tenant {
   siiCertificates SiiCertificate[]
   siiPortalCredential SiiPortalCredential?
   modules TenantModule[]
+  gastos Gasto[]
 }
 
 /// SII digital certificate (.p12/.pfx) for the tenant's emisor.
@@ -181,6 +182,7 @@ model Categoria {
   updatedAt DateTime @updatedAt
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   items     DteItem[]
+  gastos    Gasto[]
 
   @@unique([tenantId, nombre])
   @@index([tenantId, activo])
@@ -305,6 +307,32 @@ model DteReference {
   @@index([documentId])
 }
 
+/// Gasto fuera del circuito de DTE (caja menor / rendiciones): pagado por
+/// alguien de la empresa y reembolsable. No es un documento tributario.
+model Gasto {
+  id              String      @id @default(cuid())
+  tenantId        String
+  descripcion     String
+  /// Monto en CLP enteros.
+  monto           Int
+  /// Tipo de gasto (reusa el maestro de categorías de compras).
+  categoriaId     String?
+  categoria       Categoria?  @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  /// Cuándo se hizo el gasto.
+  fecha           DateTime
+  /// Cuándo se reembolsó; null = pendiente de reembolso.
+  fechaReembolso DateTime?
+  comentario      String?
+  /// Quién registró el gasto.
+  registradoPorId String?
+  registradoPor   User?       @relation(fields: [registradoPorId], references: [id], onDelete: SetNull)
+  createdAt       DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, fecha])
+}
+
 /// Application user (global). Access to tenants is granted
 /// through TenantMember — a user can belong to several tenants.
 model User {
@@ -318,6 +346,7 @@ model User {
   members      TenantMember[]
   sessions     Session[]
   invitations  Invitation[]
+  gastosRegistrados Gasto[]
 }
 
 /// Invitation to join a tenant with a given role. The raw token is
