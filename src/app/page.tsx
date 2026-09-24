@@ -69,6 +69,22 @@ export default async function Home() {
         className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-orange/10 blur-3xl"
       />
 
+      {/* Menú de secciones sobre el hero */}
+      <nav
+        aria-label="Secciones de la página"
+        className="hidden items-center gap-6 pt-2 text-sm md:flex"
+      >
+        <a href="#funciones" className="text-blue hover:text-orange-ink">
+          Funciones
+        </a>
+        <a href="#como-empezas" className="text-blue hover:text-orange-ink">
+          Cómo funciona
+        </a>
+        <a href="#contacto" className="text-blue hover:text-orange-ink">
+          Contacto
+        </a>
+      </nav>
+
       {/* ── Hero: propuesta a la izquierda, producto en capas a la derecha ── */}
       <section className="relative grid items-center gap-10 pt-6 lg:grid-cols-[7fr_5fr] lg:gap-12 lg:pt-10">
         <div className="space-y-6">
@@ -151,7 +167,7 @@ export default async function Home() {
       </section>
 
       {/* ── Módulos: bento asimétrico, capas y sombras tintadas ── */}
-      <section className="relative space-y-8">
+      <section id="funciones" className="relative space-y-8">
         <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           Cuatro módulos que se hablan entre sí
         </h2>
@@ -227,7 +243,7 @@ export default async function Home() {
       </section>
 
       {/* ── Cómo empiezas: lista numerada, sin tarjetas ── */}
-      <section className="relative space-y-8">
+      <section id="como-empezas" className="relative space-y-8">
         <h2 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           Cómo empiezas
         </h2>
