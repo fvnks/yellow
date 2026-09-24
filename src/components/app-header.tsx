@@ -35,9 +35,14 @@ export async function AppHeader() {
           </span>
         </Link>
         {!ctx && (
-          <Link href="/login" className="btn btn-primary">
-            Ingresar
-          </Link>
+          <span className="flex items-center gap-2">
+            <Link href="/login" className="btn btn-ghost">
+              Ingresar
+            </Link>
+            <Link href="/register" className="btn btn-primary">
+              Crear cuenta
+            </Link>
+          </span>
         )}
       </div>
     </header>
