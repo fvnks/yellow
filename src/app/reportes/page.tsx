@@ -5,7 +5,6 @@ import { periodoBounds } from "@/lib/dte/libro-periodo";
 import { resumenPorDimension } from "@/lib/dte/resumen";
 import { modulosActivos } from "@/lib/modules";
 import { getAuthContext } from "@/lib/session";
-import { ModuleNav } from "@/components/module-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -214,7 +213,6 @@ export default async function ReportesPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ModuleNav active="reportes" activos={[...activos]} />
           <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
