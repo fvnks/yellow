@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/session";
+import { SOPORTE_EMAIL } from "@/lib/contacto";
 
 export const dynamic = "force-dynamic";
 
@@ -56,12 +56,21 @@ const PASOS = [
 
 export default async function Home() {
   const ctx = await getAuthContext();
-  if (ctx) redirect("/dashboard");
 
   return (
-    <div className="space-y-20 pb-12 md:space-y-28">
-      {/* ── Hero: propuesta a la izquierda, producto a la derecha ── */}
-      <section className="grid items-center gap-10 pt-6 lg:grid-cols-[7fr_5fr] lg:gap-12 lg:pt-10">
+    <div className="relative space-y-20 overflow-hidden pb-12 md:space-y-28">
+      {/* Lavado de fondo: dos manchas suaves de marca, sin ruido */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-bright/10 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-orange/10 blur-3xl"
+      />
+
+      {/* ── Hero: propuesta a la izquierda, producto en capas a la derecha ── */}
+      <section className="relative grid items-center gap-10 pt-6 lg:grid-cols-[7fr_5fr] lg:gap-12 lg:pt-10">
         <div className="space-y-6">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-blue">
             Facturación electrónica ante el SII
@@ -75,59 +84,79 @@ export default async function Home() {
             descarga tus libros. Del borrador al TED.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/register"
-              className="btn btn-primary px-5 py-2.5 text-base"
-            >
-              Crear cuenta
-            </Link>
-            <Link href="/login" className="btn btn-ghost px-5 py-2.5 text-base">
-              Ingresar
-            </Link>
+            {ctx ? (
+              <Link
+                href="/dashboard"
+                className="btn btn-primary px-5 py-2.5 text-base active:translate-y-px"
+              >
+                Ir al panel
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="btn btn-primary px-5 py-2.5 text-base active:translate-y-px"
+                >
+                  Crear cuenta
+                </Link>
+                <Link
+                  href="/login"
+                  className="btn btn-ghost px-5 py-2.5 text-base active:translate-y-px"
+                >
+                  Ingresar
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
-        <div className="panel overflow-hidden shadow-xl shadow-navy/10">
-          <div className="flex items-center justify-between border-b border-line bg-block px-4 py-2.5">
-            <span className="text-xs font-medium text-ink-soft">
-              Ventas · septiembre 2026
-            </span>
-            <span className="text-xs text-ink-soft">XML · PDF por fila</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th scope="col">Documento</th>
-                  <th scope="col">Receptor</th>
-                  <th scope="col" className="text-right">Total</th>
-                  <th scope="col" className="text-right">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FILAS_PREVIEW.map((f) => (
-                  <tr key={f.doc}>
-                    <td className="whitespace-nowrap font-medium">{f.doc}</td>
-                    <td>{f.parte}</td>
-                    <td className="text-right">{f.total}</td>
-                    <td className="text-right">
-                      <span className={f.chip}>{f.estado}</span>
-                    </td>
+        <div className="relative">
+          <div
+            aria-hidden
+            className="absolute inset-0 translate-x-3 translate-y-3 rounded-md bg-navy/10"
+          />
+          <div className="panel relative overflow-hidden shadow-xl shadow-navy/20">
+            <div className="flex items-center justify-between border-b border-line bg-block px-4 py-2.5">
+              <span className="text-xs font-medium text-ink-soft">
+                Ventas · septiembre 2026
+              </span>
+              <span className="text-xs text-ink-soft">XML · PDF por fila</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th scope="col">Documento</th>
+                    <th scope="col">Receptor</th>
+                    <th scope="col" className="text-right">Total</th>
+                    <th scope="col" className="text-right">Estado</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {FILAS_PREVIEW.map((f) => (
+                    <tr key={f.doc}>
+                      <td className="whitespace-nowrap font-medium">{f.doc}</td>
+                      <td>{f.parte}</td>
+                      <td className="text-right">{f.total}</td>
+                      <td className="text-right">
+                        <span className={f.chip}>{f.estado}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Módulos: bento asimétrico, dos celdas con tinte de fondo ── */}
-      <section className="space-y-8">
+      {/* ── Módulos: bento asimétrico, capas y sombras tintadas ── */}
+      <section className="relative space-y-8">
         <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           Cuatro módulos que se hablan entre sí
         </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <article className="panel space-y-3 p-6 md:col-span-2">
+          <article className="panel space-y-3 p-6 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15 md:col-span-2">
             <h3 className="text-lg font-semibold text-ink">
               Emisión y anulación
             </h3>
@@ -143,7 +172,7 @@ export default async function Home() {
             </p>
           </article>
 
-          <article className="space-y-3 rounded-md bg-block p-6">
+          <article className="space-y-3 rounded-md bg-gradient-to-br from-block to-panel p-6 shadow-sm shadow-navy/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/10">
             <h3 className="text-lg font-semibold text-ink">
               Compras clasificadas
             </h3>
@@ -158,7 +187,7 @@ export default async function Home() {
             </p>
           </article>
 
-          <article className="panel space-y-3 p-6">
+          <article className="panel space-y-3 p-6 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15">
             <h3 className="text-lg font-semibold text-ink">
               Libros y registro CSV
             </h3>
@@ -168,7 +197,7 @@ export default async function Home() {
             </p>
           </article>
 
-          <article className="space-y-4 rounded-md bg-block p-6 md:col-span-2">
+          <article className="space-y-4 rounded-md bg-gradient-to-br from-block to-panel p-6 shadow-sm shadow-navy/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/10 md:col-span-2">
             <h3 className="text-lg font-semibold text-ink">
               Multi-empresa, con roles
             </h3>
@@ -178,14 +207,14 @@ export default async function Home() {
               vendedor y centro de costo.
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
-              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink">
+              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink shadow-sm">
                 <span className="flex items-center gap-2">
                   <span aria-hidden className="h-2.5 w-2.5 bg-orange" />
                   Constructora SpA
                 </span>
                 <span className="chip chip-muted">OWNER</span>
               </div>
-              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink">
+              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink shadow-sm">
                 <span className="flex items-center gap-2">
                   <span aria-hidden className="h-2.5 w-2.5 bg-blue" />
                   Café y Alimentos
@@ -198,7 +227,7 @@ export default async function Home() {
       </section>
 
       {/* ── Cómo empiezas: lista numerada, sin tarjetas ── */}
-      <section className="space-y-8">
+      <section className="relative space-y-8">
         <h2 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           Cómo empiezas
         </h2>
@@ -206,9 +235,9 @@ export default async function Home() {
           {PASOS.map((paso) => (
             <li
               key={paso.n}
-              className="grid gap-2 py-6 md:grid-cols-[7rem_1fr] md:gap-8"
+              className="grid items-start gap-3 py-6 md:grid-cols-[7rem_1fr] md:gap-8"
             >
-              <span className="font-mono text-2xl font-medium text-orange-ink">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-block font-mono text-base font-medium text-orange-ink shadow-sm">
                 {paso.n}
               </span>
               <div>
@@ -222,9 +251,16 @@ export default async function Home() {
         </ol>
       </section>
 
-      {/* ── Banda navy: la promesa honesta + CTA ── */}
-      <section className="rounded-md bg-navy p-8 md:p-12">
-        <div className="flex flex-wrap items-center justify-between gap-8">
+      {/* ── Banda navy: la promesa honesta, contacto y CTA ── */}
+      <section
+        id="contacto"
+        className="relative overflow-hidden rounded-md bg-gradient-to-br from-navy to-navy-hover p-8 md:p-12"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-orange/15 blur-3xl"
+        />
+        <div className="relative flex flex-wrap items-center justify-between gap-8">
           <div className="flex max-w-2xl items-start gap-4">
             <span aria-hidden className="mt-1.5 h-3.5 w-3.5 shrink-0 bg-orange" />
             <div>
@@ -238,10 +274,40 @@ export default async function Home() {
               </p>
             </div>
           </div>
-          <Link href="/register" className="btn bg-white px-5 py-2.5 text-base text-navy hover:bg-block">
-            Crear cuenta
-          </Link>
+          {ctx ? (
+            <Link
+              href="/dashboard"
+              className="btn bg-white px-5 py-2.5 text-base text-navy hover:bg-block active:translate-y-px"
+            >
+              Ir al panel
+            </Link>
+          ) : (
+            <Link
+              href="/register"
+              className="btn bg-white px-5 py-2.5 text-base text-navy hover:bg-block active:translate-y-px"
+            >
+              Crear cuenta
+            </Link>
+          )}
         </div>
+        <p className="relative mt-8 text-xs text-white/70">
+          {SOPORTE_EMAIL ? (
+            <>
+              ¿Dudas?{" "}
+              <a
+                href={`mailto:${SOPORTE_EMAIL}`}
+                className="underline hover:text-white"
+              >
+                Escríbenos a {SOPORTE_EMAIL}
+              </a>
+            </>
+          ) : (
+            <>
+              ¿Dudas? Crea tu cuenta y pruébalo en modo simulado, sin
+              certificado; el canal de contacto directo llega pronto.
+            </>
+          )}
+        </p>
       </section>
     </div>
   );
