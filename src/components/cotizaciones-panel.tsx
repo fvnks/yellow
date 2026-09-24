@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, X } from "@phosphor-icons/react";
 import { etiquetaCotizacion, transicionValida, convertible } from "@/lib/dte/cotizacion";
 
 const clp = new Intl.NumberFormat("es-CL", {
@@ -89,6 +90,7 @@ export function CotizacionesPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [formAbierto, setFormAbierto] = useState(false);
 
   const neto = items.reduce((acc, row) => {
     const cantidad = Number(row.cantidad) || 0;
@@ -229,7 +231,30 @@ export function CotizacionesPanel({
   }
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6">
+      <button
+        type="button"
+        onClick={() => setFormAbierto((prev) => !prev)}
+        className={
+          formAbierto
+            ? "btn btn-ghost px-4 py-2 text-sm"
+            : "btn btn-primary px-4 py-2 text-sm"
+        }
+      >
+        {formAbierto ? (
+          <>
+            <X size={16} weight="bold" aria-hidden />
+            Cerrar
+          </>
+        ) : (
+          <>
+            <Plus size={16} weight="bold" aria-hidden />
+            Nueva cotización
+          </>
+        )}
+      </button>
+
+      {formAbierto && (
       <form onSubmit={submit} className="panel space-y-4 p-6 shadow-sm shadow-navy/10">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium text-ink">Nueva cotización</h2>
@@ -437,6 +462,7 @@ export function CotizacionesPanel({
           {busy ? "Creando…" : "Crear cotización"}
         </button>
       </form>
+      )}
 
       <div className="space-y-3">
         {cotizaciones.length === 0 ? (

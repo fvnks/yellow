@@ -7,6 +7,7 @@ import { CertificadosPanel } from "@/components/certificados-panel";
 import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
 import { EmisorForm } from "@/components/emisor-form";
+import { NuevoPanel } from "@/components/nuevo-panel";
 import { PortalCredencialPanel } from "@/components/portal-credencial-panel";
 
 const clp = new Intl.NumberFormat("es-CL", {
@@ -207,13 +208,15 @@ export async function ErpVentas({
         </>
       )}
 
-      <DteForm
-        tenantId={tenantId}
-        sentido="SALIDA"
-        vendedores={vendedorOptions}
-        centros={centroOptions}
-        categorias={categoriaOptions}
-      />
+      <NuevoPanel label="Nueva venta">
+        <DteForm
+          tenantId={tenantId}
+          sentido="SALIDA"
+          vendedores={vendedorOptions}
+          centros={centroOptions}
+          categorias={categoriaOptions}
+        />
+      </NuevoPanel>
 
       <DteList
         tenantId={tenantId}

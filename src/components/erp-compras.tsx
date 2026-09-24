@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { resumenPorDimension } from "@/lib/dte/resumen";
 import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
+import { NuevoPanel } from "@/components/nuevo-panel";
 
 const clp = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -96,17 +97,19 @@ export async function ErpCompras({
         </Link>
       </p>
 
-      <DteForm
-        tenantId={tenantId}
-        sentido="ENTRADA"
-        centros={centroOptions}
-        categorias={categoriaOptions}
-        existentes={documentos.map((d) => ({
-          rut: d.emisorRut,
-          tipoDte: d.tipoDte,
-          folio: d.folio,
-        }))}
-      />
+      <NuevoPanel label="Registrar compra">
+        <DteForm
+          tenantId={tenantId}
+          sentido="ENTRADA"
+          centros={centroOptions}
+          categorias={categoriaOptions}
+          existentes={documentos.map((d) => ({
+            rut: d.emisorRut,
+            tipoDte: d.tipoDte,
+            folio: d.folio,
+          }))}
+        />
+      </NuevoPanel>
 
       <DteList
         tenantId={tenantId}
