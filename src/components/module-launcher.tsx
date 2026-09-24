@@ -10,13 +10,17 @@ export type ModuloLauncher = {
   nombre: string;
   descripcion: string;
   activo: boolean;
+  /** Sigla tipográfica del tile del portal (mono sobre navy). */
+  sigla: string;
+  /** Distintivo "Nuevo" para el módulo incorporado más reciente. */
+  nuevo?: boolean;
 };
 
 /**
- * Launcher del panel: una tarjeta por módulo del registro. Las activas
- * entran; las inactivas se activan ahí mismo (solo OWNER/ADMIN, la API
- * rechaza al resto). El estado vive en el server; el toggle actualiza
- * y refresca.
+ * Portal de módulos del panel, al estilo Portal Defontana: un tile por
+ * módulo con sigla, nombre y descripción de una línea. Los activos entran;
+ * los inactivos se activan ahí mismo (solo OWNER/ADMIN, la API rechaza al
+ * resto). "Nuevo" marca el módulo incorporado más reciente.
  */
 export function ModuleLauncher({
   tenantId,
@@ -69,7 +73,7 @@ export function ModuleLauncher({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         {modulos.map((m) => {
           const activo = activos[m.key];
           return (
@@ -77,27 +81,38 @@ export function ModuleLauncher({
               key={m.key}
               className={
                 activo
-                  ? "panel flex flex-col gap-3 p-5 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15"
-                  : "flex flex-col gap-3 rounded-md border border-dashed border-line bg-gradient-to-br from-block to-panel p-5"
+                  ? "panel flex flex-col gap-4 p-6 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15"
+                  : "flex flex-col gap-4 rounded-md border border-dashed border-line bg-gradient-to-br from-block to-panel p-6"
               }
             >
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start justify-between gap-3">
                 <span
                   aria-hidden
-                  className={activo ? "h-3.5 w-3.5 bg-orange" : "h-3.5 w-3.5 bg-line"}
-                />
-                <span className={activo ? "chip chip-ok" : "chip chip-muted"}>
-                  {activo ? "Activo" : "Inactivo"}
+                  className={
+                    activo
+                      ? "inline-flex h-10 w-10 items-center justify-center rounded-md bg-navy font-mono text-sm font-semibold text-white"
+                      : "inline-flex h-10 w-10 items-center justify-center rounded-md bg-block font-mono text-sm font-semibold text-ink-soft"
+                  }
+                >
+                  {m.sigla}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  {m.nuevo && <span className="chip chip-orange">Nuevo</span>}
+                  <span className={activo ? "chip chip-ok" : "chip chip-muted"}>
+                    {activo ? "Activo" : "Inactivo"}
+                  </span>
                 </span>
               </div>
+
               <div className="flex-1 space-y-1.5">
-                <h3 className="text-base font-semibold text-ink">{m.nombre}</h3>
-                <p className="text-xs leading-relaxed text-ink-soft">
+                <h3 className="text-lg font-semibold text-ink">{m.nombre}</h3>
+                <p className="text-sm leading-relaxed text-ink-soft">
                   {m.descripcion}
                 </p>
               </div>
+
               {activo ? (
-                <Link href={m.href} className="btn btn-primary w-full">
+                <Link href={m.href} className="btn btn-primary self-start">
                   Entrar
                 </Link>
               ) : canManage ? (
@@ -105,12 +120,12 @@ export function ModuleLauncher({
                   type="button"
                   onClick={() => activar(m.key)}
                   disabled={busy === m.key}
-                  className="btn btn-ghost w-full"
+                  className="btn btn-ghost self-start"
                 >
                   {busy === m.key ? "Activando…" : "Activar"}
                 </button>
               ) : (
-                <span className="text-center text-xs text-ink-soft">
+                <span className="text-xs text-ink-soft">
                   Pídele a un administrador que lo active
                 </span>
               )}
