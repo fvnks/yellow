@@ -35,11 +35,15 @@ enum DteSentido {
 }
 
 /// Módulos activables por tenant (el panel muestra los que están activos).
+/// FACTURACION/COMPRAS son legacy: la migración 11 los consolidó en ERP.
+/// Se conservan en el tipo de Postgres (no se pueden retirar valores) pero
+/// el registro de módulos ya no los usa.
 enum ModuleKey {
-  FACTURACION
-  COMPRAS
+  ERP
   LIBROS
   REPORTES
+  FACTURACION
+  COMPRAS
 }
 
 /// Tenant — root of multi-tenant isolation. Every business record
