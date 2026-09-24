@@ -46,6 +46,16 @@ enum ModuleKey {
   COMPRAS
 }
 
+/// Ciclo de vida de una cotización: borrador → enviada → aceptada o
+/// rechazada; convertir la factura de venta marca CONVERTIDA (terminal).
+enum CotizacionEstado {
+  BORRADOR
+  ENVIADA
+  ACEPTADA
+  RECHAZADA
+  CONVERTIDA
+}
+
 /// Tenant — root of multi-tenant isolation. Every business record
 /// must reference a tenantId to keep data partitioned per tenant.
 model Tenant {
@@ -79,6 +89,7 @@ model Tenant {
   siiPortalCredential SiiPortalCredential?
   modules TenantModule[]
   gastos Gasto[]
+  cotizaciones Cotizacion[]
 }
 
 /// SII digital certificate (.p12/.pfx) for the tenant's emisor.
@@ -305,6 +316,56 @@ model DteReference {
   document   DteDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
+}
+
+/// Cotización comercial: propuesta de venta con ítems y vigencia, previa al
+/// DTE. No es documento tributario; "convertir" crea la factura BORRADOR.
+model Cotizacion {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  /// Correlativo por tenant; se muestra como COT-0001.
+  numero             Int
+  receptorRut        String
+  receptorRazonSocial String
+  receptorGiro       String?
+  receptorComuna     String?
+  fecha              DateTime @default(now())
+  /// Válida hasta esta fecha (opcional).
+  validaHasta        DateTime?
+  comentario         String?
+  estado             CotizacionEstado @default(BORRADOR)
+  /// Id del DTE de venta creado al convertir (referencia simple).
+  dteId              String?
+  /// Dimensiones comerciales, replicadas al DTE al convertir.
+  vendedorId         String?
+  costCenterId       String?
+  neto               Int
+  iva                Int
+  total              Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items              CotizacionItem[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, estado])
+}
+
+/// Línea de una cotización (mismo cálculo que los ítems del DTE).
+model CotizacionItem {
+  id            String     @id @default(cuid())
+  cotizacionId  String
+  linea         Int
+  nombre        String
+  cantidad      Decimal    @default(1) @db.Decimal(14, 3)
+  precioUnitario Int
+  descuento     Int        @default(0)
+  /// Calculado en el servidor: round(cantidad × precio) − descuento.
+  total         Int
+  categoryId    String?
+  cotizacion    Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+
+  @@index([cotizacionId])
 }
 
 /// Gasto fuera del circuito de DTE (caja menor / rendiciones): pagado por

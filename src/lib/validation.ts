@@ -201,8 +201,7 @@ export const toggleModuloSchema = z.object({
 });
 
 /** Gasto de caja menor con reembolso opcional (mismo maestro de categorías). */
-export const createGastoSchema = z.object({
-  descripcion: z.string().trim().min(1, "Descripción requerida").max(120),
+export const createGastoSchema = z.object({  descripcion: z.string().trim().min(1, "Descripción requerida").max(120),
   monto: z.number().int("El monto debe ser un entero en CLP").positive("El monto debe ser mayor a 0"),
   categoriaId: z.string().min(1, "Categoría requerida"),
   fecha: dateSchema,
@@ -223,6 +222,25 @@ export const updateGastoSchema = z
   .refine((d) => Object.keys(d).length > 0, {
     message: "Nada que actualizar",
   });
+
+/** Cotización: propuesta de venta con ítems (mismo esquema del DTE). */
+export const createCotizacionSchema = z.object({
+  receptorRut: z.string().refine(isValidRut, "RUT del cliente inválido"),
+  receptorRazonSocial: z.string().trim().min(1, "Razón social requerida").max(60),
+  receptorGiro: z.string().trim().max(40).optional(),
+  receptorComuna: z.string().trim().max(30).optional(),
+  fecha: dateSchema.optional(),
+  validaHasta: dateSchema.optional(),
+  comentario: z.string().trim().max(500).optional(),
+  vendedorId: z.string().optional(),
+  costCenterId: z.string().optional(),
+  items: z.array(dteItemSchema).min(1, "Debe tener al menos un ítem").max(60),
+});
+
+/** Cambio de estado de una cotización (la transición se valida en la ruta). */
+export const updateCotizacionSchema = z.object({
+  estado: z.enum(["BORRADOR", "ENVIADA", "ACEPTADA", "RECHAZADA"]),
+});
 
 /** Partial update of the tenant's emisor profile. */
 export const updateEmisorSchema = z.object({

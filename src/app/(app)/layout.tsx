@@ -44,6 +44,7 @@ export default async function AppLayout({
         { href: "/erp?sentido=SALIDA", label: "Ventas" },
         { href: "/erp?sentido=ENTRADA", label: "Compras" },
         { href: "/erp/gastos", label: "Gastos" },
+        { href: "/erp/cotizaciones", label: "Cotizaciones" },
       ],
     });
   }
