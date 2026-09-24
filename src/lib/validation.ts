@@ -179,6 +179,21 @@ export const createDteSchema = z
     }
   });
 
+/**
+ * Clasificación de una compra ya registrada: área (centro de costo) +
+ * categoría aplicada a todos sus ítems.
+ *   "" (string vacío)  → limpia la dimensión.
+ *   undefined/ausente  → la deja intacta.
+ */
+export const classifyCompraSchema = z
+  .object({
+    costCenterId: z.string().optional(),
+    categoriaId: z.string().optional(),
+  })
+  .refine((d) => d.costCenterId !== undefined || d.categoriaId !== undefined, {
+    message: "Envía al menos una dimensión (área o categoría)",
+  });
+
 /** Partial update of the tenant's emisor profile. */
 export const updateEmisorSchema = z.object({
   rut: z.string().refine(isValidRut, "RUT inválido").optional(),

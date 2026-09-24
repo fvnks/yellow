@@ -7,6 +7,7 @@ import {
   tipoNotaCompensatoria,
   type MetodoAnulacion,
 } from "@/lib/dte/anulacion";
+import type { DimensionOption } from "./dte-form";
 
 type Documento = {
   id: string;
@@ -68,6 +69,8 @@ export function DteList({
   sentido = "SALIDA",
   canManage = false,
   vendedores = [],
+  centros = [],
+  categorias = [],
 }: {
   tenantId: string;
   documentos: Documento[];
@@ -75,6 +78,9 @@ export function DteList({
   canManage?: boolean;
   /** Options for the client-side "por vendedor" filter (ventas only). */
   vendedores?: { id: string; nombre: string }[];
+  /** Opciones del diálogo Clasificar (compras): área y categoría. */
+  centros?: DimensionOption[];
+  categorias?: DimensionOption[];
 }) {
   const router = useRouter();
   const esSalida = sentido === "SALIDA";
@@ -96,6 +102,23 @@ export function DteList({
       anularOrigenRef.current = null;
     }
   }, [anulando]);
+  // ── Diálogo de clasificación (área + categoría de una compra) ──
+  const [clasificando, setClasificando] = useState<Documento | null>(null);
+  const clasifDialogRef = useRef<HTMLDivElement>(null);
+  const clasifOrigenRef = useRef<HTMLElement | null>(null);
+  const [clasifCentro, setClasifCentro] = useState("");
+  const [clasifCategoria, setClasifCategoria] = useState("");
+  const [clasifBusy, setClasifBusy] = useState(false);
+  const [clasifError, setClasifError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (clasificando) {
+      requestAnimationFrame(() => clasifDialogRef.current?.focus());
+    } else {
+      clasifOrigenRef.current?.focus();
+      clasifOrigenRef.current = null;
+    }
+  }, [clasificando]);
   const [anularMetodo, setAnularMetodo] = useState<MetodoAnulacion>("directa");
   const [anularMotivo, setAnularMotivo] = useState("");
   const [anularError, setAnularError] = useState<string | null>(null);
@@ -174,14 +197,18 @@ export function DteList({
     }
   }
 
-    /** Teclado del diálogo: Esc cierra y Tab queda atrapado dentro. */
-  function manejarTeclasDialogo(e: React.KeyboardEvent<HTMLDivElement>) {
+    /** Teclado de los diálogos: Esc cierra y Tab queda atrapado dentro. */
+  function manejarTeclasDialogo(
+    e: React.KeyboardEvent<HTMLDivElement>,
+    ref: React.RefObject<HTMLDivElement | null>,
+    cerrar: () => void,
+  ) {
     if (e.key === "Escape") {
-      setAnulando(null);
+      cerrar();
       return;
     }
     if (e.key !== "Tab") return;
-    const foco = dialogRef.current?.querySelectorAll<HTMLElement>(
+    const foco = ref.current?.querySelectorAll<HTMLElement>(
       'button:not([disabled]), input:not([disabled]), textarea, select, a[href]',
     );
     if (!foco || foco.length === 0) return;
@@ -204,6 +231,61 @@ function abrirAnular(doc: Documento) {
     setAnularError(null);
     anularOrigenRef.current = document.activeElement as HTMLElement | null;
     setAnulando(doc);
+  }
+
+  function abrirClasificar(doc: Documento) {
+    clasifOrigenRef.current = document.activeElement as HTMLElement | null;
+    setClasifCentro(doc.costCenter?.id ?? "");
+    setClasifCategoria("");
+    setClasifError(null);
+    setClasificando(doc);
+    // Trae la categoría actual: si todos los ítems comparten una, la muestra.
+    fetch(`/api/tenants/${tenantId}/dte/${doc.id}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then(
+        (data: {
+          documento?: { items?: Array<{ categoryId: string | null }> };
+        } | null) => {
+          const items = data?.documento?.items ?? [];
+          const ids = new Set(
+            items
+              .map((i) => i.categoryId)
+              .filter((id): id is string => Boolean(id)),
+          );
+          if (ids.size === 1) {
+            setClasifCategoria(items.find((i) => i.categoryId)?.categoryId ?? "");
+          }
+        },
+      )
+      .catch(() => {
+        /* la categoría queda sin inicializar; el usuario elige igual */
+      });
+  }
+
+  async function guardarClasificacion() {
+    if (!clasificando) return;
+    setClasifError(null);
+    setClasifBusy(true);
+    try {
+      const res = await fetch(`/api/tenants/${tenantId}/dte/${clasificando.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          costCenterId: clasifCentro,
+          categoriaId: clasifCategoria,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setClasifError(data.error ?? "No se pudo clasificar la compra");
+        return;
+      }
+      setNotice("Compra clasificada.");
+      setClasificando(null);
+      router.refresh();
+    } finally {
+      setClasifBusy(false);
+    }
   }
 
   function descargarCarta(carta: string, folio: number | null) {
@@ -413,6 +495,15 @@ function abrirAnular(doc: Documento) {
                             Anular
                           </button>
                         )}
+                      {!esSalida && (
+                        <button
+                          onClick={() => abrirClasificar(doc)}
+                          disabled={busyId === doc.id}
+                          className="btn btn-ghost px-3 py-1 text-xs"
+                        >
+                          Clasificar
+                        </button>
+                      )}
                       {puedeBorrar(doc) && (
                         <button
                           onClick={() => eliminar(doc.id)}
@@ -435,7 +526,9 @@ function abrirAnular(doc: Documento) {
         <div
           ref={dialogRef}
           tabIndex={-1}
-          onKeyDown={manejarTeclasDialogo}
+          onKeyDown={(e) =>
+            manejarTeclasDialogo(e, dialogRef, () => setAnulando(null))
+          }
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 outline-none"
           role="dialog"
           aria-modal="true"
@@ -547,6 +640,95 @@ function abrirAnular(doc: Documento) {
                 className="btn bg-err px-3 py-1.5 text-xs font-medium text-white hover:bg-err/90"
               >
                 {busyId === anulando.id ? "Anulando…" : "Anular documento"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {clasificando && (
+        <div
+          ref={clasifDialogRef}
+          tabIndex={-1}
+          onKeyDown={(e) =>
+            manejarTeclasDialogo(e, clasifDialogRef, () => setClasificando(null))
+          }
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialogo-clasificar-titulo"
+        >
+          <div className="panel w-full max-w-md space-y-4 p-5 shadow-xl">
+            <div>
+              <h3
+                id="dialogo-clasificar-titulo"
+                className="text-base font-semibold text-ink"
+              >
+                Clasificar {TIPO_LABEL[clasificando.tipoDte] ?? clasificando.tipoDte} N°{" "}
+                {clasificando.folio ?? "—"}
+              </h3>
+              <p className="mt-1 text-xs text-ink-soft">
+                {clasificando.emisorRazonSocial ?? clasificando.emisorRut ?? ""} ·{" "}
+                {clp.format(clasificando.total)}
+              </p>
+            </div>
+
+            <label className="block space-y-1 text-xs font-medium text-ink-soft">
+              Área (centro de costo)
+              <select
+                value={clasifCentro}
+                onChange={(e) => setClasifCentro(e.target.value)}
+                className="field text-sm"
+              >
+                <option value="">— Sin área —</option>
+                {centros.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block space-y-1 text-xs font-medium text-ink-soft">
+              Categoría (se aplica a todos los ítems)
+              <select
+                value={clasifCategoria}
+                onChange={(e) => setClasifCategoria(e.target.value)}
+                className="field text-sm"
+              >
+                <option value="">— Sin categoría —</option>
+                {categorias.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <p className="text-xs text-ink-soft">
+              Guardar aplica exactamente lo que ves: si dejas Sin área o Sin
+              categoría, la factura queda sin esa dimensión.
+            </p>
+
+            {clasifError && (
+              <p className="alert alert-error text-xs" role="alert">
+                {clasifError}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setClasificando(null)}
+                className="btn btn-ghost px-3 py-1.5 text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={guardarClasificacion}
+                disabled={clasifBusy}
+                className="btn btn-primary px-3 py-1.5 text-xs"
+              >
+                {clasifBusy ? "Guardando…" : "Guardar"}
               </button>
             </div>
           </div>
