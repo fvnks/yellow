@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { resumenPorDimension } from "@/lib/dte/resumen";
+import { modulosActivos } from "@/lib/modules";
 import { getAuthContext } from "@/lib/session";
 import { DteForm } from "@/components/dte-form";
 import { DteList } from "@/components/dte-list";
@@ -27,6 +28,9 @@ export default async function ComprasPage() {
 
   const tenantId = active.tenantId;
   const canManage = canManageTenant(ctx, tenantId);
+
+  const activos = await modulosActivos(tenantId);
+  if (!activos.has("COMPRAS")) redirect("/dashboard");
 
   const [documentos, centros, categorias, resumenAreaRaw, resumenCatRaw] =
     await Promise.all([
@@ -111,7 +115,11 @@ export default async function ComprasPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ModuleNav active="compras" hideConfig={!canManage} />
+          <ModuleNav
+            active="compras"
+            activos={[...activos]}
+            hideConfig={!canManage}
+          />
           <Link href="/dashboard" className="btn btn-ghost">
             ← Panel
           </Link>
