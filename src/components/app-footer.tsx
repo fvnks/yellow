@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SOPORTE_EMAIL } from "@/lib/contacto";
 
-/** Pie navy al estilo sii.cl: marca, alcance del producto y accesos legales. */
+/** Pie navy: marca con las dos líneas de negocio y accesos legales. */
 export function AppFooter() {
   return (
     <footer className="mt-10 bg-navy">
@@ -9,7 +9,7 @@ export function AppFooter() {
         <span className="flex items-center gap-2">
           <span aria-hidden className="h-3 w-3 bg-orange" />
           <span className="font-semibold text-white">Yellow</span>
-          <span>Facturación electrónica · DTE ante el SII</span>
+          <span>Facturación electrónica · Diseño web</span>
         </span>
         <span className="flex items-center gap-4">
           {SOPORTE_EMAIL ? (
