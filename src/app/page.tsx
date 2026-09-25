@@ -1,32 +1,9 @@
 import Link from "next/link";
 import { getAuthContext } from "@/lib/session";
 import { SOPORTE_EMAIL } from "@/lib/contacto";
+import { LandingHero } from "@/components/landing-hero";
 
 export const dynamic = "force-dynamic";
-
-const FILAS_PREVIEW = [
-  {
-    doc: "Factura 33 · 1000",
-    parte: "Cliente SpA",
-    total: "$119.000",
-    estado: "ACEPTADO",
-    chip: "chip chip-ok",
-  },
-  {
-    doc: "Guía 52 · 3",
-    parte: "Cliente SpA",
-    total: "$47.600",
-    estado: "ENVIADO",
-    chip: "chip chip-orange",
-  },
-  {
-    doc: "Factura 33 · 1001",
-    parte: "Cliente SpA",
-    total: "$95.200",
-    estado: "ANULADO",
-    chip: "chip chip-muted",
-  },
-];
 
 export default async function Home() {
   const ctx = await getAuthContext();
@@ -46,7 +23,7 @@ export default async function Home() {
       {/* Menú de secciones */}
       <nav
         aria-label="Secciones de la página"
-        className="hidden items-center gap-6 pt-2 text-sm md:flex"
+        className="hidden items-center justify-center gap-6 pt-2 text-sm md:flex"
       >
         <a href="#funciones" className="text-blue hover:text-orange-ink">
           Funciones
@@ -59,86 +36,8 @@ export default async function Home() {
         </a>
       </nav>
 
-      {/* ── Hero: propuesta + producto ── */}
-      <section className="grid items-center gap-10 pt-6 lg:grid-cols-[7fr_5fr] lg:gap-12 lg:pt-10">
-        <div className="space-y-6">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-blue">
-            Facturación electrónica ante el SII
-          </p>
-          <h1 className="max-w-xl text-4xl font-semibold leading-[1.1] tracking-tight text-ink md:text-5xl">
-            Todo el ciclo de tus DTE,{" "}
-            <span className="text-orange-ink">en un solo lugar</span>
-          </h1>
-          <p className="max-w-[65ch] text-base leading-relaxed text-ink-soft">
-            Emite facturas, registra compras, controla gastos, cotiza y
-            descarga tus libros. Del borrador al TED.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {ctx ? (
-              <Link
-                href="/dashboard"
-                className="btn btn-primary px-5 py-2.5 text-base active:translate-y-px"
-              >
-                Ir al panel
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  className="btn btn-primary px-5 py-2.5 text-base active:translate-y-px"
-                >
-                  Crear cuenta
-                </Link>
-                <Link
-                  href="/login"
-                  className="btn btn-ghost px-5 py-2.5 text-base active:translate-y-px"
-                >
-                  Ingresar
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="relative">
-          <div
-            aria-hidden
-            className="absolute inset-0 translate-x-3 translate-y-3 rounded-md bg-navy/10"
-          />
-          <div className="panel relative overflow-hidden shadow-xl shadow-navy/20">
-            <div className="flex items-center justify-between border-b border-line bg-block px-4 py-2.5">
-              <span className="text-xs font-medium text-ink-soft">
-                Ventas · septiembre 2026
-              </span>
-              <span className="text-xs text-ink-soft">XML · PDF por fila</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="tbl">
-                <thead>
-                  <tr>
-                    <th scope="col">Documento</th>
-                    <th scope="col">Receptor</th>
-                    <th scope="col" className="text-right">Total</th>
-                    <th scope="col" className="text-right">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {FILAS_PREVIEW.map((f) => (
-                    <tr key={f.doc}>
-                      <td className="whitespace-nowrap font-medium">{f.doc}</td>
-                      <td>{f.parte}</td>
-                      <td className="text-right">{f.total}</td>
-                      <td className="text-right">
-                        <span className={f.chip}>{f.estado}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── Hero centrado: Badge → Título → CTAs → Preview ── */}
+      <LandingHero isAuthed={!!ctx} />
 
       {/* ── Funciones: bento ── */}
       <section id="funciones" className="space-y-8">
