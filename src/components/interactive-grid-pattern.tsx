@@ -13,8 +13,8 @@ export function InteractiveGridPattern({
   gap = 36,
   dotSize = 2.5,
   radius = 220,
-  accent = "var(--color-accent)",
-  base = "var(--color-border-hover)",
+  accent = "var(--color-accent, #f59e0b)",
+  base = "var(--color-border-hover, #d4d4d8)",
   fade = "radial-gradient(ellipse 100% 80% at 50% 20%, black, transparent)",
 }: {
   className?: string;
@@ -47,7 +47,7 @@ export function InteractiveGridPattern({
   return (
     <div
       ref={ref}
-      className={`relative overflow-hidden ${className}`}
+      className={`overflow-hidden ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
