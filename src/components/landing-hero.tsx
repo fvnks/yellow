@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InteractiveGridPattern } from "@/components/interactive-grid-pattern";
 
 const PREVIEW_FILAS = [
   { doc: "Factura 33 · 1000", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
@@ -16,17 +17,13 @@ const SIDEBAR_ITEMS = ["Ventas", "Compras", "Gastos", "Cotizaciones", "Directori
 export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
   return (
     <section className="relative pb-20 pt-8 md:pb-28">
-      {/* Grid pattern con tinte cálido */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          backgroundImage: `linear-gradient(color-mix(in srgb, var(--color-accent) 8%, var(--color-border)) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 8%, var(--color-border)) 1px, transparent 1px)`,
-          backgroundSize: "72px 72px",
-          opacity: 0.5,
-          maskImage: "radial-gradient(ellipse 100% 80% at 50% 20%, black, transparent)",
-          WebkitMaskImage: "radial-gradient(ellipse 100% 80% at 50% 20%, black, transparent)",
-        }}
+      {/* Grid interactivo: dots amarillos siguen el cursor */}
+      <InteractiveGridPattern
+        className="absolute inset-0 -z-10"
+        gap={40}
+        dotSize={2}
+        radius={200}
+        fade="radial-gradient(ellipse 100% 70% at 50% 30%, black, transparent)"
       />
       {/* Glow cálido centrado */}
       <div
