@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, JetBrains_Mono } from "next/font/google";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetBrains = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -28,11 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${outfit.variable} ${jetBrains.variable} h-full scroll-smooth antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface font-sans text-ink">
-        {/* Anti-flash: aplica el modo oscuro guardado antes del primer
-            pintado (claro es el default; oscuro se persiste en localStorage). */}
+        {/* Anti‑flash: aplica el modo oscuro guardado antes del primer pintado (claro es el default; oscuro se persiste en localStorage). */}
         <script
           dangerouslySetInnerHTML={{
             __html:

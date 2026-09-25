@@ -5,9 +5,9 @@ import { getAuthContext } from "@/lib/session";
 import { siiAmbiente } from "@/lib/sii/client";
 
 /**
- * Chrome superior al estilo sii.cl: franja navy con la sesión y el
- * ambiente del SII, más la barra con la marca sobre fondo claro.
- * Sin sesión (login/registro) solo se muestra la marca e "Ingresar".
+ * Cabecera Yellow: barra superior navy con la sesión y el ambiente del SII,
+ * y la barra principal con la marca sobre fondo claro. Sin sesión (login /
+ * registro) solo se muestra la marca e "Ingresar".
  */
 export async function AppHeader() {
   const ctx = await getAuthContext();
@@ -29,8 +29,11 @@ export async function AppHeader() {
         </div>
       )}
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <span aria-hidden className="h-3.5 w-3.5 bg-orange" />
+        <Link href="/" className="flex items-center gap-2.5">
+          <span
+            aria-hidden
+            className="h-3 w-3 rotate-45 bg-blue"
+          />
           <span className="text-lg font-semibold tracking-tight text-ink">
             Yellow
           </span>

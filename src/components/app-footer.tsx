@@ -7,7 +7,7 @@ export function AppFooter() {
     <footer className="mt-10 bg-navy">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-white/75">
         <span className="flex items-center gap-2">
-          <span aria-hidden className="h-3 w-3 bg-orange" />
+          <span aria-hidden className="h-3 w-3 rotate-45 bg-blue" />
           <span className="font-semibold text-white">Yellow</span>
           <span>Facturación electrónica · Diseño web</span>
         </span>
