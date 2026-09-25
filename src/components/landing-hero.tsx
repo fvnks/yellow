@@ -7,6 +7,7 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
+import { CaretRight } from "@phosphor-icons/react";
 import Link from "next/link";
 
 const PREVIEW_FILAS = [
@@ -102,9 +103,17 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
       {/* ── Contenido (relative: pinta sobre el grid) ── */}
       <div className="relative space-y-7 text-center">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold text-accent-text">
+          <span className="group inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold transition-colors hover:border-accent/40 hover:bg-accent/10">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            SII Chile · Facturación electrónica
+            <span className="shiny-text">
+              SII Chile · Facturación electrónica
+            </span>
+            <CaretRight
+              size={12}
+              weight="bold"
+              aria-hidden
+              className="text-accent-text transition-transform duration-300 group-hover:translate-x-0.5"
+            />
           </span>
         </div>
 
