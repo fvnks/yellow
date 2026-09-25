@@ -1,190 +1,191 @@
 import Link from "next/link";
 
-const FILAS_PREVIEW = [
-  {
-    doc: "Factura 33 · 1000",
-    parte: "Cliente SpA",
-    total: "$119.000",
-    estado: "ACEPTADO",
-    chip: "chip chip-ok",
-  },
-  {
-    doc: "Guía 52 · 3",
-    parte: "Cliente SpA",
-    total: "$47.600",
-    estado: "ENVIADO",
-    chip: "chip chip-orange",
-  },
-  {
-    doc: "Factura 33 · 1001",
-    parte: "Cliente SpA",
-    total: "$95.200",
-    estado: "ANULADO",
-    chip: "chip chip-muted",
-  },
-  {
-    doc: "N. crédito 61 · 4",
-    parte: "Cliente SpA",
-    total: "$119.000",
-    estado: "ACEPTADO",
-    chip: "chip chip-ok",
-  },
+const PREVIEW_FILAS = [
+  { doc: "Factura 33 · 1000", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
+  { doc: "Guía 52 · 3", parte: "Cliente SpA", total: "$47.600", estado: "ENVIADO", chip: "chip chip-orange" },
+  { doc: "Factura 33 · 1001", parte: "Cliente SpA", total: "$95.200", estado: "ANULADO", chip: "chip chip-muted" },
+  { doc: "N. crédito 61 · 4", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
 ];
 
+const SIDEBAR_ITEMS = ["Ventas", "Compras", "Gastos", "Cotizaciones", "Directorio"];
+
 /**
- * Hero oscuro estilo SaaSly: gradiente navy, texto blanco centrado,
- * badge arriba, CTAs contrastantes, y un preview del producto BLANCO
- * que resalta con tarjetas flotantes de glass-morphism.
+ * Hero editorial — Linear/Stripe/Vercel inspired.
+ * Tipografía masiva, grid pattern sutil, preview de la app completa.
+ * Sin decoración: solo tipografía, espacio y el producto.
  */
 export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
   return (
-    <section className="relative overflow-hidden rounded-xl bg-gradient-to-b from-navy to-navy-hover px-6 py-16 text-center md:px-12 md:py-24">
-      {/* Glow terracotta centrado */}
+    <section className="relative pb-20 pt-16 md:pb-28 md:pt-24">
+      {/* Grid pattern — la única decoración, sutil como Linear */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 h-[28rem] w-[36rem] -translate-x-1/2 rounded-full bg-orange/15 blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          backgroundImage: `linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)`,
+          backgroundSize: "80px 80px",
+          opacity: 0.35,
+          maskImage:
+            "radial-gradient(ellipse 90% 70% at 50% 30%, black, transparent)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 90% 70% at 50% 30%, black, transparent)",
+        }}
       />
-      {/* Glow sutil lateral */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-16 top-1/3 h-64 w-64 rounded-full bg-blue-bright/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-16 bottom-1/4 h-64 w-64 rounded-full bg-orange/10 blur-3xl"
-      />
 
-      {/* Badge */}
-      <div className="relative mb-6">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
-          <span className="h-1.5 w-1.5 rounded-full bg-orange" aria-hidden />
-          Facturación electrónica · SII Chile
-        </span>
-      </div>
-
-      {/* Título */}
-      <h1 className="relative mx-auto mb-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-6xl">
-        Todo el ciclo de tus DTE,{" "}
-        <span className="text-orange">en un solo lugar</span>
-      </h1>
-
-      {/* Descripción */}
-      <p className="relative mx-auto mb-10 max-w-[55ch] text-base leading-relaxed text-white/70 md:text-lg">
-        Emite facturas, registra compras, controla gastos, cotiza y descarga
-        tus libros. Del borrador al TED, sin pelear con el SII.
-      </p>
-
-      {/* CTAs */}
-      <div className="relative mb-16 flex flex-wrap items-center justify-center gap-4">
-        {isAuthed ? (
-          <Link
-            href="/dashboard"
-            className="btn bg-white px-6 py-3 text-base text-navy transition-colors hover:bg-orange hover:text-white active:translate-y-px"
-          >
-            Ir al panel
-          </Link>
-        ) : (
-          <>
-            <Link
-              href="/register"
-              className="btn bg-white px-6 py-3 text-base text-navy transition-colors hover:bg-orange hover:text-white active:translate-y-px"
-            >
-              Crear cuenta
-            </Link>
-            <Link
-              href="/login"
-              className="btn border-white/30 bg-white/5 px-6 py-3 text-base text-white transition-colors hover:border-white/50 hover:bg-white/10 active:translate-y-px"
-            >
-              Ingresar
-            </Link>
-          </>
-        )}
-      </div>
-
-      {/* Preview del producto con tarjetas flotantes */}
-      <div className="relative mx-auto max-w-5xl">
-        {/* Tarjeta flotante: monto */}
-        <div
-          className="absolute -top-4 right-4 z-10 hidden rounded-lg border border-white/20 bg-navy/80 px-4 py-3 shadow-xl backdrop-blur-md md:block"
-        >
-          <p className="text-xs text-white/50">Facturas emitidas</p>
-          <p className="font-mono text-lg font-bold text-white">$119.000</p>
+      {/* Contenido centrado */}
+      <div className="space-y-8 text-center">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            SII Chile · Facturación electrónica
+          </span>
         </div>
 
-        {/* Tarjeta flotante: estado */}
-        <div
-          className="absolute -bottom-4 left-6 z-10 hidden rounded-lg border border-white/20 bg-navy/80 px-4 py-3 shadow-xl backdrop-blur-md md:block"
-        >
-          <p className="flex items-center gap-2 text-sm text-white/50">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
-            Aceptado por el SII
-          </p>
-          <p className="text-xs text-white/40">Track: 12345678</p>
-        </div>
+        <h1 className="mx-auto max-w-4xl text-5xl font-bold leading-[0.95] tracking-tighter text-ink md:text-7xl">
+          Software que factura.
+          <br />
+          <span className="text-accent">Diseño que convierte.</span>
+        </h1>
 
-        {/* Panel blanco con la tabla (contraste contra el fondo oscuro) */}
-        <div className="relative overflow-hidden rounded-xl bg-white shadow-2xl shadow-black/40">
-          <div className="flex items-center justify-between border-b border-[#e5e8e3] bg-[#eef1ee] px-4 py-3">
-            <span className="text-sm font-medium text-[#5c646c]">
-              Ventas · septiembre 2026
-            </span>
-            <span className="text-sm text-[#5c646c]">
-              XML · PDF por fila
+        <p className="mx-auto max-w-md text-base leading-relaxed text-muted md:text-lg">
+          Todo el ciclo del DTE en un solo lugar: emisión, compras, gastos,
+          cotizaciones y libros.
+        </p>
+
+        <div>
+          {isAuthed ? (
+            <Link
+              href="/dashboard"
+              className="btn btn-primary px-8 py-3 text-base"
+            >
+              Ir al panel
+            </Link>
+          ) : (
+            <div className="space-y-3">
+              <Link
+                href="/register"
+                className="btn btn-primary px-8 py-3.5 text-base"
+              >
+                Empezar gratis
+              </Link>
+              <p className="text-sm text-faint">
+                ¿Ya tienes cuenta?{" "}
+                <Link
+                  href="/login"
+                  className="font-medium text-ink underline underline-offset-4 transition-colors hover:text-accent-text"
+                >
+                  Ingresar
+                </Link>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Preview de la app completa — full width, sin tarjetas flotantes */}
+      <div className="mt-16 md:mt-24">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/8">
+          {/* Chrome del navegador */}
+          <div className="flex items-center gap-2 border-b border-border bg-raised px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-border" />
+              <span className="h-2.5 w-2.5 rounded-full bg-border" />
+              <span className="h-2.5 w-2.5 rounded-full bg-border" />
+            </div>
+            <span className="ml-3 rounded-md bg-surface px-3 py-0.5 font-mono text-[11px] text-faint">
+              yellow.cl/erp
             </span>
           </div>
-          <div className="overflow-x-auto">
-            <table
-              className="w-full border-collapse text-[13px]"
-              style={{ color: "#16202e" }}
-            >
-              <thead>
-                <tr>
-                  <th
-                    scope="col"
-                    className="border-b border-[#e5e8e3] bg-[#eef1ee] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-[#5c646c]"
+
+          {/* App: sidebar + contenido */}
+          <div className="flex">
+            {/* Mini sidebar */}
+            <div className="hidden w-44 shrink-0 border-r border-border p-4 md:block">
+              <div className="mb-6 flex items-center gap-2">
+                <div className="h-3.5 w-3.5 rounded-[4px] bg-accent" />
+                <span className="text-sm font-bold text-ink">Yellow</span>
+              </div>
+              <div className="space-y-0.5">
+                {SIDEBAR_ITEMS.map((item, i) => (
+                  <div
+                    key={item}
+                    className={`rounded-lg px-2.5 py-1.5 text-xs ${
+                      i === 0
+                        ? "bg-raised font-semibold text-ink"
+                        : "font-medium text-muted"
+                    }`}
                   >
-                    Documento
-                  </th>
-                  <th
-                    scope="col"
-                    className="border-b border-[#e5e8e3] bg-[#eef1ee] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wide text-[#5c646c]"
-                  >
-                    Receptor
-                  </th>
-                  <th
-                    scope="col"
-                    className="border-b border-[#e5e8e3] bg-[#eef1ee] px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wide text-[#5c646c]"
-                  >
-                    Total
-                  </th>
-                  <th
-                    scope="col"
-                    className="border-b border-[#e5e8e3] bg-[#eef1ee] px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wide text-[#5c646c]"
-                  >
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {FILAS_PREVIEW.map((f) => (
-                  <tr
-                    key={f.doc}
-                    className="border-b border-[#e5e8e3] transition-colors last:border-b-0 hover:bg-[#f7f8f6]"
-                  >
-                    <td className="whitespace-nowrap px-4 py-3 font-semibold">
-                      {f.doc}
-                    </td>
-                    <td className="px-4 py-3 text-[#5c646c]">{f.parte}</td>
-                    <td className="px-4 py-3 text-right font-mono font-semibold">
-                      {f.total}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className={f.chip}>{f.estado}</span>
-                    </td>
-                  </tr>
+                    {item}
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+              <div className="mt-6 border-t border-border pt-4">
+                <div className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted">
+                  Libros
+                </div>
+                <div className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted">
+                  Reportes
+                </div>
+              </div>
+            </div>
+
+            {/* Contenido: stats + tabla */}
+            <div className="min-w-0 flex-1 p-6">
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
+                {[
+                  { label: "Total ventas", value: "$742.310" },
+                  { label: "Documentos", value: "47" },
+                  { label: "Aceptados", value: "38" },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <p className="text-[11px] font-medium text-faint">
+                      {stat.label}
+                    </p>
+                    <p className="mt-0.5 font-mono text-xl font-bold text-ink">
+                      {stat.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="py-2 pl-1 text-left text-[11px] font-medium text-faint">
+                      Documento
+                    </th>
+                    <th className="py-2 text-left text-[11px] font-medium text-faint">
+                      Receptor
+                    </th>
+                    <th className="py-2 text-right text-[11px] font-medium text-faint">
+                      Total
+                    </th>
+                    <th className="py-2 pr-1 text-right text-[11px] font-medium text-faint">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PREVIEW_FILAS.map((f) => (
+                    <tr
+                      key={f.doc}
+                      className="border-b border-border/50 last:border-0"
+                    >
+                      <td className="py-2.5 pl-1 font-medium text-ink">
+                        {f.doc}
+                      </td>
+                      <td className="py-2.5 text-muted">{f.parte}</td>
+                      <td className="py-2.5 text-right font-mono font-semibold text-ink">
+                        {f.total}
+                      </td>
+                      <td className="py-2.5 pr-1 text-right">
+                        <span className={f.chip}>{f.estado}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

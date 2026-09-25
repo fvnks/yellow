@@ -5,203 +5,157 @@ import { LandingHero } from "@/components/landing-hero";
 
 export const dynamic = "force-dynamic";
 
+const FEATURES = [
+  {
+    title: "Emisión y anulación",
+    desc: "Facturas, guías y notas firmadas con TED. Folios desde tu propio CAF, consulta de estado ante el SII y anulación con nota de crédito automática.",
+  },
+  {
+    title: "Compras y gastos",
+    desc: "Registra facturas de proveedores, gastos de caja menor con reembolso, y clasifica por área y categoría. El desglose aparece solo en Reportes.",
+  },
+  {
+    title: "Cotizaciones",
+    desc: "Propuestas con correlativo propio que se convierten en factura con un clic. Receptor, ítems y dimensiones se repiten sin re-escribir nada.",
+  },
+  {
+    title: "Libros y registro CSV",
+    desc: "Libro de compras y ventas por período. El XML oficial listo para el SII y el registro CSV del portal cuando subas tus credenciales.",
+  },
+];
+
 export default async function Home() {
   const ctx = await getAuthContext();
 
   return (
-    <div className="relative space-y-20 overflow-hidden pb-16">
-      {/* Lavado de fondo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-bright/10 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-orange/10 blur-3xl"
-      />
-
-      {/* Menú de secciones */}
-      <nav
-        aria-label="Secciones de la página"
-        className="hidden items-center justify-center gap-6 pt-2 text-sm md:flex"
-      >
-        <a href="#funciones" className="text-blue hover:text-orange-ink">
-          Funciones
-        </a>
-        <a href="#como-empezas" className="text-blue hover:text-orange-ink">
-          Cómo funciona
-        </a>
-        <a href="#contacto" className="text-blue hover:text-orange-ink">
-          Contacto
-        </a>
-      </nav>
-
-      {/* ── Hero centrado: Badge → Título → CTAs → Preview ── */}
+    <div className="pb-24">
+      {/* ═══ HERO: tipografía masiva + grid pattern + preview de la app ═══ */}
       <LandingHero isAuthed={!!ctx} />
 
-      {/* ── Funciones: bento ── */}
-      <section id="funciones" className="space-y-8">
-        <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-4xl">
-          Un ERP que hace el trabajo
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <article className="panel space-y-3 p-6 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15 md:col-span-2">
-            <h3 className="text-lg font-semibold text-ink">
-              Emisión y anulación
-            </h3>
-            <p className="max-w-[65ch] text-sm leading-relaxed text-ink-soft">
-              Facturas, guías y notas firmadas con TED, con tus CAF y folios
-              propios. Anulas con nota de crédito automática.
-            </p>
-            <p className="flex flex-wrap items-center gap-1.5 text-xs text-ink-soft">
-              <span className="chip chip-blue">FIRMADO</span> →
-              <span className="chip chip-orange">ENVIADO</span> →
-              <span className="chip chip-ok">ACEPTADO</span>
-            </p>
-          </article>
+      {/* ═══ FEATURES: editorial, numerado, sin tarjetas ═══ */}
+      <section id="funciones" className="border-t border-border py-20 md:py-32">
+        <div className="mb-16 max-w-2xl md:mb-20">
+          <h2 className="text-3xl font-bold tracking-tight text-ink md:text-4xl">
+            Un ERP que hace el trabajo
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-muted md:text-lg">
+            Emisión, compras, gastos, cotizaciones, libros y reportes. Todo en
+            un producto, con el XML y el PDF de cada documento en su fila.
+          </p>
+        </div>
 
-          <article className="space-y-3 rounded-md bg-gradient-to-br from-block to-panel p-6 shadow-sm shadow-navy/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/10">
-            <h3 className="text-lg font-semibold text-ink">
-              Compras, gastos y cotizaciones
-            </h3>
-            <p className="text-sm leading-relaxed text-ink-soft">
-              Registra facturas de proveedores, gastos de caja con reembolso, y
-              cotizaciones que se convierten en venta con un clic.
-            </p>
-            <p className="flex items-center gap-1.5 text-xs text-ink-soft">
-              <span className="chip chip-muted">COT-0042</span>
-              <span className="font-medium text-blue">→ Factura</span>
-            </p>
-          </article>
-
-          <article className="panel space-y-3 p-6 shadow-sm shadow-navy/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/15">
-            <h3 className="text-lg font-semibold text-ink">
-              Libros y registro CSV
-            </h3>
-            <p className="text-sm leading-relaxed text-ink-soft">
-              Libro de compras y ventas por período, con el XML oficial y el
-              registro CSV del portal del SII.
-            </p>
-          </article>
-
-          <article className="space-y-4 rounded-md bg-gradient-to-br from-block to-panel p-6 shadow-sm shadow-navy/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-navy/10 md:col-span-2">
-            <h3 className="text-lg font-semibold text-ink">
-              Multi-empresa, con roles
-            </h3>
-            <p className="max-w-[65ch] text-sm leading-relaxed text-ink-soft">
-              Varias empresas en una sola cuenta. Invita a tu equipo, elige qué
-              módulos activar, y cada documento queda asociado a su vendedor y
-              centro de costo.
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink shadow-sm">
-                <span className="flex items-center gap-2">
-                  <span aria-hidden className="h-2.5 w-2.5 bg-orange" />
-                  Constructora SpA
-                </span>
-                <span className="chip chip-muted">OWNER</span>
-              </div>
-              <div className="flex items-center justify-between gap-2 rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink shadow-sm">
-                <span className="flex items-center gap-2">
-                  <span aria-hidden className="h-2.5 w-2.5 bg-blue" />
-                  Café y Alimentos
-                </span>
-                <span className="chip chip-muted">ADMIN</span>
-              </div>
+        <div className="grid gap-x-12 gap-y-16 md:grid-cols-2 md:gap-y-20">
+          {FEATURES.map((f, i) => (
+            <div key={f.title} className="group">
+              <span className="font-mono text-sm font-semibold text-accent">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-4 text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-accent-text">
+                <a href="#funciones" className="cursor-default">
+                  {f.title}
+                </a>
+              </h3>
+              <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-muted">
+                {f.desc}
+              </p>
             </div>
-          </article>
+          ))}
         </div>
       </section>
 
-      {/* ── Cómo empiezas ── */}
-      <section id="como-empezas" className="space-y-8">
-        <h2 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">
-          Cómo empiezas
-        </h2>
-        <ol className="divide-y divide-line">
+      {/* ═══ CÓMO EMPIEZAS: minimal, 3 pasos en línea ═══ */}
+      <section
+        id="como-empezas"
+        className="border-t border-border py-20 md:py-28"
+      >
+        <div className="mb-14">
+          <h2 className="text-2xl font-bold tracking-tight text-ink md:text-3xl">
+            Cómo empiezas
+          </h2>
+        </div>
+        <ol className="grid gap-10 md:grid-cols-3 md:gap-8">
           {[
             {
               n: "01",
               titulo: "Crea tu cuenta",
-              detalle: "Tu empresa, tu equipo, aislados por espacio de trabajo.",
+              desc: "Tu empresa, tu equipo, aislados por espacio de trabajo.",
             },
             {
               n: "02",
               titulo: "Sube tu certificado",
-              detalle: "O parte en modo simulado, sin .p12.",
+              desc: "O parte en modo simulado, sin .p12.",
             },
             {
               n: "03",
               titulo: "Emite y registra",
-              detalle: "El XML y el PDF de cada documento, en su fila.",
+              desc: "El XML y el PDF de cada documento, en su fila.",
             },
           ].map((paso) => (
-            <li key={paso.n} className="grid gap-2 py-6 md:grid-cols-[7rem_1fr] md:gap-8">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-block font-mono text-base font-medium text-orange-ink shadow-sm">
+            <li key={paso.n} className="relative">
+              <span className="font-mono text-4xl font-bold tracking-tight text-border md:text-5xl">
                 {paso.n}
               </span>
-              <div>
-                <h3 className="font-semibold text-ink">{paso.titulo}</h3>
-                <p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-ink-soft">
-                  {paso.detalle}
-                </p>
-              </div>
+              <h3 className="mt-3 text-lg font-semibold text-ink">
+                {paso.titulo}
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted">
+                {paso.desc}
+              </p>
             </li>
           ))}
         </ol>
       </section>
 
-      {/* ── Contacto ── */}
+      {/* ═══ CTA: ultra-minimal, sin fondo de color ═══ */}
       <section
         id="contacto"
-        className="rounded-md bg-gradient-to-br from-navy to-navy-hover p-8 md:p-12"
+        className="border-t border-border py-20 text-center md:py-32"
       >
-        <div className="flex flex-wrap items-center justify-between gap-8">
-          <div className="flex max-w-2xl items-start gap-4">
-            <span aria-hidden className="mt-1.5 h-3.5 w-3.5 shrink-0 bg-orange" />
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
-                Parte en modo simulado, pasa a producción cuando estés listo
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-white/80">
-                Sin certificado, Yellow funciona con el adaptador simulado.
-                Sube tu .p12 y las mismas pantallas hablan con el SII real.
-              </p>
-            </div>
-          </div>
+        <h2 className="mx-auto max-w-xl text-3xl font-bold tracking-tight text-ink md:text-4xl">
+          Empieza hoy, sin certificado
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted">
+          Yellow funciona en modo simulado desde el primer minuto. Sube tu
+          .p12 cuando estés listo y las mismas pantallas hablan con el SII
+          real.
+        </p>
+        <div className="mt-8">
           {ctx ? (
             <Link
               href="/dashboard"
-              className="btn bg-white px-5 py-2.5 text-base text-navy hover:bg-block active:translate-y-px"
+              className="btn btn-primary px-8 py-3.5 text-base"
             >
               Ir al panel
             </Link>
           ) : (
             <Link
               href="/register"
-              className="btn bg-white px-5 py-2.5 text-base text-navy hover:bg-block active:translate-y-px"
+              className="btn btn-primary px-8 py-3.5 text-base"
             >
               Crear cuenta
             </Link>
           )}
         </div>
-        <p className="mt-8 text-xs text-white/70">
+        <p className="mt-6 text-sm text-faint">
           {SOPORTE_EMAIL ? (
             <>
               ¿Dudas?{" "}
               <a
                 href={`mailto:${SOPORTE_EMAIL}`}
-                className="underline hover:text-white"
+                className="text-muted underline underline-offset-4 hover:text-ink"
               >
-                Escríbenos a {SOPORTE_EMAIL}
+                {SOPORTE_EMAIL}
               </a>
             </>
           ) : (
-            "¿Dudas? Crea tu cuenta y pruébalo en modo simulado."
+            "Sin compromiso. Crea tu cuenta y pruébalo."
           )}
           {" · "}
-          <Link href="/diseno" className="underline hover:text-white">
-            ¿Necesitas diseño web? Mira nuestro trabajo
+          <Link
+            href="/diseno"
+            className="text-muted underline underline-offset-4 hover:text-ink"
+          >
+            ¿Necesitas diseño web?
           </Link>
         </p>
       </section>
