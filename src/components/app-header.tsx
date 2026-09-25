@@ -5,22 +5,20 @@ import { getAuthContext } from "@/lib/session";
 import { siiAmbiente } from "@/lib/sii/client";
 
 /**
- * Cabecera Yellow: barra superior navy con la sesión y el ambiente del SII,
- * y la barra principal con la marca sobre fondo claro. Sin sesión (login /
- * registro) solo se muestra la marca e "Ingresar".
+ * Cabecera Yellow: minimal, dark strip cuando hay sesión, marca limpia.
  */
 export async function AppHeader() {
   const ctx = await getAuthContext();
   const ambiente = siiAmbiente();
 
   return (
-    <header className="border-b border-line bg-panel">
+    <header className="border-b border-border bg-surface">
       {ctx && (
-        <div className="bg-navy text-white">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-2 text-xs">
-            <span className="truncate text-white/85">{ctx.user.email}</span>
+        <div className="bg-ink text-bg">
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-1.5 text-xs">
+            <span className="truncate text-bg/70">{ctx.user.email}</span>
             <span className="flex items-center gap-3">
-              <span className="rounded-full border border-white/40 px-2 py-0.5 text-white/90">
+              <span className="rounded-full border border-bg/20 px-2 py-0.5 text-bg/80">
                 SII {ambiente === "produccion" ? "producción" : "certificación"}
               </span>
               <LogoutButton />
@@ -28,13 +26,13 @@ export async function AppHeader() {
           </div>
         </div>
       )}
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3">
-        <Link href="/" className="flex items-center gap-2.5">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
+        <Link href="/" className="flex items-center gap-2">
           <span
             aria-hidden
-            className="h-3 w-3 rotate-45 bg-blue"
+            className="h-4 w-4 rounded-[5px] bg-accent"
           />
-          <span className="text-lg font-semibold tracking-tight text-ink">
+          <span className="text-lg font-bold tracking-tight text-ink">
             Yellow
           </span>
         </Link>
