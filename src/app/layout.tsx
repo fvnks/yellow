@@ -31,8 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${outfit.variable} ${jetBrains.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-surface font-sans text-ink">
-        {/* Anti‑flash: aplica el modo oscuro guardado antes del primer pintado (claro es el default; oscuro se persiste en localStorage). */}
+      <body className="flex min-h-full flex-col bg-bg font-sans text-ink">
         <script
           dangerouslySetInnerHTML={{
             __html:
@@ -41,12 +40,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
         <a
           href="#contenido"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-navy focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-bg focus:shadow-lg"
         >
           Saltar al contenido principal
         </a>
         <AppHeader />
-        <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
+        <main
+          id="contenido"
+          className="mx-auto w-full max-w-6xl flex-1 px-6 py-8"
+        >
           {children}
         </main>
         <AppFooter />

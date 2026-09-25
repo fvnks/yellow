@@ -8,7 +8,6 @@ import { CaretDown } from "@phosphor-icons/react";
 export type SidebarItem = { href: string; label: string };
 export type SidebarGrupo = { titulo: string; items: SidebarItem[] };
 
-/** La página activa: en /erp distingue Ventas/Compras por ?sentido. */
 function esActivo(href: string, pathname: string, sentido: string): boolean {
   const path = href.split("?")[0];
   if (path !== pathname) return false;
@@ -20,9 +19,7 @@ function esActivo(href: string, pathname: string, sentido: string): boolean {
 }
 
 /**
- * Sidebar de módulos al estilo ERP: cada grupo es un título colapsable con
- * flecha (como el dropdown de Defontana); el grupo de la página activa se
- * abre solo. En móvil colapsa a una fila de accesos directos.
+ * Sidebar con grupos colapsables y indicador de accent.
  */
 export function Sidebar({ grupos }: { grupos: SidebarGrupo[] }) {
   const pathname = usePathname();
@@ -30,7 +27,6 @@ export function Sidebar({ grupos }: { grupos: SidebarGrupo[] }) {
   const sentido = sentidoParam === "ENTRADA" ? "ENTRADA" : "SALIDA";
   const enlaces = grupos.flatMap((g) => g.items);
 
-  // El grupo que contiene la página activa abre por defecto; los demás parten cerrados.
   const [abiertos, setAbiertos] = useState<Set<string>>(() => {
     const iniciales = new Set<string>();
     for (const grupo of grupos) {
@@ -62,7 +58,7 @@ export function Sidebar({ grupos }: { grupos: SidebarGrupo[] }) {
                   type="button"
                   onClick={() => alternar(grupo.titulo)}
                   aria-expanded={abierto}
-                  className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft transition hover:bg-block hover:text-ink"
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-faint transition hover:bg-raised hover:text-muted"
                 >
                   {grupo.titulo}
                   <CaretDown
@@ -82,10 +78,16 @@ export function Sidebar({ grupos }: { grupos: SidebarGrupo[] }) {
                         aria-current={activo ? "page" : undefined}
                         className={
                           activo
-                            ? "block rounded-md bg-navy px-3 py-1.5 text-sm font-medium text-white"
-                            : "block rounded-md px-3 py-1.5 text-sm text-blue transition hover:bg-block hover:text-ink"
+                            ? "flex items-center rounded-lg bg-ink px-3 py-1.5 text-sm font-semibold text-bg"
+                            : "flex items-center rounded-lg px-3 py-1.5 text-sm font-medium text-muted transition hover:bg-raised hover:text-ink"
                         }
                       >
+                        {activo && (
+                          <span
+                            aria-hidden
+                            className="mr-2 h-3.5 w-1 rounded-full bg-accent"
+                          />
+                        )}
                         {item.label}
                       </Link>
                     );
@@ -109,8 +111,8 @@ export function Sidebar({ grupos }: { grupos: SidebarGrupo[] }) {
               aria-current={activo ? "page" : undefined}
               className={
                 activo
-                  ? "rounded-md bg-navy px-3 py-1.5 text-sm font-medium text-white"
-                  : "rounded-md border border-line px-3 py-1.5 text-sm text-blue"
+                  ? "rounded-lg bg-ink px-3 py-1.5 text-sm font-semibold text-bg"
+                  : "rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted"
               }
             >
               {item.label}
