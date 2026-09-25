@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { canManageTenant } from "@/lib/authz";
 import { modulosActivos, type ModuloKey } from "@/lib/modules";
 import { getAuthContext } from "@/lib/session";
+import { AppHeader } from "@/components/app-header";
 import { Sidebar, type SidebarGrupo } from "@/components/sidebar";
 
 export const dynamic = "force-dynamic";
@@ -69,9 +70,12 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex flex-col gap-8 lg:flex-row">
-      <Sidebar grupos={grupos} />
-      <div className="min-w-0 flex-1">{children}</div>
-    </div>
+    <>
+      <AppHeader />
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <Sidebar grupos={grupos} />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </>
   );
 }

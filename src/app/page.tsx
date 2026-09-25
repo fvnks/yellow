@@ -3,6 +3,7 @@ import { getAuthContext } from "@/lib/session";
 import { SOPORTE_EMAIL } from "@/lib/contacto";
 import { LandingHero } from "@/components/landing-hero";
 import { LandingFeatures } from "@/components/landing-features";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export default async function Home() {
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {ctx ? (
             <Link href="/dashboard" className="btn btn-primary text-sm">
               Ir al panel
