@@ -11,7 +11,7 @@ export function AuthAside() {
     <aside className="relative hidden min-h-[75vh] flex-col justify-between overflow-hidden rounded-md bg-gradient-to-br from-navy to-navy-hover p-10 lg:flex">
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-orange/15 blur-3xl"
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-blue/15 blur-3xl"
       />
       <div
         aria-hidden
@@ -19,23 +19,23 @@ export function AuthAside() {
       />
 
       <div className="relative">
-        <span aria-hidden className="block h-4 w-4 bg-orange" />
+        <span aria-hidden className="block h-4 w-4 bg-blue" />
         <p className="mt-8 max-w-sm text-2xl font-semibold leading-snug tracking-tight text-white">
           Facturación electrónica ante el SII, sin fricción.
         </p>
       </div>
       <ul className="relative space-y-3 text-sm leading-relaxed text-white/85">
         <li className="flex gap-2.5">
-          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-orange" />
+          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-blue" />
           Emisión con TED, CAF y folios propios; anulación con nota de
           crédito.
         </li>
         <li className="flex gap-2.5">
-          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-orange" />
+          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-blue" />
           Compras registradas y clasificadas por área y categoría.
         </li>
         <li className="flex gap-2.5">
-          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-orange" />
+          <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 bg-blue" />
           Libros de compras y ventas con registro CSV del portal del SII.
         </li>
       </ul>
