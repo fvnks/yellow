@@ -4,6 +4,7 @@ import { SOPORTE_EMAIL } from "@/lib/contacto";
 import { LandingHero } from "@/components/landing-hero";
 import { LandingFeatures } from "@/components/landing-features";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { PillNav } from "@/components/pill-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -12,34 +13,16 @@ export default async function Home() {
 
   return (
     <div className="pb-24">
-      {/* ═══ NAV: menú principal de la landing ═══ */}
-      <nav className="flex items-center justify-between py-5">
-        <Link href="/" className="flex items-center gap-2">
-          <span aria-hidden className="h-5 w-5 rounded-md bg-accent" />
-          <span className="text-lg font-bold tracking-tight text-ink">
-            Yellow
-          </span>
-        </Link>
-        <div className="hidden items-center gap-7 text-sm font-medium text-muted md:flex">
-          <a
-            href="#funciones"
-            className="transition-colors hover:text-ink"
-          >
-            Funciones
-          </a>
-          <a
-            href="#como-empezas"
-            className="transition-colors hover:text-ink"
-          >
-            Cómo funciona
-          </a>
-          <Link
-            href="/diseno"
-            className="transition-colors hover:text-ink"
-          >
-            Diseño web
-          </Link>
-        </div>
+      {/* ═══ NAV: PillNav con hover-circle GSAP + CTAs ═══ */}
+      <div className="flex items-center justify-between py-4">
+        <PillNav
+          items={[
+            { label: "Funciones", href: "#funciones" },
+            { label: "Cómo funciona", href: "#como-empezas" },
+            { label: "Diseño web", href: "/diseno" },
+          ]}
+          hoverCircleColor="var(--color-accent, #f59e0b)"
+        />
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {ctx ? (
@@ -47,17 +30,12 @@ export default async function Home() {
               Ir al panel
             </Link>
           ) : (
-            <>
-              <Link href="/login" className="btn btn-ghost text-sm">
-                Ingresar
-              </Link>
-              <Link href="/register" className="btn btn-primary text-sm">
-                Empezar gratis
-              </Link>
-            </>
+            <Link href="/register" className="btn btn-primary text-sm">
+              Empezar gratis
+            </Link>
           )}
         </div>
-      </nav>
+      </div>
 
       {/* ═══ HERO: energía cálida + preview de la app ═══ */}
       <LandingHero isAuthed={!!ctx} />
