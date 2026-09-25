@@ -1,21 +1,25 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "motion/react";
 
 /**
- * Grid de puntos interactivo — inspirado en MagicUI.
- * Dos capas de dots: una base tenue siempre visible,
- * y una capa amarilla que aparece cerca del cursor con transición suave.
- * Sin dependencias externas.
+ * InteractiveGridPattern — MagicUI-style con motion/react.
+ * Dos capas de dots: base tenue + accent amarillo con spring physics.
+ * El mask del cursor sigue con spring (stiffness 160, damping 24).
  */
 export function InteractiveGridPattern({
   className = "",
-  gap = 36,
-  dotSize = 2.5,
+  gap = 40,
+  dotSize = 2,
   radius = 220,
   accent = "var(--color-accent, #f59e0b)",
   base = "var(--color-border-hover, #d4d4d8)",
-  fade = "radial-gradient(ellipse 100% 80% at 50% 20%, black, transparent)",
 }: {
   className?: string;
   gap?: number;
@@ -23,25 +27,39 @@ export function InteractiveGridPattern({
   radius?: number;
   accent?: string;
   base?: string;
-  fade?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ x: 9999, y: 9999 });
-  const [hovering, setHovering] = useState(false);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
+  const mouseX = useMotionValue(-9999);
+  const mouseY = useMotionValue(-9999);
 
-  const handleMouseEnter = useCallback(() => setHovering(true), []);
+  // Spring physics: el cursor sigue con inercia suave
+  const springX = useSpring(mouseX, { stiffness: 160, damping: 24, mass: 0.8 });
+  const springY = useSpring(mouseY, { stiffness: 160, damping: 24, mass: 0.8 });
+
+  // Mask que sigue al cursor con spring — reactivo y fluido
+  const cursorMask = useTransform(
+    [springX, springY],
+    ([x, y]: number[]) =>
+      `radial-gradient(circle ${radius}px at ${x}px ${y}px, black 20%, transparent 75%)`,
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      mouseX.set(e.clientX - rect.left);
+      mouseY.set(e.clientY - rect.top);
+    },
+    [mouseX, mouseY],
+  );
+
   const handleMouseLeave = useCallback(() => {
-    setHovering(false);
-    setPos({ x: 9999, y: 9999 });
-  }, []);
+    mouseX.set(-9999);
+    mouseY.set(-9999);
+  }, [mouseX, mouseY]);
 
-  const dotPattern = (color: string) =>
+  const dots = (color: string) =>
     `radial-gradient(circle ${dotSize}px at center, ${color} 100%, transparent 100%)`;
 
   return (
@@ -49,32 +67,26 @@ export function InteractiveGridPattern({
       ref={ref}
       className={`overflow-hidden ${className}`}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Capa base: dots siempre visibles */}
+      {/* Dots base — siempre visibles */}
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
-          backgroundImage: dotPattern(base),
+          backgroundImage: dots(base),
           backgroundSize: `${gap}px ${gap}px`,
-          maskImage: fade,
-          WebkitMaskImage: fade,
-          opacity: 0.8,
+          opacity: 0.7,
         }}
       />
-      {/* Capa interactiva: dots amarillos cerca del cursor */}
-      <div
+      {/* Dots accent — aparecen cerca del cursor con spring */}
+      <motion.div
         aria-hidden
         className="absolute inset-0"
         style={{
-          backgroundImage: dotPattern(accent),
+          backgroundImage: dots(accent),
           backgroundSize: `${gap}px ${gap}px`,
-          maskImage: `radial-gradient(circle ${radius}px at ${pos.x}px ${pos.y}px, black 20%, transparent 70%)`,
-          WebkitMaskImage: `radial-gradient(circle ${radius}px at ${pos.x}px ${pos.y}px, black 20%, transparent 70%)`,
-          opacity: hovering ? 1 : 0,
-          transition: "opacity 0.4s ease",
+          WebkitMaskImage: cursorMask,
         }}
       />
     </div>
