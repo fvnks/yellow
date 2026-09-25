@@ -19,9 +19,9 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
     <section className="relative pb-20 pt-8 md:pb-28">
       {/* Grid interactivo: dots amarillos siguen el cursor */}
       <InteractiveGridPattern
-        className="absolute inset-0 -z-10"
-        gap={40}
-        dotSize={2}
+        className="pointer-events-none absolute inset-0"
+        gap={36}
+        dotSize={2.5}
         radius={200}
         fade="radial-gradient(ellipse 100% 70% at 50% 30%, black, transparent)"
       />
@@ -31,8 +31,8 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
         className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[24rem] w-[40rem] -translate-x-1/2 rounded-full bg-accent/8 blur-3xl"
       />
 
-      {/* Contenido */}
-      <div className="space-y-7 text-center">
+      {/* Contenido (relative: pinta sobre el grid) */}
+      <div className="relative space-y-7 text-center">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold text-accent-text">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />

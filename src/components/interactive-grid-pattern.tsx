@@ -10,11 +10,11 @@ import { useCallback, useRef, useState } from "react";
  */
 export function InteractiveGridPattern({
   className = "",
-  gap = 40,
-  dotSize = 1.5,
+  gap = 36,
+  dotSize = 2.5,
   radius = 220,
   accent = "var(--color-accent)",
-  base = "var(--color-border)",
+  base = "var(--color-border-hover)",
   fade = "radial-gradient(ellipse 100% 80% at 50% 20%, black, transparent)",
 }: {
   className?: string;
@@ -52,7 +52,7 @@ export function InteractiveGridPattern({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Capa base: dots tenues siempre visibles */}
+      {/* Capa base: dots siempre visibles */}
       <div
         aria-hidden
         className="absolute inset-0"
@@ -61,7 +61,7 @@ export function InteractiveGridPattern({
           backgroundSize: `${gap}px ${gap}px`,
           maskImage: fade,
           WebkitMaskImage: fade,
-          opacity: 0.6,
+          opacity: 0.8,
         }}
       />
       {/* Capa interactiva: dots amarillos cerca del cursor */}
