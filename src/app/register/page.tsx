@@ -54,11 +54,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="grid min-h-[75vh] gap-8 lg:grid-cols-2 lg:gap-12">
+    <div className="grid min-h-[75vh] gap-10 lg:grid-cols-[2fr_3fr] lg:gap-16">
       <AuthAside />
-      <div className="flex items-center justify-center">
-        <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
-          <h1 className="text-2xl font-semibold text-ink">Crear cuenta</h1>
+      <div className="flex items-center justify-center py-8">
+        <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight text-ink">
+            Crear cuenta
+          </h1>
 
           {error && (
             <p className="alert alert-error" role="alert">
@@ -71,88 +73,101 @@ export default function RegisterPage() {
             </p>
           ))}
 
-          <label className="block space-y-1 text-sm">
-            <span className="text-ink">Nombre</span>
-            <input
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              aria-invalid={errDe("name").length > 0 || undefined}
-              aria-describedby={errDe("name").length > 0 ? "reg-name-error" : undefined}
-              className="field"
-            />
-          </label>
-          {errDe("name").length > 0 && (
-            <p id="reg-name-error" className="text-xs text-err">
-              {errDe("name").map((i) => i.message).join(" · ")}
-            </p>
-          )}
+          <div className="space-y-5">
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-ink">Nombre</span>
+              <input
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                aria-invalid={errDe("name").length > 0 || undefined}
+                aria-describedby={errDe("name").length > 0 ? "reg-name-error" : undefined}
+                className="field"
+              />
+            </label>
+            {errDe("name").length > 0 && (
+              <p id="reg-name-error" className="-mt-3 text-xs text-err">
+                {errDe("name").map((i) => i.message).join(" · ")}
+              </p>
+            )}
 
-          <label className="block space-y-1 text-sm">
-            <span className="text-ink">Email</span>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={errDe("email").length > 0 || undefined}
-              aria-describedby={errDe("email").length > 0 ? "reg-email-error" : undefined}
-              className="field"
-            />
-          </label>
-          {errDe("email").length > 0 && (
-            <p id="reg-email-error" className="text-xs text-err">
-              {errDe("email").map((i) => i.message).join(" · ")}
-            </p>
-          )}
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-ink">Email</span>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={errDe("email").length > 0 || undefined}
+                aria-describedby={errDe("email").length > 0 ? "reg-email-error" : undefined}
+                className="field"
+              />
+            </label>
+            {errDe("email").length > 0 && (
+              <p id="reg-email-error" className="-mt-3 text-xs text-err">
+                {errDe("email").map((i) => i.message).join(" · ")}
+              </p>
+            )}
 
-          <label className="block space-y-1 text-sm">
-            <span className="text-ink">Contraseña (mín. 8)</span>
-            <input
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={errDe("password").length > 0 || undefined}
-              aria-describedby={errDe("password").length > 0 ? "reg-password-error" : undefined}
-              className="field"
-            />
-          </label>
-          {errDe("password").length > 0 && (
-            <p id="reg-password-error" className="text-xs text-err">
-              {errDe("password").map((i) => i.message).join(" · ")}
-            </p>
-          )}
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-ink">
+                Contraseña (mín. 8)
+              </span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                aria-invalid={errDe("password").length > 0 || undefined}
+                aria-describedby={errDe("password").length > 0 ? "reg-password-error" : undefined}
+                className="field"
+              />
+            </label>
+            {errDe("password").length > 0 && (
+              <p id="reg-password-error" className="-mt-3 text-xs text-err">
+                {errDe("password").map((i) => i.message).join(" · ")}
+              </p>
+            )}
 
-          <label className="block space-y-1 text-sm">
-            <span className="text-ink">Nombre del espacio de trabajo</span>
-            <input
-              type="text"
-              value={tenantName}
-              onChange={(e) => setTenantName(e.target.value)}
-              placeholder="Mi empresa"
-              aria-invalid={errDe("tenantName").length > 0 || undefined}
-              aria-describedby={errDe("tenantName").length > 0 ? "reg-tenant-error" : undefined}
-              className="field"
-            />
-          </label>
-          {errDe("tenantName").length > 0 && (
-            <p id="reg-tenant-error" className="text-xs text-err">
-              {errDe("tenantName").map((i) => i.message).join(" · ")}
-            </p>
-          )}
+            <label className="block space-y-1.5 text-sm">
+              <span className="font-medium text-ink">
+                Nombre del espacio de trabajo
+              </span>
+              <input
+                type="text"
+                value={tenantName}
+                onChange={(e) => setTenantName(e.target.value)}
+                placeholder="Mi empresa"
+                aria-invalid={errDe("tenantName").length > 0 || undefined}
+                aria-describedby={errDe("tenantName").length > 0 ? "reg-tenant-error" : undefined}
+                className="field"
+              />
+            </label>
+            {errDe("tenantName").length > 0 && (
+              <p id="reg-tenant-error" className="-mt-3 text-xs text-err">
+                {errDe("tenantName").map((i) => i.message).join(" · ")}
+              </p>
+            )}
+          </div>
 
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full py-2.5"
+          >
             {loading ? "Creando…" : "Crear cuenta"}
           </button>
 
-          <p className="text-center text-sm text-ink-soft">
+          <p className="pt-2 text-center text-sm text-faint">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="underline hover:text-orange-ink">
+            <Link
+              href="/login"
+              className="font-medium text-ink underline underline-offset-4 transition-colors hover:text-accent-text"
+            >
               Inicia sesión
             </Link>
           </p>
