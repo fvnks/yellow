@@ -274,4 +274,39 @@
     height: 1px;
     background: var(--color-border);
   }
+
+  /* ── Shiny text: shimmer que barre el texto (MagicUI-style) ── */
+  .shiny-text {
+    background-image: linear-gradient(
+      110deg,
+      var(--color-accent-text, #b45309) 30%,
+      #fde68a 50%,
+      var(--color-accent-text, #b45309) 70%
+    );
+    background-size: 250% 100%;
+    background-repeat: no-repeat;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shiny-text 3s linear infinite;
+  }
+
+  @keyframes shiny-text {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shiny-text {
+      animation: none;
+      color: var(--color-accent-text);
+      -webkit-text-fill-color: var(--color-accent-text);
+      background-image: none;
+    }
+  }
 }
