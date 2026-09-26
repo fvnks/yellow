@@ -13,17 +13,34 @@ export default async function Home() {
 
   return (
     <div className="pb-24">
-      {/* ═══ NAV: PillNav con hover-circle GSAP + CTAs ═══ */}
-      <div className="flex items-center justify-between py-4">
+      {/* ═══ NAV: logo izq · PillNav centrado · CTAs der ═══ */}
+      <div className="flex items-center py-4">
+        {/* Logo izquierda */}
+        <div className="flex-1">
+          <Link href="/" className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="h-5 w-5 rounded-md bg-accent"
+            />
+            <span className="text-lg font-bold tracking-tight text-ink">
+              Yellow
+            </span>
+          </Link>
+        </div>
+
+        {/* PillNav centrado (sin logo integrado) */}
         <PillNav
           items={[
             { label: "Funciones", href: "#funciones" },
             { label: "Cómo funciona", href: "#como-empezas" },
             { label: "Diseño web", href: "/diseno" },
           ]}
+          showLogo={false}
           hoverCircleColor="var(--color-accent, #f59e0b)"
         />
-        <div className="flex items-center gap-2">
+
+        {/* CTAs derecha */}
+        <div className="flex flex-1 items-center justify-end gap-2">
           <ThemeToggle />
           {ctx ? (
             <Link href="/dashboard" className="btn btn-primary text-sm">

@@ -25,6 +25,7 @@ export function PillNav({
   hoveredPillTextColor = "#09090b",
   pillTextColor = "#a1a1aa",
   hoverCircleColor = "#f59e0b",
+  showLogo = true,
   initialLoadAnimation = true,
 }: {
   items: PillNavItem[];
@@ -36,6 +37,7 @@ export function PillNav({
   hoveredPillTextColor?: string;
   pillTextColor?: string;
   hoverCircleColor?: string;
+  showLogo?: boolean;
   initialLoadAnimation?: boolean;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -207,18 +209,20 @@ export function PillNav({
           ["--hover-circle" as string]: hoverCircleColor,
         }}
       >
-        <Link
-          href="/"
-          className="pill-logo"
-          aria-label="Yellow"
-          onMouseEnter={handleLogoEnter}
-          ref={logoRef}
-        >
-          <div ref={logoImgRef} className="pill-logo-mark">
-            <span className="h-3.5 w-3.5 rounded-[4px] bg-accent" aria-hidden />
-            <span className="text-sm font-bold text-white">Y</span>
-          </div>
-        </Link>
+        {showLogo && (
+          <Link
+            href="/"
+            className="pill-logo"
+            aria-label="Yellow"
+            onMouseEnter={handleLogoEnter}
+            ref={logoRef}
+          >
+            <div ref={logoImgRef} className="pill-logo-mark">
+              <span className="h-3.5 w-3.5 rounded-[4px] bg-accent" aria-hidden />
+              <span className="text-sm font-bold text-white">Y</span>
+            </div>
+          </Link>
+        )}
 
         <div className="pill-nav-items desktop-only" ref={navItemsRef}>
           <ul className="pill-list" role="menubar">
