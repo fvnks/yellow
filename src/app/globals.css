@@ -342,9 +342,8 @@
     display: flex;
     align-items: center;
     height: var(--nav-h);
-    background: var(--base, #09090b);
+    background: transparent;
     border-radius: 9999px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   }
 
   .pill-logo {
