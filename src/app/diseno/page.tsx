@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
+import { PillButton } from "@/components/pill-button";
 import { SOPORTE_EMAIL } from "@/lib/contacto";
 export const metadata: Metadata = {
   title: "Diseño web",
@@ -80,12 +81,14 @@ export default function DisenoPage() {
         </Reveal>
 
         <Reveal delay={300} className="relative">
-          <a
+          <PillButton
             href="#hablemos"
-            className="btn bg-white px-6 py-2.5 text-base text-navy transition-colors hover:bg-orange hover:text-white active:translate-y-px"
+            className="bg-white px-6 py-2.5 text-base text-navy active:translate-y-px"
+            circleColor="var(--color-orange, #f59e0b)"
+            hoverTextColor="#ffffff"
           >
             Hablemos de tu proyecto
-          </a>
+          </PillButton>
         </Reveal>
       </section>
 
@@ -196,19 +199,23 @@ export default function DisenoPage() {
             honestamente si podemos ayudarte.
           </p>
           {SOPORTE_EMAIL ? (
-            <a
+            <PillButton
               href={`mailto:${SOPORTE_EMAIL}?subject=Proyecto de diseño web`}
-              className="btn bg-white px-6 py-2.5 text-base text-navy transition-colors hover:bg-orange hover:text-white active:translate-y-px"
+              className="bg-white px-6 py-2.5 text-base text-navy active:translate-y-px"
+              circleColor="var(--color-orange, #f59e0b)"
+              hoverTextColor="#ffffff"
             >
               Escríbenos a {SOPORTE_EMAIL}
-            </a>
+            </PillButton>
           ) : (
-            <Link
+            <PillButton
               href="/#contacto"
-              className="btn bg-white px-6 py-2.5 text-base text-navy transition-colors hover:bg-orange hover:text-white active:translate-y-px"
+              className="bg-white px-6 py-2.5 text-base text-navy active:translate-y-px"
+              circleColor="var(--color-orange, #f59e0b)"
+              hoverTextColor="#ffffff"
             >
               Contáctanos
-            </Link>
+            </PillButton>
           )}
         </Reveal>
       </section>

@@ -9,6 +9,7 @@ import {
 } from "motion/react";
 import { CaretRight } from "@phosphor-icons/react";
 import Link from "next/link";
+import { PillButton } from "@/components/pill-button";
 
 const PREVIEW_FILAS = [
   { doc: "Factura 33 · 1000", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
@@ -130,20 +131,20 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
 
         <div className="pt-2">
           {isAuthed ? (
-            <Link
+            <PillButton
               href="/dashboard"
-              className="btn btn-primary px-8 py-3 text-base"
+              className="btn-primary px-8 py-3 text-base"
             >
               Ir al panel
-            </Link>
+            </PillButton>
           ) : (
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link
+              <PillButton
                 href="/register"
-                className="btn btn-primary px-8 py-3 text-base"
+                className="btn-primary px-8 py-3 text-base"
               >
                 Empezar gratis
-              </Link>
+              </PillButton>
               <Link
                 href="/login"
                 className="text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-ink"

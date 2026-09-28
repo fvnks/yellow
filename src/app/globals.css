@@ -411,7 +411,14 @@
     transition: background-color 0.2s;
   }
 
-  .pill .hover-circle {
+  /* ── PillButton: mismo efecto de las píldoras en cualquier CTA ── */
+  .pill-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pill .hover-circle,
+  .pill-btn .hover-circle {
     position: absolute;
     left: 50%;
     bottom: 0;
@@ -423,14 +430,16 @@
     will-change: transform;
   }
 
-  .pill .label-stack {
+  .pill .label-stack,
+  .pill-btn .label-stack {
     position: relative;
     display: inline-block;
     line-height: 1;
     z-index: 2;
   }
 
-  .pill .pill-label {
+  .pill .pill-label,
+  .pill-btn .pill-label {
     position: relative;
     z-index: 2;
     display: inline-block;
@@ -438,7 +447,8 @@
     will-change: transform;
   }
 
-  .pill .pill-label-hover {
+  .pill .pill-label-hover,
+  .pill-btn .pill-label-hover {
     position: absolute;
     left: 0;
     top: 0;

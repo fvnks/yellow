@@ -5,6 +5,7 @@ import { LandingHero } from "@/components/landing-hero";
 import { LandingFeatures } from "@/components/landing-features";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PillNav } from "@/components/pill-nav";
+import { PillButton } from "@/components/pill-button";
 
 export const dynamic = "force-dynamic";
 
@@ -43,13 +44,13 @@ export default async function Home() {
         <div className="flex flex-1 items-center justify-end gap-2">
           <ThemeToggle />
           {ctx ? (
-            <Link href="/dashboard" className="btn btn-primary text-sm">
+            <PillButton href="/dashboard" className="btn-primary text-sm">
               Ir al panel
-            </Link>
+            </PillButton>
           ) : (
-            <Link href="/register" className="btn btn-primary text-sm">
+            <PillButton href="/register" className="btn-primary text-sm">
               Empezar gratis
-            </Link>
+            </PillButton>
           )}
         </div>
       </div>
@@ -136,19 +137,23 @@ export default async function Home() {
             </p>
             <div className="mt-8">
               {ctx ? (
-                <Link
+                <PillButton
                   href="/dashboard"
-                  className="btn btn-accent px-8 py-3 text-base"
+                  className="btn-accent px-8 py-3 text-base"
+                  circleColor="#ffffff"
+                  hoverTextColor="#09090b"
                 >
                   Ir al panel
-                </Link>
+                </PillButton>
               ) : (
-                <Link
+                <PillButton
                   href="/register"
-                  className="btn btn-accent px-8 py-3 text-base"
+                  className="btn-accent px-8 py-3 text-base"
+                  circleColor="#ffffff"
+                  hoverTextColor="#09090b"
                 >
                   Crear cuenta
-                </Link>
+                </PillButton>
               )}
             </div>
             <p className="mt-6 text-sm text-bg/40">
