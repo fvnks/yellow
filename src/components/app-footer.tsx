@@ -7,8 +7,14 @@ export function AppFooter() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-muted">
         <span className="flex items-center gap-2">
-          <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
-          <span className="font-bold text-ink">Yellow</span>
+          <Link
+            href="/"
+            className="flex items-center gap-2 transition-colors hover:text-ink"
+            aria-label="Yellow, ir al inicio"
+          >
+            <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
+            <span className="font-bold text-ink">Yellow</span>
+          </Link>
           <span>Facturación electrónica · Diseño web</span>
         </span>
         <span className="flex items-center gap-4">
