@@ -68,7 +68,7 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative pb-20 pt-8 md:pb-28"
+      className="relative overflow-hidden pb-20 pt-8 md:pb-28"
     >
       {/* ── Grid interactivo (dos capas, pointer-events-none) ── */}
       {/* Capa base: dots grises siempre visibles */}
@@ -203,7 +203,7 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
               </div>
             </div>
 
-            <div className="min-w-0 flex-1 p-6">
+            <div className="min-w-0 flex-1 p-4 md:p-6">
               <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
                 {[
                   { label: "Total ventas", value: "$742.310" },
@@ -223,7 +223,7 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
                 <thead>
                   <tr className="border-b border-border">
                     <th className="py-2 pl-1 text-left text-[11px] font-medium text-faint">Documento</th>
-                    <th className="py-2 text-left text-[11px] font-medium text-faint">Receptor</th>
+                    <th className="hidden py-2 text-left text-[11px] font-medium text-faint md:table-cell">Receptor</th>
                     <th className="py-2 text-right text-[11px] font-medium text-faint">Total</th>
                     <th className="py-2 pr-1 text-right text-[11px] font-medium text-faint">Estado</th>
                   </tr>
@@ -231,8 +231,8 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
                 <tbody>
                   {PREVIEW_FILAS.map((f) => (
                     <tr key={f.doc} className="border-b border-border/50 last:border-0">
-                      <td className="py-2.5 pl-1 font-medium text-ink">{f.doc}</td>
-                      <td className="py-2.5 text-muted">{f.parte}</td>
+                      <td className="whitespace-nowrap py-2.5 pl-1 font-medium text-ink">{f.doc}</td>
+                      <td className="hidden py-2.5 text-muted md:table-cell">{f.parte}</td>
                       <td className="py-2.5 text-right font-mono font-semibold text-ink">{f.total}</td>
                       <td className="py-2.5 pr-1 text-right">
                         <span className={f.chip}>{f.estado}</span>

@@ -8,9 +8,21 @@
 
 @custom-variant dark ("::where(.dark, .dark *)");
 
+/* Fuentes: este bloque SI va inline. `font-mono` debe apuntar directo a la
+   variable que inyecta next/font en <html>; en un @theme normal Tailwind la
+   emitiria como `--font-mono: var(--font-mono)` y se anularia a si misma. */
 @theme inline {
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-mono);
+}
+
+/* Colores: SIN inline, a proposito. Asi Tailwind emite los tokens en :root y
+   las utilidades (bg-bg, text-ink, border-border...) los leen con var(), por
+   lo que el bloque .dark de mas abajo puede reemplazarlos en runtime. Con
+   `inline` el hex quedaba incrustado en cada clase y el modo oscuro no las
+   alcanzaba: la pagina quedaba a medio pintar (cuerpo claro con controles
+   oscuros, CTA primario blanco sobre fondo blanco). */
+@theme {
 
   /* ── Core ── */
   --color-bg:          #fafafa;
@@ -46,6 +58,13 @@
   --color-blue-bright: #d97706;
   --color-orange:      #f59e0b;
   --color-orange-ink:  #b45309;
+
+  /* Chrome del nav móvil: no depende del tema que elige el usuario, pero
+     necesita su propio valor por tema. Con el hex literal (#09090b) el
+     circulo del hamburger y el panel del menu se fundian con el fondo
+     oscuro de la pagina. */
+  --color-nav-chip:    #09090b;
+  --color-nav-pill:    #27272a;
 }
 
 /* ── Dark mode ── */
@@ -79,6 +98,9 @@
   --color-blue-bright: #f59e0b;
   --color-orange:      #f59e0b;
   --color-orange-ink:  #fbbf24;
+
+  --color-nav-chip:    #27272a;
+  --color-nav-pill:    #3f3f46;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -284,7 +306,11 @@
       var(--color-accent-text, #b45309) 70%
     );
     background-size: 250% 100%;
-    background-repeat: no-repeat;
+    /* repeat, no no-repeat: la ventana visible del gradiente es
+       [-66.7%, 166.7%] y la animacion barre de 200% a -200%, asi que con
+       no-repeat el texto se quedaba sin pintar (transparente) ~42% del
+       tiempo, 1.25s de cada 3s. Repitiendo, el tile siempre lo cubre. */
+    background-repeat: repeat;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -332,8 +358,17 @@
   @media (max-width: 768px) {
     .pill-nav {
       width: 100%;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding: 0 1rem;
+    }
+
+    /* El contenedor medía max-content (= el ancho del hamburger, 74px), y el
+       popover absoluto se resolvía contra él: quedaba de 42px de ancho con el
+       texto apilado palabra por palabra. Ahora absorbe el espacio libre de la
+       fila y el hamburger se apoya en el borde derecho. */
+    .pill-nav-container {
+      flex: 1 1 auto;
+      min-width: 0;
     }
   }
 
@@ -415,6 +450,9 @@
   .pill-btn {
     position: relative;
     overflow: hidden;
+    /* nowrap: si el label se parte en dos lineas, la altura que mide el
+       roll de GSAP deja de coincidir y la animacion queda descalzada. */
+    white-space: nowrap;
   }
 
   .pill .hover-circle,
@@ -515,6 +553,22 @@
     opacity: 0;
     transform-origin: top center;
     visibility: hidden;
+  }
+
+  /* En móvil el popover se ancla al viewport, no al contenedor del nav: así
+     siempre mide el ancho de la pantalla menos los márgenes, sin depender de
+     lo ancho que sea su ancestro posicionado. */
+  @media (max-width: 768px) {
+    .mobile-menu-popover {
+      position: fixed;
+      /* Debajo de la fila del header (py-4 + 8 + 42 + 8 + 16 = 122px): si el
+         panel la tapaba, el boton del hamburger quedaba cubierto y el menu
+         no se podia cerrar sin navegar. Tambien se alinea con el px-6 del
+         contenido en vez de con el borde del viewport. */
+      top: 136px;
+      left: 1.5rem;
+      right: 1.5rem;
+    }
   }
 
   .mobile-menu-list {

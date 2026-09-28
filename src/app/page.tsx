@@ -37,6 +37,8 @@ export default async function Home() {
             { label: "Diseño web", href: "/diseno" },
           ]}
           showLogo={false}
+          baseColor="var(--color-nav-chip, #09090b)"
+          pillColor="var(--color-nav-pill, #27272a)"
           hoverCircleColor="var(--color-accent, #f59e0b)"
         />
 
@@ -156,7 +158,7 @@ export default async function Home() {
                 </PillButton>
               )}
             </div>
-            <p className="mt-6 text-sm text-bg/40">
+            <p className="mt-6 text-sm text-bg/60">
               {SOPORTE_EMAIL ? (
                 <>
                   ¿Dudas?{" "}
