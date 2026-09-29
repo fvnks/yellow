@@ -7,18 +7,15 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
-import { CaretRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import { PillButton } from "@/components/pill-button";
-
-const PREVIEW_FILAS = [
-  { doc: "Factura 33 · 1000", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
-  { doc: "Guía 52 · 3", parte: "Cliente SpA", total: "$47.600", estado: "ENVIADO", chip: "chip chip-orange" },
-  { doc: "Factura 33 · 1001", parte: "Cliente SpA", total: "$95.200", estado: "ANULADO", chip: "chip chip-muted" },
-  { doc: "N. crédito 61 · 4", parte: "Cliente SpA", total: "$119.000", estado: "ACEPTADO", chip: "chip chip-ok" },
-];
-
-const SIDEBAR_ITEMS = ["Ventas", "Compras", "Gastos", "Cotizaciones", "Directorio"];
+import { HeroSwitch } from "@/components/hero-switch";
+import {
+  LandingPreviewDiseno,
+  LandingPreviewErp,
+} from "@/components/landing-preview";
+import { SOPORTE_EMAIL } from "@/lib/contacto";
+import type { Oferta } from "@/lib/oferta";
 
 const GAP = 40;
 const DOT = 2;
@@ -31,7 +28,14 @@ const ACCENT_COLOR = "var(--color-accent, #f59e0b)";
  * El mouse se trackea en la SECCIÓN completa — los dots responden
  * incluso cuando el cursor está sobre el texto o el preview.
  */
-export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
+export function LandingHero({
+  isAuthed,
+  oferta,
+}: {
+  isAuthed: boolean;
+  oferta: Oferta;
+}) {
+  const esErp = oferta === "erp";
   const sectionRef = useRef<HTMLElement>(null);
 
   const mouseX = useMotionValue(-9999);
@@ -68,7 +72,7 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative pb-20 pt-8 md:pb-28"
+      className="relative overflow-hidden section-space-lg grain"
     >
       {/* ── Grid interactivo (dos capas, pointer-events-none) ── */}
       {/* Capa base: dots grises siempre visibles */}
@@ -95,155 +99,164 @@ export function LandingHero({ isAuthed }: { isAuthed: boolean }) {
           WebkitMaskImage: cursorMask,
         }}
       />
-      {/* Glow cálido */}
+      {/* Glow cálido - más sutil */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 h-[24rem] w-[40rem] -translate-x-1/2 rounded-full bg-accent/8 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 h-[24rem] w-[40rem] -translate-x-1/2 rounded-full bg-accent/5 blur-3xl"
+      />
+      {/* Glow secundario en la esquina inferior */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -bottom-16 h-48 w-48 rounded-full bg-accent/5 blur-3xl"
       />
 
       {/* ── Contenido (relative: pinta sobre el grid) ── */}
-      <div className="relative space-y-7 text-center">
-        <div>
-          <span className="group inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold transition-colors hover:border-accent/40 hover:bg-accent/10">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="shiny-text">
-              SII Chile · Facturación electrónica
-            </span>
-            <CaretRight
-              size={12}
-              weight="bold"
-              aria-hidden
-              className="text-accent-text transition-transform duration-300 group-hover:translate-x-0.5"
-            />
-          </span>
+      <div className="relative z-10 mx-auto max-w-6xl px-4 text-center">
+        {/* ── Hero switch / eyebrow ── */}
+        <div className="mb-6">
+          <HeroSwitch oferta={oferta} />
         </div>
 
-        <h1 className="mx-auto max-w-4xl text-5xl font-bold leading-[0.95] tracking-tighter text-ink md:text-7xl">
-          Software que factura.
-          <br />
-          <span className="text-accent">Diseño que convierte.</span>
-        </h1>
-
-        <p className="mx-auto max-w-md text-base leading-relaxed text-muted md:text-lg">
-          Todo el ciclo del DTE en un solo lugar: emisión, compras, gastos,
-          cotizaciones y libros.
-        </p>
-
-        <div className="pt-2">
-          {isAuthed ? (
-            <PillButton
-              href="/dashboard"
-              className="btn-primary px-8 py-3 text-base"
-            >
-              Ir al panel
-            </PillButton>
+        {/* ── Badge contextual ── */}
+        <div className="rise mb-8" style={{ animationDelay: "90ms" }}>
+          {esErp ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="text-accent-text">Modo simulado · sin certificado · listo para SII</span>
+            </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <PillButton
-                href="/register"
-                className="btn-primary px-8 py-3 text-base"
-              >
-                Empezar gratis
-              </PillButton>
-              <Link
-                href="/login"
-                className="text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-ink"
-              >
-                ¿Ya tienes cuenta? Ingresar
-              </Link>
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-xs font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="text-accent-text">Estudio de diseño · Sitios, identidad y landings a medida</span>
             </div>
           )}
         </div>
+
+        {esErp ? (
+          <>
+            <h1
+              className="rise mx-auto max-w-5xl text-5xl font-bold leading-[0.95] tracking-tighter text-ink md:text-7xl lg:text-8xl"
+              style={{ animationDelay: "180ms" }}
+            >
+              Software que factura.
+              <br />
+              <span className="text-gradient-accent">Diseño que convierte.</span>
+            </h1>
+
+            <p
+              className="rise mx-auto max-w-2xl text-lg leading-relaxed text-muted md:text-xl"
+              style={{ animationDelay: "270ms" }}
+            >
+              Todo el ciclo del DTE en un solo lugar: emisión, compras, gastos,
+              cotizaciones y libros. Modo simulado desde el minuto uno.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1
+              className="rise mx-auto max-w-5xl text-5xl font-bold leading-[0.95] tracking-tighter text-ink md:text-7xl lg:text-8xl"
+              style={{ animationDelay: "180ms" }}
+            >
+              Diseño que <span className="italic text-gradient-accent">convierte.</span>
+            </h1>
+
+            <p
+              className="rise mx-auto max-w-2xl text-lg leading-relaxed text-muted md:text-xl"
+              style={{ animationDelay: "270ms" }}
+            >
+              Sitios, identidad y landings para negocios que necesitan verse tan
+              bien como funcionan. Una conversación primero, sin plantillas.
+            </p>
+          </>
+        )}
+
+        {/* ── CTAs ── */}
+        <div className="rise flex flex-col sm:flex-row items-center justify-center gap-4 pt-2" style={{ animationDelay: "360ms" }}>
+          {esErp ? (
+            isAuthed ? (
+              <PillButton
+                href="/dashboard"
+                className="btn-accent min-h-11 px-8 py-3 text-base focus-ring"
+                circleColor="#ffffff"
+                hoverTextColor="#09090b"
+              >
+                Ir al panel
+              </PillButton>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+                <PillButton
+                  href="/register"
+                  className="btn-accent min-h-11 px-8 py-3 text-base focus-ring"
+                  circleColor="#ffffff"
+                  hoverTextColor="#09090b"
+                >
+                  Empezar gratis
+                </PillButton>
+                <Link
+                  href="/login"
+                  className="inline-flex min-h-11 items-center justify-center px-6 py-2.5 text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-ink focus-ring rounded-full"
+                >
+                  ¿Ya tienes cuenta? Ingresar
+                </Link>
+              </div>
+            )
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+              <PillButton
+                href="/diseno"
+                className="btn-primary min-h-11 px-8 py-3 text-base focus-ring"
+              >
+                Ver el estudio de diseño
+              </PillButton>
+              <a
+                href="/diseno#hablemos"
+                className="inline-flex min-h-11 items-center justify-center px-6 py-2.5 text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-ink focus-ring rounded-full"
+              >
+                Hablemos de tu proyecto
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* ── Trust signals ── */}
+        <p className="rise mt-8 text-sm text-muted" style={{ animationDelay: "450ms" }}>
+          {esErp ? (
+            <>
+              {SOPORTE_EMAIL ? (
+                <>
+                  ¿Dudas?{" "}
+                  <a
+                    href={`mailto:${SOPORTE_EMAIL}`}
+                    className="text-muted underline underline-offset-4 transition-colors hover:text-accent-text"
+                  >
+                    {SOPORTE_EMAIL}
+                  </a>
+                </>
+              ) : (
+                "Sin compromiso. Crea tu cuenta y pruébalo."
+              )}
+              {" · "}
+              <Link
+                href="/diseno"
+                className="text-muted underline underline-offset-4 transition-colors hover:text-accent-text"
+              >
+                ¿Necesitas diseño web?
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/"
+              className="text-muted underline underline-offset-4 transition-colors hover:text-accent-text"
+            >
+              ¿Buscas facturación electrónica?
+            </Link>
+          )}
+        </p>
       </div>
 
-      {/* ── Preview de la app ── */}
-      <div className="relative mt-16 md:mt-20">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -inset-4 rounded-2xl bg-accent/5 blur-2xl"
-        />
-        <div className="relative overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/10">
-          <div className="flex items-center gap-2 border-b border-border bg-raised px-4 py-2.5">
-            <div className="flex gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-border" />
-              <span className="h-2.5 w-2.5 rounded-full bg-border" />
-              <span className="h-2.5 w-2.5 rounded-full bg-accent/30" />
-            </div>
-            <span className="ml-3 rounded-md bg-surface px-3 py-0.5 font-mono text-[11px] text-faint">
-              yellow.cl/erp
-            </span>
-          </div>
-
-          <div className="flex">
-            <div className="hidden w-44 shrink-0 border-r border-border p-4 md:block">
-              <div className="mb-6 flex items-center gap-2">
-                <div className="h-3.5 w-3.5 rounded-[4px] bg-accent" />
-                <span className="text-sm font-bold text-ink">Yellow</span>
-              </div>
-              <div className="space-y-0.5">
-                {SIDEBAR_ITEMS.map((item, i) => (
-                  <div
-                    key={item}
-                    className={`flex items-center rounded-lg px-2.5 py-1.5 text-xs ${
-                      i === 0
-                        ? "bg-raised font-semibold text-ink"
-                        : "font-medium text-muted"
-                    }`}
-                  >
-                    {i === 0 && (
-                      <span className="mr-2 h-3 w-0.5 rounded-full bg-accent" aria-hidden />
-                    )}
-                    {item}
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 border-t border-border pt-4">
-                <div className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted">Libros</div>
-                <div className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted">Reportes</div>
-              </div>
-            </div>
-
-            <div className="min-w-0 flex-1 p-6">
-              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
-                {[
-                  { label: "Total ventas", value: "$742.310" },
-                  { label: "Documentos", value: "47" },
-                  { label: "Aceptados", value: "38" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="text-[11px] font-medium text-faint">{stat.label}</p>
-                    <p className="mt-0.5 font-mono text-xl font-bold text-ink">
-                      {stat.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="py-2 pl-1 text-left text-[11px] font-medium text-faint">Documento</th>
-                    <th className="py-2 text-left text-[11px] font-medium text-faint">Receptor</th>
-                    <th className="py-2 text-right text-[11px] font-medium text-faint">Total</th>
-                    <th className="py-2 pr-1 text-right text-[11px] font-medium text-faint">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PREVIEW_FILAS.map((f) => (
-                    <tr key={f.doc} className="border-b border-border/50 last:border-0">
-                      <td className="py-2.5 pl-1 font-medium text-ink">{f.doc}</td>
-                      <td className="py-2.5 text-muted">{f.parte}</td>
-                      <td className="py-2.5 text-right font-mono font-semibold text-ink">{f.total}</td>
-                      <td className="py-2.5 pr-1 text-right">
-                        <span className={f.chip}>{f.estado}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      {/* Preview de la oferta elegida - elevated card */}
+      <div className="rise relative mt-16" style={{ animationDelay: "520ms" }}>
+        {esErp ? <LandingPreviewErp /> : <LandingPreviewDiseno />}
       </div>
     </section>
   );

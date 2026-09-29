@@ -446,6 +446,20 @@ model Session {
   @@index([userId])
 }
 
+/// Newsletter subscription — stores email signups from the public footer.
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String?  // e.g. "footer", "contacto", "landing"
+  confirmed Boolean  @default(false)
+  confirmedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([confirmed])
+}
+
 /// Join table: user ↔ tenant with an RBAC role.
 model TenantMember {
   id        String   @id @default(cuid())

@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SOPORTE_EMAIL } from "@/lib/contacto";
+import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
-  title: "Política de privacidad",
+  title: "Política de Privacidad",
+  description: "Cómo recopilamos, usamos y protegemos tus datos personales en Yellow.",
 };
 
-const SECCIONES: Array<{ titulo: string; parrafos: string[] }> = [
+export default function PrivacidadPage() {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <div className="space-y-0 pb-16">
   {
     titulo: "Qué datos tratamos",
     parrafos: [

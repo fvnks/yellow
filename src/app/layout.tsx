@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import { AppFooter } from "@/components/app-footer";
+import { HeaderNav } from "@/components/header-nav";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -43,9 +44,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Saltar al contenido principal
         </a>
+        <HeaderNav />
         <main
           id="contenido"
-          className="mx-auto w-full max-w-6xl flex-1 px-6 py-8"
+          className="mx-auto w-full max-w-6xl flex-1 px-6 pt-24 pb-8"
         >
           {children}
         </main>
