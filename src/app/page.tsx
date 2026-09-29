@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAuthContext } from "@/lib/session";
-import { SOPORTE_EMAIL } from "@/lib/contacto";
+
 import { normalizarOferta } from "@/lib/oferta";
 import { LandingHero } from "@/components/landing-hero";
 import { LandingErpSecciones } from "@/components/landing-erp-secciones";
 import { LandingSelector } from "@/components/landing-selector";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { PillNav } from "@/components/pill-nav";
 import { PillButton } from "@/components/pill-button";
 
 export const dynamic = "force-dynamic";
@@ -45,72 +43,17 @@ export default async function Home({
 
   return (
     <div className="pb-24">
-      {/* ═══ NAV: logo izq · PillNav centrado · CTAs der ═══ */}
-      <div className="flex items-center py-4">
-        {/* Logo izquierda */}
-        <div className="flex-1">
-          <Link href="/" className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className="h-5 w-5 rounded-md bg-accent"
-            />
-            <span className="text-lg font-bold tracking-tight text-ink">
-              Yellow
-            </span>
-          </Link>
-        </div>
-
-        {/* PillNav centrado (sin logo integrado) */}
-        <PillNav
-          items={
-            esErp
-              ? [
-                  { label: "Funciones", href: "#funciones" },
-                  { label: "Cómo funciona", href: "#como-empezas" },
-                  { label: "Diseño web", href: "/diseno" },
-                ]
-              : [
-                  { label: "Ver el estudio", href: "/diseno" },
-                  { label: "Facturación electrónica", href: "/" },
-                ]
-          }
-          showLogo={false}
-          baseColor="var(--color-nav-chip, #09090b)"
-          pillColor="var(--color-nav-pill, #27272a)"
-          hoverCircleColor="var(--color-accent, #f59e0b)"
-        />
-
-        {/* CTAs derecha */}
-        <div className="flex flex-1 items-center justify-end gap-2">
-          <ThemeToggle />
-          {ctx ? (
-            <PillButton href="/dashboard" className="btn-primary text-sm">
-              Ir al panel
-            </PillButton>
-          ) : esErp ? (
-            <PillButton href="/register" className="btn-primary text-sm">
-              Empezar gratis
-            </PillButton>
-          ) : (
-            <PillButton href="/diseno" className="btn-primary text-sm">
-              Hablemos
-            </PillButton>
-          )}
-        </div>
-      </div>
-
-      {/* ═══ HERO: energía cálida + selector de oferta ═══ */}
+      
       <LandingHero isAuthed={!!ctx} oferta={oferta} />
 
       {/* ═══ SECCIONES DEL PRODUCTO: solo si eligió facturación ═══ */}
       {esErp && <LandingErpSecciones />}
-
       {/* ═══ SELECTOR DE ATERRIZAJE: las dos puertas de Yellow ═══ */}
       <LandingSelector />
 
       {/* ═══ CTA: panel oscuro con peso visual ═══ */}
       <section id="contacto" className="pt-8">
-        <div className="relative overflow-hidden rounded-2xl bg-ink px-8 py-16 text-center md:px-16 md:py-20">
+        <div className="grain relative overflow-hidden rounded-2xl bg-ink px-8 py-16 text-center md:px-16 md:py-20">
           {/* Glow accent dentro del panel */}
           <div
             aria-hidden
@@ -122,7 +65,10 @@ export default async function Home({
           />
 
           <div className="relative">
-            <h2 className="mx-auto max-w-xl text-3xl font-bold tracking-tight text-bg md:text-4xl">
+            <p className="eyebrow mb-6 text-accent dark:text-accent-ink">
+              {esErp ? "Modo simulado · sin certificado" : "Sin plantillas · sin compromiso"}
+            </p>
+            <h2 className="mx-auto max-w-xl text-3xl font-semibold tracking-tight text-bg md:text-4xl">
               {esErp ? "Empieza hoy, sin certificado" : "Hablemos de tu proyecto"}
             </h2>
             <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-bg/60">
@@ -135,7 +81,7 @@ export default async function Home({
                 ctx ? (
                   <PillButton
                     href="/dashboard"
-                    className="btn-accent px-8 py-3 text-base"
+                    className="btn-accent min-h-11 px-8 py-3 text-base"
                     circleColor="#ffffff"
                     hoverTextColor="#09090b"
                   >
@@ -144,7 +90,7 @@ export default async function Home({
                 ) : (
                   <PillButton
                     href="/register"
-                    className="btn-accent px-8 py-3 text-base"
+                    className="btn-accent min-h-11 px-8 py-3 text-base"
                     circleColor="#ffffff"
                     hoverTextColor="#09090b"
                   >
@@ -154,7 +100,7 @@ export default async function Home({
               ) : (
                 <PillButton
                   href="/diseno#hablemos"
-                  className="btn-accent px-8 py-3 text-base"
+                  className="btn-accent min-h-11 px-8 py-3 text-base"
                   circleColor="#ffffff"
                   hoverTextColor="#09090b"
                 >
@@ -165,19 +111,12 @@ export default async function Home({
             <p className="mt-6 text-sm text-bg/60">
               {esErp ? (
                 <>
-                  {SOPORTE_EMAIL ? (
-                    <>
-                      ¿Dudas?{" "}
-                      <a
-                        href={`mailto:${SOPORTE_EMAIL}`}
-                        className="text-bg/60 underline underline-offset-4"
-                      >
-                        {SOPORTE_EMAIL}
-                      </a>
-                    </>
-                  ) : (
-                    "Sin compromiso. Crea tu cuenta y pruébalo."
-                  )}
+                  <Link
+                    href="/contacto"
+                    className="text-bg/60 underline underline-offset-4 hover:text-accent-text"
+                  >
+                    ¿Dudas? Escríbenos
+                  </Link>
                   {" · "}
                   <Link
                     href="/diseno"

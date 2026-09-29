@@ -1,6 +1,6 @@
 "use client";
 
-import { MoonStars, Sun } from "@phosphor-icons/react";
+import { Sun, Moon } from "@/components/icons";
 import { useSyncExternalStore } from "react";
 
 const CLAVE = "yellow-tema";
@@ -43,12 +43,12 @@ export function ThemeToggle() {
       onClick={alternarModo}
       aria-label={oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       aria-pressed={oscuro}
-      className="btn btn-ghost px-2.5 py-1.5"
+      className="btn btn-ghost min-h-11 min-w-11 px-3"
     >
       {oscuro ? (
-        <Sun size={16} weight="bold" aria-hidden />
+        <Sun size={16} aria-hidden />
       ) : (
-        <MoonStars size={16} weight="bold" aria-hidden />
+        <Moon size={16} aria-hidden />
       )}
     </button>
   );

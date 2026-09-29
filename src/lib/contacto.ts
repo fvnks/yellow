@@ -6,4 +6,4 @@
  * (p. ej. "hola@yellow.cl"), cámbiala aquí y todos los accesos (footer,
  * landing y documentos legales) la usan de inmediato.
  */
-export const SOPORTE_EMAIL: string | null = null;
+export const SOPORTE_EMAIL: string | null = "hola@yellow-erp.cl";

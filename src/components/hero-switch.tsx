@@ -23,7 +23,7 @@ export function HeroSwitch({ oferta }: { oferta: Oferta }) {
             key={opcion.id}
             href={opcion.href}
             aria-current={activa ? "true" : undefined}
-            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+            className={`inline-flex min-h-11 items-center rounded-full px-4 text-xs font-semibold transition-colors ${
               activa ? "bg-ink text-bg" : "text-muted hover:text-ink"
             }`}
           >

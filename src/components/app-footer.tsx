@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SOPORTE_EMAIL } from "@/lib/contacto";
+
 
 /** Pie minimal: marca con square accent y accesos legales. */
 export function AppFooter() {
@@ -9,7 +9,7 @@ export function AppFooter() {
         <span className="flex items-center gap-2">
           <Link
             href="/"
-            className="flex items-center gap-2 transition-colors hover:text-ink"
+            className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-ink"
             aria-label="Yellow, ir al inicio"
           >
             <span aria-hidden className="h-3 w-3 rounded-sm bg-accent" />
@@ -17,23 +17,17 @@ export function AppFooter() {
           </Link>
           <span>Facturación electrónica · Diseño web</span>
         </span>
-        <span className="flex items-center gap-4">
-          {SOPORTE_EMAIL ? (
-            <a href={`mailto:${SOPORTE_EMAIL}`} className="hover:text-ink">
-              Contacto
-            </a>
-          ) : (
-            <Link href="/#contacto" className="hover:text-ink">
-              Contacto
-            </Link>
-          )}
-          <Link href="/diseno" className="hover:text-ink">
+        <span className="flex flex-wrap items-center gap-4">
+          <Link href="/contacto" className="inline-flex min-h-11 items-center hover:text-ink">
+            Contacto
+          </Link>
+          <Link href="/diseno" className="inline-flex min-h-11 items-center hover:text-ink">
             Diseño web
           </Link>
-          <Link href="/terminos" className="hover:text-ink">
+          <Link href="/terminos" className="inline-flex min-h-11 items-center hover:text-ink">
             Términos
           </Link>
-          <Link href="/privacidad" className="hover:text-ink">
+          <Link href="/privacidad" className="inline-flex min-h-11 items-center hover:text-ink">
             Privacidad
           </Link>
         </span>

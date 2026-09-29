@@ -6,7 +6,7 @@
    Fondo claro cálido, amarillo como acento quirúrgico.
    ═══════════════════════════════════════════════════════════ */
 
-@custom-variant dark ("::where(.dark, .dark *)");
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Fuentes: este bloque SI va inline. `font-mono` debe apuntar directo a la
    variable que inyecta next/font en <html>; en un @theme normal Tailwind la
@@ -29,30 +29,62 @@
   --color-surface:     #ffffff;
   --color-raised:      #f4f4f5;
   --color-ink:         #09090b;
-  --color-muted:       #71717a;
+  --color-muted:       #6b6b73;
   --color-faint:       #a1a1aa;
   --color-border:      #e4e4e7;
   --color-border-hover:#d4d4d8;
 
+  /* ── Espaciado y ritmo ── */
+  --spacing-section:   6rem;     /* 96px */
+  --spacing-section-lg: 8rem;    /* 128px */
+  --space:             1rem;     /* 16px base */
+  --space-sm:          0.5rem;   /* 8px */
+  --space-lg:          1.5rem;   /* 24px */
+  --space-xl:          2rem;     /* 32px */
+  --space-2xl:         3rem;     /* 48px */
+
+  /* ── Tipografía editorial ── */
+  --font-size-eyebrow: 0.75rem;  /* 12px */
+  --font-size-body:    1rem;     /* 16px */
+  --font-size-lead:    1.125rem; /* 18px */
+  --font-size-h3:      1.25rem;  /* 20px */
+  --font-size-h2:      2rem;     /* 32px */
+  --font-size-h1:      3.5rem;   /* 56px */
+  --font-size-display: 4.5rem;   /* 72px */
+
+  /* ── Sombras elevadas ── */
+  --shadow-elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 1px rgba(0, 0, 0, 0.05);
+  --shadow-elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-elevation-3: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  --shadow-elevation-4: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  --shadow-glow-accent: 0 0 60px -10px rgba(245, 158, 11, 0.35);
+
   /* ── Acento (amarillo, uso quirúrgico) ── */
   --color-accent:      #f59e0b;
   --color-accent-deep: #d97706;
-  --color-accent-text: #b45309;
+  --color-accent-text: #92400e;
+  --color-accent-display: #78350f;
+  /* Ámbar legible sobre superficies CLARAS: el panel CTA usa bg-ink, que en
+     modo oscuro se invierte a #fafafa, así que su acento necesita tinta. */
+  --color-accent-ink:  #92400e;
 
   /* ── Primario (near-black, para botones y hover) ── */
   --color-navy:        #09090b;
   --color-navy-hover:  #27272a;
 
   /* ── Estado ── */
-  --color-ok:          #22c55e;
-  --color-err:         #ef4444;
-  --color-warn:        #f97316;
+  --color-ok:          #166534;
+  --color-ok-bg:       #dcfce7;
+  --color-err:         #991b1b;
+  --color-err-bg:      #fee2e2;
+  --color-warn:        #9a3412;
+  --color-warn-bg:     #ffedd5;
 
   /* ── Compat (mapean a los nuevos tokens) ── */
   --color-panel:       #ffffff;
   --color-block:       #f4f4f5;
   --color-line:        #e4e4e7;
-  --color-ink-soft:    #71717a;
+  --color-ink-soft:    #6b6b73;
   --color-field:       #d4d4d8;
   --color-blue:        #b45309;
   --color-blue-bright: #d97706;
@@ -80,14 +112,18 @@
 
   --color-accent:      #f59e0b;
   --color-accent-deep: #d97706;
-  --color-accent-text: #fbbf24;
+  --color-accent-text: #fcd34d;
+  --color-accent-display: #fbbf24;
 
   --color-navy:        #fafafa;
   --color-navy-hover:  #e4e4e7;
 
-  --color-ok:          #4ade80;
-  --color-err:         #f87171;
-  --color-warn:        #fb923c;
+  --color-ok:          #86efac;
+  --color-ok-bg:       rgba(22, 101, 52, 0.35);
+  --color-err:         #fca5a5;
+  --color-err-bg:      rgba(153, 27, 27, 0.35);
+  --color-warn:        #fdba74;
+  --color-warn-bg:     rgba(154, 52, 18, 0.35);
 
   --color-panel:       #101012;
   --color-block:       #18181b;
@@ -100,7 +136,7 @@
   --color-orange-ink:  #fbbf24;
 
   --color-nav-chip:    #27272a;
-  --color-nav-pill:    #3f3f46;
+  --color-nav-pill:    #27272a;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -119,6 +155,52 @@
   a { color: var(--color-ink); transition: color 0.15s ease; }
   a:hover { color: var(--color-accent-text); }
   ::selection { background: color-mix(in srgb, var(--color-accent) 25%, transparent); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Entrada escalonada del hero: una sola coreografía de carga ──
+   `both` mantiene el estado inicial antes del delay; reduced-motion
+   la desactiva y el contenido queda visible sin animación. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise {
+  animation: rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; }
+}
+
+/* ── Eyebrow editorial: mono en versalitas con tracking amplio ── */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── Grano de película: ruido sutil sobre superficies planas ──
+   Data-URI SVG (feTurbulence desaturado). Sin blend modes para que
+   el contraste del texto no dependa del modo claro/oscuro. */
+.grain { position: relative; }
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grain::after { display: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -219,24 +301,24 @@
     line-height: 1.25rem;
   }
   .chip-ok {
-    background: color-mix(in srgb, var(--color-ok) 10%, transparent);
+    background: var(--color-ok-bg, #dcfce7);
     color: var(--color-ok);
   }
   .chip-err {
-    background: color-mix(in srgb, var(--color-err) 10%, transparent);
+    background: var(--color-err-bg, #fee2e2);
     color: var(--color-err);
   }
   .chip-blue {
-    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
     color: var(--color-accent-text);
   }
   .chip-orange {
-    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-    color: var(--color-accent-deep);
+    background: var(--color-warn-bg, #ffedd5);
+    color: var(--color-warn);
   }
   .chip-muted {
     background: var(--color-raised);
-    color: var(--color-muted);
+    color: var(--color-ink);
   }
   .chip-navy {
     background: var(--color-navy);
@@ -346,7 +428,7 @@
   }
 
   .pill-nav {
-    --nav-h: 42px;
+    --nav-h: 44px;
     --pill-pad-x: 16px;
     --pill-gap: 3px;
     width: max-content;
@@ -516,6 +598,8 @@
   .mobile-menu-button {
     width: var(--nav-h);
     height: var(--nav-h);
+    min-width: var(--nav-h);
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--base, #09090b);
     border: none;
@@ -596,5 +680,93 @@
   .mobile-menu-popover .mobile-menu-link.is-active {
     background-color: var(--hover-circle, #f59e0b);
     color: var(--hover-text, #09090b);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Utilities layer — clase-first, composables, sin @apply
+   ═══════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* ── Spacing ── */
+  .section-space { padding-block: var(--spacing-section); }
+  .section-space-lg { padding-block: var(--spacing-section-lg); }
+
+  /* ── Elevation cards ── */
+  .card-elevated {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-elevation-2);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  }
+  .card-elevated:hover {
+    box-shadow: var(--shadow-elevation-4);
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+  }
+
+  /* ── Glow accent ── */
+  .glow-accent {
+    box-shadow: var(--shadow-glow-accent);
+  }
+
+  /* ── Gradient text ── */
+  .text-gradient-accent {
+    background: linear-gradient(135deg, var(--color-accent-text), var(--color-accent-display));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── Subtle grain texture ── */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    border-radius: inherit;
+  }
+
+  /* ── Focus visible ring ── */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
+  }
+
+  /* ── Hairline decorative ── */
+  .hairline {
+    position: relative;
+  }
+  .hairline::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+  }
+
+  /* ── Scroll reveal base ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yellow · Demo — Light-first con toggle a Dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* ═══ MODO CLARO (primario) ═══ */
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f3;
+  --surface-raised: #f0f0ef;
+  --sidebar-bg: #f4f4f3;
+  --border: #e4e4e7;
+  --border-hover: #d4d4d8;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --text-faint: #a1a1aa;
+  --accent-fill: #eab308;
+  --accent-fill-hover: #facc15;
+  --accent-text: #b45309;
+  --accent-text-hover: #92400e;
+  --ok: #16a34a;
+  --err: #dc2626;
+  --warn: #ea580c;
+  --ok-bg: rgba(22,163,74,0.08);
+  --err-bg: rgba(220,38,38,0.08);
+  --warn-bg: rgba(234,88,12,0.08);
+  --accent-bg: rgba(234,179,8,0.10);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --glow: radial-gradient(circle, rgba(234,179,8,0.06) 0%, transparent 70%);
+}
+
+body.dark {
+  /* ═══ MODO OSCURO (secundario) ═══ */
+  --bg: #0c0c0e;
+  --surface: #16161a;
+  --surface-hover: #1e1e24;
+  --surface-raised: #222228;
+  --sidebar-bg: #16161a;
+  --border: #26262e;
+  --border-hover: #3a3a44;
+  --text: #f0f0f2;
+  --text-muted: #8b8b94;
+  --text-faint: #55555e;
+  --accent-fill: #eab308;
+  --accent-fill-hover: #facc15;
+  --accent-text: #eab308;
+  --accent-text-hover: #facc15;
+  --ok: #4ade80;
+  --err: #f87171;
+  --warn: #fb923c;
+  --ok-bg: rgba(74,222,128,0.10);
+  --err-bg: rgba(248,113,113,0.10);
+  --warn-bg: rgba(251,146,60,0.10);
+  --accent-bg: rgba(234,179,8,0.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5);
+  --glow: radial-gradient(circle, rgba(234,179,8,0.10) 0%, transparent 70%);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+a { color: var(--accent-text); text-decoration: none; }
+a:hover { color: var(--accent-text-hover); }
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ══════ DEMO HEADER + TOGGLE ══════ */
+.demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.demo-header .brand {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+}
+.demo-header .brand .dot {
+  width: 18px; height: 18px;
+  background: var(--accent-fill);
+  border-radius: 5px;
+}
+.demo-header .brand span.sub {
+  font-size: 13px; font-weight: 400; color: var(--text-muted);
+  margin-left: 8px;
+}
+.theme-toggle {
+  display: inline-flex;
+  align-items: center; gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.theme-toggle:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+.theme-toggle:active { transform: translateY(1px); }
+.theme-toggle .icon {
+  width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ══════ DEMO LABELS ══════ */
+.demo-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 20px;
+}
+.demo-label::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent-fill);
+  border-radius: 2px;
+}
+.demo-section {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ══════ TOKENS ══════ */
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+.token {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.token .swatch {
+  height: 44px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+.token .name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+.token .hex { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); font-weight: 500; }
+
+/* ══════ TYPOGRAPHY ══════ */
+.type-row {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.type-row:last-child { border-bottom: none; }
+.type-spec {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  width: 180px;
+  flex-shrink: 0;
+}
+
+/* ══════ BUTTONS ══════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  line-height: 1;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--accent-fill);
+  color: #18181b;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  background: var(--accent-fill-hover);
+  box-shadow: var(--shadow-md);
+}
+.btn-ghost {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+.btn-danger {
+  background: transparent;
+  border-color: var(--err);
+  color: var(--err);
+}
+.btn-danger:hover { background: var(--err-bg); }
+.btn-lg { padding: 14px 28px; font-size: 16px; border-radius: 16px; }
+
+/* ══════ CARDS ══════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.card-tinted {
+  background: var(--surface-raised);
+}
+
+/* ══════ CHIPS ══════ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.chip-ok { background: var(--ok-bg); color: var(--ok); }
+.chip-err { background: var(--err-bg); color: var(--err); }
+.chip-warn { background: var(--warn-bg); color: var(--warn); }
+.chip-accent { background: var(--accent-bg); color: var(--accent-text); }
+.chip-muted { background: var(--surface-raised); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ══════ FORMS ══════ */
+.field {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field:focus {
+  border-color: var(--accent-fill);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.field::placeholder { color: var(--text-faint); }
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+/* ══════ TABLE ══════ */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tbl thead th {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.tbl tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.tbl tbody tr:last-child td { border-bottom: none; }
+.tbl tbody tr:hover { background: var(--surface-hover); }
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ══════ HERO ══════ */
+.hero {
+  padding: 80px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: var(--glow);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: 60px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  max-width: 800px;
+  margin: 0 auto 24px;
+  color: var(--text);
+}
+.hero h1 .accent {
+  color: var(--accent-text);
+  font-style: italic;
+}
+.hero p {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 auto 40px;
+}
+
+/* ══════ BENTO ══════ */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.bento .span-2 { grid-column: span 2; }
+@media (max-width: 768px) {
+  .bento { grid-template-columns: 1fr; }
+  .bento .span-2 { grid-column: span 1; }
+}
+
+/* ══════ APP MOCK ══════ */
+.app-mock {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg);
+  min-height: 480px;
+  box-shadow: var(--shadow-md);
+}
+.sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 28px;
+  padding: 0 8px;
+  letter-spacing: -0.02em;
+}
+.sidebar-brand .dot {
+  width: 14px; height: 14px;
+  background: var(--accent-fill);
+  border-radius: 4px;
+}
+.sidebar-group {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 8px;
+  margin-bottom: 4px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+.sidebar-item:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.sidebar-item.active {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+.sidebar-item.active::before {
+  content: '';
+  display: inline-block;
+  width: 3px; height: 16px;
+  background: var(--accent-fill);
+  border-radius: 2px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.main-content { padding: 24px; }
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.main-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* ══════ STATS ══════ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 768px) { .stats { grid-template-columns: repeat(2,1fr); } }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.stat .label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.stat .value {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.stat .value.positive { color: var(--ok); }
+
+/* ══════ AUTH MOCK ══════ */
+.auth-mock {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 400px;
+  box-shadow: var(--shadow-md);
+}
+@media (max-width: 768px) { .auth-mock { grid-template-columns: 1fr; } }
+.auth-aside {
+  background: var(--sidebar-bg);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.auth-aside::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 300px; height: 300px;
+  background: var(--glow);
+  pointer-events: none;
+}
+.auth-aside .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+}
+.auth-aside .brand .dot {
+  width: 16px; height: 16px;
+  background: var(--accent-fill);
+  border-radius: 5px;
+}
+.auth-aside ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+.auth-aside li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.auth-aside li::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent-fill);
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.auth-form {
+  padding: 48px 40px;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+}
+.auth-form-inner { width: 100%; max-width: 320px; margin: 0 auto; }
+.auth-form h3 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.auth-form p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+.auth-form .field-group { margin-bottom: 16px; }
+
+/* ══════ ALERTS ══════ */
+.alert {
+  border: 1px solid;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.alert-ok { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); }
+.alert-err { border-color: var(--err); background: var(--err-bg); color: var(--err); }
+.alert-warn { border-color: var(--warn); background: var(--warn-bg); color: var(--warn); }
+
+/* ══════ MISC ══════ */
+.flex { display: flex; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-8 { margin-top: 32px; }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 13px; }
+
+.demo-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.demo-nav .btn { font-size: 12px; padding: 6px 14px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ═══ HEADER + TOGGLE ═══ -->
+<div class="demo-header">
+  <div class="brand">
+    <div class="dot"></div>
+    Yellow
+    <span class="sub">· Demo — Light-first premium</span>
+  </div>
+  <div class="flex gap-2">
+    <div class="demo-nav">
+      <a href="#tokens" class="btn btn-ghost">Tokens</a>
+      <a href="#landing" class="btn btn-ghost">Landing</a>
+      <a href="#app" class="btn btn-ghost">App</a>
+      <a href="#auth" class="btn btn-ghost">Auth</a>
+      <a href="#components" class="btn btn-ghost">Componentes</a>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span class="icon" id="toggleIcon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 0 0 0 14A7 7 0 0 1 8 1zm1 0a7 7 0 0 1 0 14h-1A7 7 0 0 0 9 1z"/></svg>
+      </span>
+      <span id="toggleLabel">Modo oscuro</span>
+    </button>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  document.getElementById('toggleLabel').textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+  document.getElementById('toggleIcon').innerHTML = isDark
+    ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="4"/><path d="M8 0v2M8 14v2M0 8h2M14 8h2M2.3 2.3l1.4 1.4M12.3 12.3l1.4 1.4M2.3 13.7l1.4-1.4M12.3 3.7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 0 0 0 14A7 7 0 0 1 8 1zm1 0a7 7 0 0 1 0 14h-1A7 7 0 0 0 9 1z"/></svg>';
+}
+</script>
+
+<!-- ═══ 1. TOKENS ═══ -->
+<section id="tokens" class="demo-section">
+  <div class="demo-label">Paleta — Claro (primario) / Oscuro (toggle)</div>
+  <p class="text-muted text-sm mb-4">Haz clic en el botón de arriba para ver ambos modos. El amarillo <strong style="color:var(--accent-text)">#eab308</strong> es el acento de la marca.</p>
+  <div class="token-grid">
+    <div class="token"><div class="swatch" style="background:var(--bg)"></div><div class="name">bg</div><div class="hex mono" data-light="#fafaf9" data-dark="#0c0c0e">#fafaf9</div></div>
+    <div class="token"><div class="swatch" style="background:var(--surface)"></div><div class="name">surface</div><div class="hex mono" data-light="#ffffff" data-dark="#16161a">#ffffff</div></div>
+    <div class="token"><div class="swatch" style="background:var(--border)"></div><div class="name">border</div><div class="hex mono" data-light="#e4e4e7" data-dark="#26262e">#e4e4e7</div></div>
+    <div class="token"><div class="swatch" style="background:var(--text)"></div><div class="name">text</div><div class="hex mono" data-light="#18181b" data-dark="#f0f0f2">#18181b</div></div>
+    <div class="token"><div class="swatch" style="background:var(--accent-fill)"></div><div class="name">accent</div><div class="hex mono">#eab308</div></div>
+    <div class="token"><div class="swatch" style="background:var(--accent-text)"></div><div class="name">accent-text</div><div class="hex mono" data-light="#b45309" data-dark="#eab308">#b45309</div></div>
+    <div class="token"><div class="swatch" style="background:var(--ok)"></div><div class="name">ok</div><div class="hex mono" data-light="#16a34a" data-dark="#4ade80">#16a34a</div></div>
+    <div class="token"><div class="swatch" style="background:var(--err)"></div><div class="name">err</div><div class="hex mono" data-light="#dc2626" data-dark="#f87171">#dc2626</div></div>
+  </div>
+
+  <div class="demo-label" style="margin-top:40px;">Tipografía — Outfit + JetBrains Mono</div>
+  <div>
+    <div class="type-row">
+      <span class="type-spec">60px / 800 / -0.04em</span>
+      <span style="font-size:60px;font-weight:800;letter-spacing:-0.04em;line-height:1.05;">Display</span>
+    </div>
+    <div class="type-row">
+      <span class="type-spec">36px / 700 / -0.02em</span>
+      <span style="font-size:36px;font-weight:700;letter-spacing:-0.02em;">Heading 1</span>
+    </div>
+    <div class="type-row">
+      <span class="type-spec">24px / 700</span>
+      <span style="font-size:24px;font-weight:700;">Heading 2</span>
+    </div>
+    <div class="type-row">
+      <span class="type-spec">15px / 400</span>
+      <span style="font-size:15px;">Body text — Outfit regular. Generoso line-height para lectura cómoda en pantallas.</span>
+    </div>
+    <div class="type-row">
+      <span class="type-spec">13px mono / 500</span>
+      <span class="mono" style="font-size:13px;font-weight:500;">$119.000 · FOLIO 1000 · ACEPTADO</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2. LANDING HERO ═══ -->
+<section id="landing" class="demo-section">
+  <div class="demo-label">Landing — Hero</div>
+  <div class="card card-tinted" style="padding:0;overflow:hidden;">
+    <div class="hero">
+      <p class="mono" style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-text);margin-bottom:16px;">Facturación electrónica · SII Chile</p>
+      <h1>Todo el ciclo de tus DTE,<br><span class="accent">en un solo lugar.</span></h1>
+      <p>Emite facturas, registra compras, controla gastos, cotiza y descarga tus libros. Del borrador al TED.</p>
+      <div class="flex gap-2" style="justify-content:center;">
+        <a href="#" class="btn btn-primary btn-lg">Crear cuenta</a>
+        <a href="#" class="btn btn-ghost btn-lg">Ingresar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3. APP DASHBOARD ═══ -->
+<section id="app" class="demo-section">
+  <div class="demo-label">App — Dashboard con sidebar</div>
+  <div class="app-mock">
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="dot"></div>
+        Yellow
+      </div>
+      <div class="sidebar-group">Inicio</div>
+      <div class="sidebar-item">Panel</div>
+      <div class="sidebar-item">Onboarding</div>
+      <div style="height:12px;"></div>
+      <div class="sidebar-group">ERP</div>
+      <div class="sidebar-item active">Ventas</div>
+      <div class="sidebar-item">Compras</div>
+      <div class="sidebar-item">Gastos</div>
+      <div class="sidebar-item">Cotizaciones</div>
+      <div class="sidebar-item">Directorio</div>
+      <div style="height:12px;"></div>
+      <div class="sidebar-group">Módulos</div>
+      <div class="sidebar-item">Libros</div>
+      <div class="sidebar-item">Reportes</div>
+    </div>
+    <div class="main-content">
+      <div class="main-header">
+        <h2>Ventas</h2>
+        <button class="btn btn-primary">+ Nueva venta</button>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Facturas</div>
+          <div class="value">7</div>
+        </div>
+        <div class="stat">
+          <div class="label">Total</div>
+          <div class="value">$742.310</div>
+        </div>
+        <div class="stat">
+          <div class="label">Aceptadas</div>
+          <div class="value positive">5</div>
+        </div>
+        <div class="stat">
+          <div class="label">Anuladas</div>
+          <div class="value" style="color:var(--text-muted)">2</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Receptor</th>
+              <th style="text-align:right">Total</th>
+              <th style="text-align:right">Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600;">Factura 33 · 1000</td>
+              <td>Cliente SpA</td>
+              <td class="mono" style="text-align:right;font-weight:600;">$119.000</td>
+              <td style="text-align:right"><span class="chip chip-ok">ACEPTADO</span></td>
+              <td style="text-align:right"><button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;">XML · PDF</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">Guía 52 · 3</td>
+              <td>Cliente SpA</td>
+              <td class="mono" style="text-align:right;font-weight:600;">$47.600</td>
+              <td style="text-align:right"><span class="chip chip-warn">ENVIADO</span></td>
+              <td style="text-align:right"><button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;">XML · PDF</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">Factura 33 · 1001</td>
+              <td>Cliente SpA</td>
+              <td class="mono" style="text-align:right;font-weight:600;">$95.200</td>
+              <td style="text-align:right"><span class="chip chip-muted">ANULADO</span></td>
+              <td style="text-align:right"><button class="btn btn-danger" style="font-size:11px;padding:6px 12px;">Anular</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4. AUTH ═══ -->
+<section id="auth" class="demo-section">
+  <div class="demo-label">Auth — Login</div>
+  <div class="auth-mock">
+    <div class="auth-aside">
+      <div class="brand">
+        <div class="dot"></div>
+        Yellow
+      </div>
+      <ul>
+        <li>Emisión con TED, CAF y folios propios; anulación con nota de crédito.</li>
+        <li>Compras registradas y clasificadas por área y categoría.</li>
+        <li>Libros de compras y ventas con registro CSV del portal del SII.</li>
+      </ul>
+      <p style="font-size:12px;color:var(--text-faint);">Parte en modo simulado, sin certificado.</p>
+    </div>
+    <div class="auth-form">
+      <div class="auth-form-inner">
+        <h3>Iniciar sesión</h3>
+        <p>Tu espacio de trabajo te espera.</p>
+        <div class="field-group">
+          <label class="form-label">Email</label>
+          <input class="field" type="email" placeholder="tu@empresa.cl">
+        </div>
+        <div class="field-group">
+          <label class="form-label">Contraseña</label>
+          <input class="field" type="password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center;">Entrar</button>
+        <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:16px;">
+          ¿No tienes cuenta? <a href="#">Regístrate</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5. COMPONENTES ═══ -->
+<section id="components" class="demo-section" style="border-bottom:none;">
+  <div class="demo-label">Componentes</div>
+
+  <div class="mb-4">
+    <p class="text-sm text-muted mb-2" style="font-weight:600;">Botones</p>
+    <div class="flex gap-2" style="flex-wrap:wrap;">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-danger">Danger</button>
+      <button class="btn btn-primary btn-lg">Large</button>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <p class="text-sm text-muted mb-2" style="font-weight:600;">Chips</p>
+    <div class="flex gap-2" style="flex-wrap:wrap;">
+      <span class="chip chip-ok">ACEPTADO</span>
+      <span class="chip chip-warn">ENVIADO</span>
+      <span class="chip chip-err">RECHAZADO</span>
+      <span class="chip chip-muted">ANULADO</span>
+      <span class="chip chip-accent">NUEVO</span>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <p class="text-sm text-muted mb-2" style="font-weight:600;">Alerts</p>
+    <div style="display:grid;gap:8px;max-width:480px;">
+      <div class="alert alert-ok">Documento emitido correctamente. Track: 12345678.</div>
+      <div class="alert alert-warn">Falta la resolución del SII en el perfil del emisor.</div>
+      <div class="alert alert-err">El certificado .p12 expiró. Renueva para seguir emitiendo.</div>
+    </div>
+  </div>
+
+  <div>
+    <p class="text-sm text-muted mb-2" style="font-weight:600;">Cards con hover</p>
+    <div class="bento">
+      <div class="card span-2">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Emisión y anulación</h3>
+        <p class="text-muted text-sm">Facturas, guías y notas firmadas con TED, con tus CAF y folios propios. Anulas con nota de crédito automática.</p>
+        <div class="flex mt-8" style="gap:6px;">
+          <span class="chip chip-accent">FIRMADO</span>
+          <span style="color:var(--text-faint);">→</span>
+          <span class="chip chip-warn">ENVIADO</span>
+          <span style="color:var(--text-faint);">→</span>
+          <span class="chip chip-ok">ACEPTADO</span>
+        </div>
+      </div>
+      <div class="card card-tinted">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Cotizaciones</h3>
+        <p class="text-muted text-sm">Propuestas que se convierten en factura con un clic, sin re-escribir nada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<div style="padding:32px 0;border-top:1px solid var(--border);text-align:center;">
+  <p style="font-size:14px;color:var(--text-muted);">
+    <strong style="color:var(--text)">Outfit</strong> + <strong style="color:var(--text)">JetBrains Mono</strong>
+    · Acento <span style="color:var(--accent-text);font-weight:700;">#eab308</span>
+    · Radius 16px
+    · Toggle arriba para cambiar entre claro y oscuro
+  </p>
+  <p style="font-size:13px;color:var(--text-faint);margin-top:8px;">
+    Pasa el cursor sobre las cards, botones y filas de la tabla para sentir las interacciones.
+  </p>
+</div>
+
+</div>
+</body>
+</html>

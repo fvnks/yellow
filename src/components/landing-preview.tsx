@@ -23,19 +23,15 @@ const STATS = [
 
 export function LandingPreviewErp() {
   return (
-    <div className="relative mt-16 md:mt-20">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-4 rounded-2xl bg-accent/5 blur-2xl"
-      />
-      <div className="relative overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/10">
-        <div className="flex items-center gap-2 border-b border-border bg-raised px-4 py-2.5">
+    <div className="rise relative" style={{ animationDelay: "520ms" }}>
+      <div className="card-elevated grain relative overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border bg-raised px-4 py-3">
           <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="h-2.5 w-2.5 rounded-full bg-accent/30" />
+            <span className="h-3 w-3 rounded-full bg-border" />
+            <span className="h-3 w-3 rounded-full bg-border" />
+            <span className="h-3 w-3 rounded-full bg-accent/40" />
           </div>
-          <span className="ml-3 rounded-md bg-surface px-3 py-0.5 font-mono text-[11px] text-faint">
+          <span className="ml-3 rounded-md bg-surface px-3 py-0.5 font-mono text-xs text-muted">
             yellow.cl/erp
           </span>
         </div>
@@ -43,7 +39,7 @@ export function LandingPreviewErp() {
         <div className="flex">
           <div className="hidden w-44 shrink-0 border-r border-border p-4 md:block">
             <div className="mb-6 flex items-center gap-2">
-              <div className="h-3.5 w-3.5 rounded-[4px] bg-accent" />
+              <div className="h-4 w-4 rounded-[4px] bg-accent" />
               <span className="text-sm font-bold text-ink">Yellow</span>
             </div>
             <div className="space-y-0.5">
@@ -73,7 +69,7 @@ export function LandingPreviewErp() {
             <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
               {STATS.map((stat) => (
                 <div key={stat.label}>
-                  <p className="text-[11px] font-medium text-faint">{stat.label}</p>
+                  <p className="text-xs font-medium text-muted">{stat.label}</p>
                   <p className="mt-0.5 font-mono text-xl font-bold text-ink">
                     {stat.value}
                   </p>
@@ -84,10 +80,10 @@ export function LandingPreviewErp() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="py-2 pl-1 text-left text-[11px] font-medium text-faint">Documento</th>
-                  <th className="hidden py-2 text-left text-[11px] font-medium text-faint md:table-cell">Receptor</th>
-                  <th className="py-2 text-right text-[11px] font-medium text-faint">Total</th>
-                  <th className="py-2 pr-1 text-right text-[11px] font-medium text-faint">Estado</th>
+                  <th className="py-2 pl-1 text-left text-xs font-medium text-muted">Documento</th>
+                  <th className="hidden py-2 text-left text-xs font-medium text-muted md:table-cell">Receptor</th>
+                  <th className="py-2 text-right text-xs font-medium text-muted">Total</th>
+                  <th className="py-2 pr-1 text-right text-xs font-medium text-muted">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,21 +126,18 @@ const PIEZAS = [
 
 export function LandingPreviewDiseno() {
   return (
-    <div className="relative mt-16 md:mt-20">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-4 rounded-2xl bg-accent/5 blur-2xl"
-      />
+    <div className="rise relative" style={{ animationDelay: "520ms" }}>
       <div className="relative grid gap-4 md:grid-cols-3">
-        {PIEZAS.map((pieza) => (
+        {PIEZAS.map((pieza, i) => (
           <div
             key={pieza.n}
-            className="rounded-xl border border-border bg-surface p-6 text-left transition-colors hover:border-accent/30"
+            className="card-elevated grain rise p-6 text-left"
+            style={{ animationDelay: `${620 + i * 90}ms` }}
           >
-            <span className="font-mono text-xs font-semibold text-accent-text">
+            <span className="eyebrow text-accent-text">
               {pieza.n}
             </span>
-            <h3 className="mt-4 text-lg font-semibold text-ink">{pieza.titulo}</h3>
+            <h3 className="mt-4 text-lg font-semibold tracking-tight text-ink">{pieza.titulo}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">{pieza.desc}</p>
           </div>
         ))}
