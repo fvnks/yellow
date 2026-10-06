@@ -29,6 +29,21 @@ export async function generateMetadata({
     title: "Diseño web e identidad · Yellow",
     description:
       "Sitios, landings e identidad visual para negocios que necesitan verse tan bien como funcionan. Una conversación primero, sin plantillas.",
+    openGraph: {
+      title: "Diseño web e identidad · Yellow",
+      description:
+        "Sitios, landings e identidad visual para negocios que necesitan verse tan bien como funcionan. Una conversación primero, sin plantillas.",
+      url: "https://yellow-erp.cl/diseno",
+      siteName: "Yellow",
+      locale: "es_CL",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Diseño web e identidad · Yellow",
+      description:
+        "Sitios, landings e identidad visual para negocios que necesitan verse tan bien como funcionan. Una conversación primero, sin plantillas.",
+    },
   };
 }
 

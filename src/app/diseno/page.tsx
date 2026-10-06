@@ -8,6 +8,21 @@ export const metadata: Metadata = {
   title: "Diseño web",
   description:
     "Diseñamos sitios que convierten visitas en clientes. Tipografía, color y detalle con intención.",
+  openGraph: {
+    title: "Diseño web",
+    description:
+      "Diseñamos sitios que convierten visitas en clientes. Tipografía, color y detalle con intención.",
+    url: "https://yellow-erp.cl/diseno",
+    siteName: "Yellow",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Diseño web",
+    description:
+      "Diseñamos sitios que convierten visitas en clientes. Tipografía, color y detalle con intención.",
+  },
 };
 
 /**

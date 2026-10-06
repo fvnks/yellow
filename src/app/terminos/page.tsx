@@ -4,6 +4,20 @@ import { SOPORTE_EMAIL } from "@/lib/contacto";
 
 export const metadata: Metadata = {
   title: "Términos del servicio",
+  description: "Términos y condiciones de uso del servicio Yellow: facturación electrónica y diseño web.",
+  openGraph: {
+    title: "Términos del servicio",
+    description: "Términos y condiciones de uso del servicio Yellow: facturación electrónica y diseño web.",
+    url: "https://yellow-erp.cl/terminos",
+    siteName: "Yellow",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Términos del servicio",
+    description: "Términos y condiciones de uso del servicio Yellow: facturación electrónica y diseño web.",
+  },
 };
 
 const SECCIONES: Array<{ titulo: string; parrafos: string[] }> = [

@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Reveal } from "@/components/reveal";
+import { SOPORTE_EMAIL } from "@/lib/contacto";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad",
   description: "Cómo recopilamos, usamos y protegemos tus datos personales en Yellow.",
+  openGraph: {
+    title: "Política de Privacidad",
+    description: "Cómo recopilamos, usamos y protegemos tus datos personales en Yellow.",
+    url: "https://yellow-erp.cl/privacidad",
+    siteName: "Yellow",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Política de Privacidad",
+    description: "Cómo recopilamos, usamos y protegemos tus datos personales en Yellow.",
+  },
 };
 
-export default function PrivacidadPage() {
-  const currentYear = new Date().getFullYear();
-
-  return (
-    <div className="space-y-0 pb-16">
+const SECCIONES: Array<{ titulo: string; parrafos: string[] }> = [
   {
     titulo: "Qué datos tratamos",
     parrafos: [

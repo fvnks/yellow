@@ -8,6 +8,19 @@ import { ContactForm } from "@/components/contact-form";
 export const metadata: Metadata = {
   title: "Contacto",
   description: "¿Tienes un proyecto en mente? Escríbenos y conversamos sin compromiso.",
+  openGraph: {
+    title: "Contacto",
+    description: "¿Tienes un proyecto en mente? Escríbenos y conversamos sin compromiso.",
+    url: "https://yellow-erp.cl/contacto",
+    siteName: "Yellow",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contacto",
+    description: "¿Tienes un proyecto en mente? Escríbenos y conversamos sin compromiso.",
+  },
 };
 
 export default function ContactoPage() {
